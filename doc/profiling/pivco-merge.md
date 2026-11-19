@@ -91,3 +91,13 @@ for variant in scalar simd128 relaxed-simd; do
     --sample-size 30 --measurement-time 1.2 --warm-up-time 0.5
 done
 ```
+
+Wasmtime 46.0.3 on the Ryzen 7 5800X; Criterion point estimates per WIT decode call, pass 1 / reverse-order pass 2. All three guests passed the all-mode WIT smoke harness.
+
+| Workload | Scalar | SIMD128 | Relaxed SIMD |
+| --- | ---: | ---: | ---: |
+| Wide Huffman | 140.7 / 140.2 µs | 63.1 / 61.6 µs | 64.3 / 66.4 µs |
+| Dense mixed, 4 KiB blocks | 8.14 / 8.20 ms | 7.48 / 7.52 ms | 7.64 / 7.68 ms |
+| RAW control, 4 KiB blocks | 493 / 512 µs | 503 / 493 µs | 493 / 538 µs |
+
+**Prefer SIMD128 where supported.** It took less than half the scalar time on wide Huffman. Relaxed SIMD did not beat it on either entropy workload in either pass; RAW point estimates varied and that path bypasses the shuffle. Re-test on the deployment engine and CPU before preferring the relaxed variant.
