@@ -5,7 +5,8 @@ use zxc_codec::{DecodeOptions, Dictionary, EncodeOptions, Mode};
 use zxc_parallel::Config;
 use zxc_seek::{Archive, FileSource, ReadAt};
 
-const MIXED: &[u8] = include_bytes!("../../../tests/conformance/v9/valid/multiblock_mixed.expected");
+#[path = "../../../tests/ledger_inputs.rs"]
+mod ledger_inputs;
 const WIDE: &[u8] = include_bytes!("../../../tests/conformance/v9/valid/spl_pivco_wide_l7.zxc");
 const EXPECTED: &[u8] = include_bytes!("../../../tests/conformance/v9/valid/spl_pivco_wide_l7.expected");
 
@@ -50,28 +51,7 @@ fn range(c: &mut Criterion, id: &str, src: impl ReadAt, plain: &[u8]) {
 }
 
 fn bench(c: &mut Criterion) {
-    let mut x = 42u64;
-    let noise: Vec<_> = (0..1048576)
-        .map(|_| {
-            x ^= x << 13;
-            x ^= x >> 7;
-            x ^= x << 17;
-            x as u8
-        })
-        .collect();
-    // Alternate fixture text/records with skewed literals so Dense actually
-    // emits entropy sections at both block sizes.
-    let mixed: Vec<_> = noise
-        .iter()
-        .enumerate()
-        .map(|(i, &b)| {
-            if i % 4096 < 2048 {
-                MIXED[i % MIXED.len()]
-            } else {
-                b & 31
-            }
-        })
-        .collect();
+    let (noise, mixed) = ledger_inputs::inputs();
     // Pinned v2 header: binds these 65535 bytes and an absent shared tree.
     let mut zxd = vec![199, 209, 176, 156, 2, 0, 255, 255, 63, 201, 69, 204, 0, 0, 22, 191];
     zxd.extend_from_slice(&noise[..65535]);

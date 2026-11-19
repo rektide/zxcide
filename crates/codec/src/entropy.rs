@@ -136,6 +136,12 @@ impl Tree {
         crate::probe!({
             add("zero:Huffman vectors", 2 * count);
             add("produce:Huffman symbols", count);
+            crate::ledger::max(
+                "peak-section:Huffman auxiliary",
+                scratch.capacity()
+                    + order.capacity() * std::mem::size_of::<(usize, usize, usize, &[u8])>()
+                    + queue.capacity() * std::mem::size_of::<(usize, usize, usize)>(),
+            );
         });
         for (start, n, ones, run) in order.into_iter().rev() {
             if ones == 0 || ones == n {

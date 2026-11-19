@@ -7,6 +7,8 @@ use wasmtime::{
 
 #[path = "../../../tests/bench_inputs.rs"]
 mod inputs;
+#[path = "../../../tests/ledger_inputs.rs"]
+mod ledger_inputs;
 wasmtime::component::bindgen!({ world: "codec" });
 use exports::zxc::codec::buffers::{EncodeOptions, Mode};
 
@@ -78,6 +80,38 @@ fn bench(c: &mut Criterion) {
                 .unwrap()
         })
     });
+    g.finish();
+
+    let (noise, mixed) = ledger_inputs::inputs();
+    for (name, plain, mode, block_log) in [
+        ("mixed", &mixed, zxc_codec::Mode::Dense, 12),
+        ("mixed", &mixed, zxc_codec::Mode::Dense, 19),
+        ("noise", &noise, zxc_codec::Mode::Split, 12),
+    ] {
+        let mut archive = Vec::new();
+        zxc_codec::encode(
+            &plain[..],
+            &mut archive,
+            zxc_codec::EncodeOptions {
+                mode,
+                block_log,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let bytes = plain.len() as u64;
+        assert_eq!(codec.call_decode(&mut store, &archive, bytes).unwrap().unwrap(), *plain);
+        let mut g = c.benchmark_group(format!("component/ledger/{name}/b{block_log}"));
+        g.throughput(Throughput::Bytes(bytes));
+        g.bench_function("decode", |b| {
+            b.iter(|| {
+                codec
+                    .call_decode(&mut store, black_box(&archive), bytes)
+                    .unwrap()
+                    .unwrap()
+            })
+        });
+    }
 }
 
 criterion_group!(benches, bench);

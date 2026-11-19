@@ -7,6 +7,12 @@ pub fn add(site: &'static str, bytes: usize) {
     *COUNTS.lock().unwrap().entry(site).or_default() += bytes as u64;
 }
 
+pub fn max(site: &'static str, bytes: usize) {
+    let mut counts = COUNTS.lock().unwrap();
+    let current = counts.entry(site).or_default();
+    *current = (*current).max(bytes as u64);
+}
+
 pub fn take() -> BTreeMap<&'static str, u64> {
     std::mem::take(&mut *COUNTS.lock().unwrap())
 }
