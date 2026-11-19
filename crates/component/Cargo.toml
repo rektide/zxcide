@@ -20,6 +20,7 @@ wasmtime = { version = "46", default-features = false, features = ["component-mo
 
 [features]
 host-bench = ["dep:criterion", "dep:wasmtime"]
+host-perf = ["host-bench", "wasmtime/profiling"]
 
 [[bench]]
 name = "component"
