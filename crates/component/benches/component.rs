@@ -12,7 +12,7 @@ use exports::zxc::codec::buffers::{EncodeOptions, Mode};
 
 fn bench(c: &mut Criterion) {
     let path =
-        std::env::var_os("ZXC_COMPONENT").expect("use scripts/bench-component.sh to build and select the component");
+        std::env::var_os("ZXC_COMPONENT").expect("use cargo xtask bench component to build and select the component");
     let mut config = wasmtime::Config::new();
     if std::env::var_os("ZXC_JITDUMP").is_some() {
         config.profiler(wasmtime::ProfilingStrategy::JitDump);

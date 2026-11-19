@@ -8,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use xshell::{Shell, cmd};
+mod interop;
 
 #[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
 enum Backend {
@@ -27,6 +28,8 @@ impl Backend {
 #[derive(Parser)]
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
+    /// Cross-decode every fixture with the pinned C CLI and the native Rust CLI.
+    Interop { c_cli: PathBuf, rust_cli: PathBuf },
     /// Build, validate, and bundle the release WebAssembly component.
     Component,
     /// Run Criterion for one backend. Pass Criterion arguments after `--`.
@@ -70,6 +73,9 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
+        Task::Interop { c_cli, rust_cli } => {
+            interop::check(&sh, &std::path::absolute(c_cli)?, &std::path::absolute(rust_cli)?)
+        }
         Task::Component => build_component(&sh, target).map(drop),
         Task::Bench { backend, args } => {
             let bench = build_bench(&sh, target, backend, false)?;
@@ -85,7 +91,7 @@ fn main() -> Result<()> {
                 (&component, format!("component/{case}")),
             ] {
                 check_case(&sh, bench, &id)?;
-                cmd!(sh, "{bench} --bench --exact {id} {args...}").run()?;
+                cmd!(sh, "{bench} --bench --exact {id}").args(&args).run()?;
             }
             Ok(())
         }

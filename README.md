@@ -47,11 +47,15 @@ Download `zxc-codec-component` from a successful **Codec checks** workflow run, 
 ```sh
 rustup target add wasm32-unknown-unknown
 cargo install --locked wasm-tools --version 1.245.1
-scripts/build-component.sh
+cargo xtask component
 wasm-tools component wit target/component/zxc-codec.wasm
 ```
 
 Ship `target/component/`: it contains the validated release component, its [WIT contract](crates/component/wit/codec.wit), and the license. The `zxc:codec/buffers@0.1.0` export takes and returns byte lists and requires no host imports. Encode accepts mode, block size log, checksum and seek-index options. Decode takes a maximum plaintext length in bytes; codec errors return `err(string)`. Both operations buffer a whole job in memory and support dictionary-free archives. See [benchmarking the component](doc/profiling/README.md#benchmark-the-component) to tune this API.
+
+## Compare and tune
+
+`cargo xtask bench native` benchmarks the Rust library directly with no Wasm toolchain. With the component prerequisites above, `cargo xtask compare upstream-l7/decode` times the same archive three ways: native with reused buffers, native with fresh buffers, and the component through its WIT export. See the [profiling guide](doc/profiling/README.md#compare-native-and-component) for baselines, workload selection and perf captures.
 
 ## Compatibility checks
 
@@ -65,7 +69,7 @@ Install nextest with `cargo install --locked cargo-nextest`, or use `cargo test 
 
 The [upstream corpus](https://github.com/hellobertrand/zxc/tree/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/tests/conformance) is vendored under its [BSD-3-Clause license](LICENSE). Tests compare all 18 valid archives to reference plaintext and check all 35 invalid fixtures against sequential-reader expectations. `sek_forged_entry` is expected to decode sequentially; its defect is visible to a range reader.
 
-For a two-way test against the C implementation, build its CLI at the pinned revision and run `python3 scripts/interop.py /path/to/c-zxc target/release/zxc`. The [CI workflow](.github/workflows/check.yml) has the exact build commands. The script compares plaintext for every fixture input in both directions (180 combinations).
+For a two-way test against the C implementation, build its CLI at the pinned revision and run `cargo xtask interop /path/to/c-zxc target/release/zxc`. The [CI workflow](.github/workflows/check.yml) has the exact build commands. The task compares plaintext for every fixture input in both directions (180 combinations).
 
 Two optional `cargo-fuzz` targets exercise decoding and round trips. With nightly and `cargo-fuzz` installed:
 

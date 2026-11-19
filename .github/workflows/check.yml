@@ -13,7 +13,7 @@ jobs:
           tool: wasm-tools@1.245.1
       - run: cargo clippy --locked -p zxc-component --target wasm32-unknown-unknown -- -D warnings
       - name: Exercise the release component through its WIT API
-        run: ZXC_BENCH_MODE=all scripts/bench-component.sh --test
+        run: ZXC_BENCH_MODE=all cargo xtask bench component -- --test
       - uses: actions/upload-artifact@v4
         with:
           name: zxc-codec-component
@@ -35,7 +35,7 @@ jobs:
           cargo nextest run --locked --all-features
           cargo test --doc --locked --all-features
       - name: Exercise all benchmark cases once
-        run: ZXC_BENCH_MODE=all cargo bench --locked --bench codec -- --test
+        run: ZXC_BENCH_MODE=all cargo xtask bench native -- --test
       - uses: actions/checkout@v4
         with:
           repository: hellobertrand/zxc
@@ -45,4 +45,4 @@ jobs:
           cmake -S .test-agent/oracle/zxc -B .test-agent/oracle/build -DCMAKE_BUILD_TYPE=Release -DZXC_BUILD_TESTS=OFF
           cmake --build .test-agent/oracle/build --parallel 2
           cargo build --locked --release -p zxc-cli
-          python3 scripts/interop.py .test-agent/oracle/build/zxc target/release/zxc
+          cargo xtask interop .test-agent/oracle/build/zxc target/release/zxc

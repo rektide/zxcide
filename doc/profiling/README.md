@@ -6,7 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
-  - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: WIT component build, Criterion tuning workflow and Linux jitdump measurements }
+  - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: Rust xtask, WIT component build, paired native and component Criterion runs and Linux perf measurements }
   - { resource: 'https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md', title: Wasmtime perf agents and jitdump injection }
   - { resource: 'opencode://ses_e0b1ee216ffelb33FpbVf2g8SE', title: All-mode Criterion suite and named baseline comparison workflow }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Codec measurements, interoperability and capture verification }
@@ -53,16 +53,28 @@ Criterion reports the estimated change and its confidence interval. Repeat the c
 
 For a full sweep, set `ZXC_BENCH_MODE=all` and omit the filter in both commands. For a block-size experiment set `ZXC_BENCH_BLOCK_LOG` (12–21); the size is part of the benchmark ID. CI uses Criterion's `--test` mode to exercise every case once. Use a quiet, consistent host for timing decisions; nextest's parallel test durations are for diagnosing slow tests.
 
+## Compare native and component
+
+Use the same unprefixed case ID to measure three API paths sequentially. The `upstream-l7/decode` fixture holds compressed bytes fixed across builds. For encode, select a corpus, mode and block size, e.g. `ZXC_BENCH_MODE=dense cargo xtask compare mixed/Dense/b19/encode`.
+
+```sh
+cargo xtask compare upstream-l7/decode -- --save-baseline before
+# After a codec change, compare each path to its own saved result:
+cargo xtask compare upstream-l7/decode -- --baseline before
+```
+
+The bare ID measures native Rust with reused workspace and output capacity. `oneshot/` measures a direct native call with fresh workspace and output, matching the guest's allocation policy. `component/` adds the WIT byte-list transfers and uses Wasmtime's compiled guest code. Compare the latter two for the end-to-end cost of choosing the component API. All use plaintext bytes for throughput. On a Ryzen 7 5800X with Wasmtime 46.0.3, the 16 KiB upstream decode measured 132.1, 132.5 and 113.5 MiB/s respectively (100 samples each). `cargo xtask bench native` runs just the native suite and needs no Wasm tools.
+
 ## Benchmark the component
 
 Install the [component build prerequisites](../../README.md#webassembly-component) first. The wrapper rebuilds the release component and runs Criterion on the host using Wasmtime's typed bindings to the shipped WIT interface. For example:
 
 ```sh
-ZXC_BENCH_MODE=all scripts/bench-component.sh --test
+ZXC_BENCH_MODE=all cargo xtask bench component -- --test
 export ZXC_BENCH_MODE=dense ZXC_BENCH_BLOCK_LOG=19
-scripts/bench-component.sh component/mixed/Dense/b19/encode --save-baseline wasm-before
+cargo xtask bench component -- component/mixed/Dense/b19/encode --save-baseline wasm-before
 # Change the codec or guest build flags, then repeat with the same workload:
-scripts/bench-component.sh component/mixed/Dense/b19/encode --baseline wasm-before
+cargo xtask bench component -- component/mixed/Dense/b19/encode --baseline wasm-before
 ```
 
 The component and native suites use the same inputs (including `ZXC_BENCH_INPUT`), mode selection and uncompressed-byte throughput. Each component case verifies the output before measurement. The timer covers one call on an existing instance, including byte-list transfers, per-call codec workspaces, and output allocation and disposal. Component loading, JIT compilation, instantiation, and preparing the decode archive are outside the loop. The native suite reuses workspaces and buffers, so the difference between suites is not solely the cost of WebAssembly execution.
@@ -71,12 +83,13 @@ Keep the host runtime and input fixed while tuning the guest. For example, set `
 
 ### Locate component hotspots with Linux perf
 
-Use the [perf capture helper](../../scripts/perf-component.py) to ask which guest functions consume cycles on one exact Criterion case. It requires Python 3, Linux `perf` with `inject --jit` support, and access to user-space cycle counters (`perf stat -e cycles:u -- true`). Build prerequisites and workload settings are the same as above.
+Use the [Rust xtask](../../xtask/src/main.rs) to sample one exact Criterion case on either backend. Both require Linux `perf` and access to user-space cycle counters (`perf stat -e cycles:u -- true`); the component also needs `perf inject --jit`. The native capture uses `perf.data` directly. Both commands print the report path.
 
 ```sh
-scripts/perf-component.py component/upstream-l7/decode
-ZXC_BENCH_MODE=dense scripts/perf-component.py component/mixed/Dense/b19/encode --seconds 10
-# In the capture directory printed by the helper:
+cargo xtask perf native upstream-l7/decode
+cargo xtask perf component upstream-l7/decode
+ZXC_BENCH_MODE=dense cargo xtask perf component mixed/Dense/b19/encode --seconds 10
+# In the upstream decode component capture directory:
 perf report --stdio --percent-limit 1 -i perf.jit.data
 perf annotate --stdio -i perf.jit.data --symbol '<zxc_codec::entropy::Tree>::decode'
 ```
@@ -107,7 +120,7 @@ On a Ryzen 7 5800X, Linux x86‑64, rustc 1.101.0-nightly (`822182db4`), a captu
 To recreate the CLI comparison (release binaries, no attached profiler):
 
 ```sh
-python3 -c 'from pathlib import Path; p=Path("tests/conformance/v9/valid/spl_pivco_wide_l7.zxc"); Path("repeated.zxc").write_bytes(p.read_bytes()*1000)'
+for i in $(seq 1000); do cat tests/conformance/v9/valid/spl_pivco_wide_l7.zxc; done > repeated.zxc
 hyperfine --warmup 2 --runs 5 -N 'target/release/zxc test repeated.zxc' '/path/to/c-zxc -qt -T1 repeated.zxc'
 ```
 
