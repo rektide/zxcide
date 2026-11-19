@@ -6,6 +6,7 @@ resource: /doc/profiling/pivco-merge.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Three release component variants and paired relaxed swizzle comparison }
   - { resource: 'opencode://ses_e0ac424eeffe4kk65VvnMwl4oQ', title: Implemented and measured bitmap gather candidates and bounded-load differential coverage }
   - { resource: '/doc/profiling/pivco-scratch.md', title: Paired workloads and retained copy-back layout }
   - { resource: 'https://docs.rs/fearless_simd/1.2.0/fearless_simd/', title: Runtime dispatch and safe byte shuffle API exercised by the prototype }
@@ -75,3 +76,18 @@ Representative kernel intervals in ns per run, 20 samples with a 0.32 s measurem
 The direct benchmark includes dispatch in the shuffle timing but not the 32-byte selector. Balanced runs first win at 16 bytes versus cursor; shuffle clearly leads both at 24. The skewed masks select relatively few bytes from one side, so there is little or no fast-path work on short runs and the first clear shuffle win over both in this sweep is at 1024. Keep the tested 32-byte conservative gate and the two child-length checks; do not infer a universal crossover from either pattern.
 
 Differential tests exercise all 256 bitmap values on the fast path and the same masks with exact-size allocations, partial groups, empty sides, and skewed runs. Original entropy tests also check malformed and truncated wire inputs. Both default and opt-in feature matrices passed 41 nextest tests; the opt-in release entropy suite passed three and codec Clippy passed. The pinned C oracle passed 180 frozen and 72 generated cross-decodes and 228 indexed reads in each native build. The WIT harness verified exact plaintext for all cases and rejects the wide archive's undersized output limit. Results characterize this host and workload set only; there are no ARM, other x86 CPU, or other Wasm runtime performance results.
+
+## Strict vs relaxed Wasm components
+
+`cargo xtask component --all` builds three artifacts with identical exported WIT. The scalar artifact validates with SIMD disabled. The strict artifact validates with relaxed SIMD disabled and contains `i8x16.swizzle`; the relaxed one contains `i8x16.relaxed_swizzle`. Sizes in this cut: 103,571, 110,093 and 110,107 bytes respectively. Both SIMD variants use the same `fearless_simd` gather and buffer layout. The mask table uses only indices 0–15, so the relaxed swizzle's latitude for out-of-range indices cannot change which bytes this gather selects.
+
+Reproduce the comparison with a different Criterion results directory per variant and pass. Run a second pass in reverse order. The WIT harness checks plaintext and output limits, with component instantiation excluded from the timer.
+
+```sh
+for variant in scalar simd128 relaxed-simd; do
+  CRITERION_HOME="$PWD/target/wasm-isa/run1/$variant" taskset -c 2-7 \
+    cargo xtask bench component --variant "$variant" -- \
+    '^component/(upstream-l7|ledger/(mixed/b12|noise/b12))/decode$' \
+    --sample-size 30 --measurement-time 1.2 --warm-up-time 0.5
+done
+```

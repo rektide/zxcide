@@ -63,11 +63,21 @@ Download `zxc-codec-component` from a successful **Codec checks** workflow run, 
 ```sh
 rustup target add wasm32-unknown-unknown
 cargo install --locked wasm-tools --version 1.245.1
-cargo xtask component
+cargo xtask component --all
 wasm-tools component wit target/component/zxc-codec.wasm
 ```
 
-Ship `target/component/`: it contains the validated release component, its [WIT contract](crates/component/wit/codec.wit), and the license. The `zxc:codec/buffers@0.1.0` export takes and returns byte lists and requires no host imports. Encode accepts mode, block size log, checksum and seek-index options. Decode takes a maximum plaintext length in bytes; codec errors return `err(string)`. Both operations buffer a whole job in memory and support dictionary-free archives. See [benchmarking the component](doc/profiling/README.md#benchmark-the-component) to tune this API.
+`target/component/` contains three components with the same [WIT contract](crates/component/wit/codec.wit) and license. Pick one for your runtime:
+
+| File | Required Wasm features |
+| --- | --- |
+| `zxc-codec.wasm` | Component model, scalar codec |
+| `zxc-codec-simd128.wasm` | Component model + SIMD128 |
+| `zxc-codec-relaxed-simd.wasm` | Component model + SIMD128 + relaxed SIMD |
+
+The plain `cargo xtask component` still builds scalar; `--variant simd128` or `--variant relaxed-simd` builds just that file. See the [strict vs relaxed measurements](doc/profiling/pivco-merge.md#strict-vs-relaxed-wasm-components) for host selection.
+
+The `zxc:codec/buffers@0.1.0` export takes and returns byte lists and requires no host imports. Encode accepts mode, block size log, checksum and seek-index options. Decode takes a maximum plaintext length in bytes; codec errors return `err(string)`. Both operations buffer a whole job in memory and support dictionary-free archives. See [benchmarking the component](doc/profiling/README.md#benchmark-the-component) to tune this API.
 
 ## Compare and tune
 
