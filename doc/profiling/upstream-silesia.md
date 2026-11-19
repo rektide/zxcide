@@ -6,12 +6,17 @@ resource: /doc/profiling/upstream-silesia.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0a84f44affeaEMU9gc5TU02Bd', title: Follow-on reproducible scorecard }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Head-to-head benchmarks and perf sample }
   - { resource: 'https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c', title: Upstream HEAD at measurement }
   - { resource: 'https://github.com/DataCompression/corpus-collection/tree/d59143a41cc7d65063a70e86063a3c39aeae6d9f/Silesia-Corpus', title: Pinned corpus ZIP }
 ---
 
 # Two real inputs change the order of work
+
+For the runnable pinned-corpus successor and a separately measured buffer-API
+comparison, see the [Silesia scorecard](scorecard/README.md). The results below
+remain the original study, not measurements of later codec changes.
 
 Ryzen 7 5800X, Linux x86-64, rustc 1.101.0-nightly, GCC 16.2.0, upstream CMake Release (native ISA), Rust `7dbfd727` release (ordinary portable flags), plus `--features zxc-codec/merge-simd`. Timed the CLIs reading a warm local file, stdout to `/dev/null`, CPU affinity 2–7, checksums enabled, default 512 KiB blocks. Rust serial, C `-T1` (one worker plus its streaming driver). Seven samples after a warmup, shuffled command order per pass. Median ms below; process startup and I/O are included. Both decoders reproduced the exact original plaintext from all eight archives.
 

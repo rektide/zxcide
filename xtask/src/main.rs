@@ -11,6 +11,7 @@ use xshell::{Shell, cmd};
 mod interop;
 mod ledger;
 mod smoke;
+mod scorecard;
 
 #[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
 enum Backend {
@@ -43,6 +44,11 @@ impl Backend {
 #[derive(Parser)]
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
+    /// Run the pinned Silesia CLI scorecard (pass options after --).
+    Scorecard {
+        #[arg(last = true)]
+        args: Vec<OsString>,
+    },
     /// Rank native byte-movement sites and time the same cases without probes.
     Ledger {
         /// Also time the wide-Huffman WIT boundary and native one-shot control.
@@ -137,6 +143,7 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
+        Task::Scorecard { args } => scorecard::run(&args),
         Task::Ledger { component } => ledger::run(&sh, target, component),
         Task::FuzzSmoke { runs } => smoke::fuzz(&sh, target, runs),
         Task::Tracy { capture, repeats, port } => smoke::tracy(&sh, target, &capture, repeats, port),

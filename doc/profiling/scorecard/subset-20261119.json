@@ -1,0 +1,536 @@
+{
+  "schema": 1,
+  "timestamp_utc": "2026-11-19T20:25:29.197061+00:00",
+  "argv": [
+    "/home/rektide/src/zxc-rs/xtask/scorecard.py",
+    "--c-cli",
+    "target/upstream-comparison/build/zxc",
+    "--rust-cli",
+    "target/upstream-comparison/rs-simd",
+    "--corpus",
+    "target/upstream-comparison/silesia.zip",
+    "--output",
+    "target/scorecard/subset.json",
+    "--samples",
+    "7",
+    "--c-build",
+    "5719a96f778226868b29dba621a8c4e302b74d7c; GCC 16.2.0; CMake Release -O3 -DNDEBUG -march=native",
+    "--rust-build",
+    "7dbfd727; rustc 1.101.0-nightly 822182db4; cargo release portable flags; feature zxc-codec/merge-simd"
+  ],
+  "platform": "Linux-7.1.0-debplus.1-x86_64-with-glibc2.43",
+  "cpu": "AMD Ryzen 7 5800X 8-Core Processor",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "corpus_url": "https://raw.githubusercontent.com/DataCompression/corpus-collection/d59143a41cc7d65063a70e86063a3c39aeae6d9f/Silesia-Corpus/silesia.zip",
+  "corpus_zip_sha256": "1b39576418fa3ebb09cf0ceab59bf1cb9fa262c19d9dc6d3cda1e4fae7910a09",
+  "samples": 7,
+  "warmups": 1,
+  "seed": 42,
+  "binaries": {
+    "c": {
+      "path": "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+      "sha256": "21f4e94add22d98dae206e1c4d9ec003a6bc2bdcda16a8a7c8e70cdb03787589",
+      "build": "5719a96f778226868b29dba621a8c4e302b74d7c; GCC 16.2.0; CMake Release -O3 -DNDEBUG -march=native"
+    },
+    "rust": {
+      "path": "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+      "sha256": "d6e8d94d71b6ec502007c4346fecaf3c5e84bc7237021c9b77a8f640e711d9ea",
+      "build": "7dbfd727; rustc 1.101.0-nightly 822182db4; cargo release portable flags; feature zxc-codec/merge-simd"
+    }
+  },
+  "files": {
+    "dickens": {
+      "bytes": 10192446,
+      "sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a",
+      "archives": {
+        "c3": {
+          "bytes": 5831415,
+          "ratio_archive_over_plain": 0.5721310664780564,
+          "sha256": "1b929bdd9523d2ea9989dcb2572074ae15f01905828f8dd91692dba2904a6a57",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens"
+          ],
+          "encode_ms": [
+            93.678035,
+            80.218012,
+            82.015623,
+            95.005456,
+            79.399782,
+            79.312542,
+            76.753292
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                13.323669,
+                6.075411,
+                5.660441,
+                5.735333,
+                5.840585,
+                5.792364,
+                6.386349
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                20.735591,
+                21.158752,
+                21.544259,
+                22.347688,
+                20.981778,
+                20.315542,
+                22.119563
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3745574,
+          "ratio_archive_over_plain": 0.3674852925392001,
+          "sha256": "faf9f08e78358d6e6128c9e750f60d24e35b9881f8f8aed415b984940c345e72",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens"
+          ],
+          "encode_ms": [
+            854.610506,
+            855.063657,
+            861.089007,
+            836.861634,
+            876.241937,
+            855.569368,
+            804.261506
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                14.569508,
+                7.178417,
+                7.139547,
+                6.665684,
+                6.588852,
+                6.190303,
+                7.356001
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                28.896851,
+                29.045434,
+                28.268425,
+                27.945959,
+                29.533124,
+                30.386126,
+                28.727036
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 6103312,
+          "ratio_archive_over_plain": 0.598807391277815,
+          "sha256": "2e608d6e38928ae4954f4aef7e180fd42372600503465aeca07734fa7ebce6a2",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens"
+          ],
+          "encode_ms": [
+            64.792225,
+            64.808083,
+            64.928278,
+            81.579224,
+            65.569152,
+            65.93369,
+            66.020913
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.273446,
+                6.752546,
+                6.753236,
+                6.160942,
+                6.273486,
+                6.664244,
+                6.676085
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.57196,
+                23.189688,
+                23.233379,
+                22.981694,
+                23.981187,
+                23.858524,
+                22.919771
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 6103312,
+          "ratio_archive_over_plain": 0.598807391277815,
+          "sha256": "2e608d6e38928ae4954f4aef7e180fd42372600503465aeca07734fa7ebce6a2",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens"
+          ],
+          "encode_ms": [
+            78.356259,
+            68.656563,
+            69.692547,
+            77.931849,
+            69.505933,
+            69.953594,
+            70.530087
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.056454,
+                6.605213,
+                6.235646,
+                7.062884,
+                6.221555,
+                6.373249,
+                6.210624
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/dickens.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                23.68063,
+                22.899251,
+                23.544616,
+                24.450728,
+                23.201649,
+                24.286374,
+                23.202768
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sao": {
+      "bytes": 7251944,
+      "sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc",
+      "archives": {
+        "c3": {
+          "bytes": 7247411,
+          "ratio_archive_over_plain": 0.999374926226678,
+          "sha256": "569e1038211f41ff25be0f06305f352fcec6aeb944ece57d54a625774da6784f",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao"
+          ],
+          "encode_ms": [
+            5.478167,
+            5.909778,
+            7.021013,
+            6.749546,
+            6.217834,
+            6.017189,
+            5.659261
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.724482,
+                6.954871,
+                5.981509,
+                5.593919,
+                5.854695,
+                5.075848,
+                5.648602
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                2.475518,
+                3.170334,
+                2.714443,
+                2.703913,
+                2.55205,
+                2.675383,
+                2.604341
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 5587854,
+          "ratio_archive_over_plain": 0.7705318739361473,
+          "sha256": "158c5860be145687202be26441998ef926f8e35e939728793c8a4701df4d39be",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao"
+          ],
+          "encode_ms": [
+            327.180334,
+            335.629539,
+            406.238169,
+            330.978182,
+            341.21302,
+            326.891477,
+            336.836398
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.444089,
+                7.116875,
+                6.160064,
+                6.998272,
+                7.491474,
+                6.186283,
+                6.216284
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                16.172316,
+                16.523853,
+                16.576336,
+                17.590659,
+                16.221916,
+                18.298364,
+                17.161857
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 6527281,
+          "ratio_archive_over_plain": 0.9000732769034069,
+          "sha256": "b1d800211933c566219bb41234ca8407c59f5a80a5ca4cb036e40e4de25a235c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao"
+          ],
+          "encode_ms": [
+            47.977164,
+            49.97599,
+            50.850051,
+            47.629675,
+            51.479964,
+            47.429881,
+            48.823733
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.837845,
+                5.922698,
+                6.154532,
+                5.328874,
+                34.205145,
+                5.368025,
+                4.753991
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.711575,
+                9.47509,
+                9.714515,
+                9.133272,
+                9.407819,
+                8.859095,
+                8.591709
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 6386860,
+          "ratio_archive_over_plain": 0.8807100551245294,
+          "sha256": "b852e4cddf33523d27a5ff83c3254e5c5b676b647a000921d43d802ca1624042",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao"
+          ],
+          "encode_ms": [
+            129.210809,
+            132.412754,
+            136.739013,
+            128.881322,
+            130.260903,
+            128.966043,
+            130.1565
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.986723,
+                8.204252,
+                7.74231,
+                7.638117,
+                7.27728,
+                6.988912,
+                7.459443
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/rs-simd",
+                "decode",
+                "/home/rektide/src/zxc-rs/target/scorecard/scorecard-oymhcsum/sao.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.220602,
+                25.571822,
+                26.888454,
+                25.246356,
+                27.761824,
+                24.95686,
+                24.446347
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

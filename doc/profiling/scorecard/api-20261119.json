@@ -1,0 +1,198 @@
+{
+  "timestamp_utc": "2026-11-19T20:28:05.253378+00:00",
+  "cpu": "AMD Ryzen 7 5800X",
+  "platform": "Linux-7.1.0-debplus.1-x86_64-with-glibc2.43",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "samples": 7,
+  "warmups_per_process": 1,
+  "order": "file then archive then C then Rust, not shuffled",
+  "binaries": {
+    "c": {
+      "path": "target/scorecard/decode-c",
+      "sha256": "12c72cc031762680ddd7e2cadf94332a010195599579d8a7099af97b1c22a7e4"
+    },
+    "rust": {
+      "path": "target/scorecard/baseline/target/release/examples/scorecard_decode",
+      "sha256": "a597af5d46d50c7153c2d02ec561f56a715ba9ec3eae19f128d57c262182b438"
+    }
+  },
+  "cases": {
+    "dickens.c3": {
+      "archive_sha256": "1b929bdd9523d2ea9989dcb2572074ae15f01905828f8dd91692dba2904a6a57",
+      "plaintext_sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a",
+      "measurements": {
+        "c": {
+          "command": [
+            "target/scorecard/decode-c",
+            "target/upstream-comparison/dickens.c3.zxc",
+            "target/upstream-comparison/dickens",
+            "7"
+          ],
+          "ms": [
+            2.755224,
+            2.530869,
+            2.463677,
+            2.512078,
+            2.440636,
+            2.453107,
+            2.56961
+          ]
+        },
+        "rust": {
+          "command": [
+            "target/scorecard/baseline/target/release/examples/scorecard_decode",
+            "target/upstream-comparison/dickens.c3.zxc",
+            "target/upstream-comparison/dickens",
+            "7"
+          ],
+          "ms": [
+            19.724488,
+            19.33729,
+            19.621655,
+            19.305158,
+            19.388849,
+            19.372799,
+            19.4154
+          ]
+        }
+      }
+    },
+    "dickens.c7": {
+      "archive_sha256": "faf9f08e78358d6e6128c9e750f60d24e35b9881f8f8aed415b984940c345e72",
+      "plaintext_sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a",
+      "measurements": {
+        "c": {
+          "command": [
+            "target/scorecard/decode-c",
+            "target/upstream-comparison/dickens.c7.zxc",
+            "target/upstream-comparison/dickens",
+            "7"
+          ],
+          "ms": [
+            3.272546,
+            3.191014,
+            3.155303,
+            3.137653,
+            3.122182,
+            3.46663,
+            3.222745
+          ]
+        },
+        "rust": {
+          "command": [
+            "target/scorecard/baseline/target/release/examples/scorecard_decode",
+            "target/upstream-comparison/dickens.c7.zxc",
+            "target/upstream-comparison/dickens",
+            "7"
+          ],
+          "ms": [
+            26.365571,
+            26.442743,
+            26.446753,
+            26.409222,
+            26.612437,
+            26.993796,
+            26.693209
+          ]
+        }
+      }
+    },
+    "sao.c3": {
+      "archive_sha256": "569e1038211f41ff25be0f06305f352fcec6aeb944ece57d54a625774da6784f",
+      "plaintext_sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc",
+      "measurements": {
+        "c": {
+          "command": [
+            "target/scorecard/decode-c",
+            "target/upstream-comparison/sao.c3.zxc",
+            "target/upstream-comparison/sao",
+            "7"
+          ],
+          "ms": [
+            0.601104,
+            0.333968,
+            0.201534,
+            0.186454,
+            0.180024,
+            0.179084,
+            0.182064
+          ]
+        },
+        "rust": {
+          "command": [
+            "target/scorecard/baseline/target/release/examples/scorecard_decode",
+            "target/upstream-comparison/sao.c3.zxc",
+            "target/upstream-comparison/sao",
+            "7"
+          ],
+          "ms": [
+            1.228529,
+            1.046324,
+            0.971593,
+            0.972553,
+            1.007553,
+            0.975642,
+            0.953721
+          ]
+        }
+      }
+    },
+    "sao.c7": {
+      "archive_sha256": "158c5860be145687202be26441998ef926f8e35e939728793c8a4701df4d39be",
+      "plaintext_sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc",
+      "measurements": {
+        "c": {
+          "command": [
+            "target/scorecard/decode-c",
+            "target/upstream-comparison/sao.c7.zxc",
+            "target/upstream-comparison/sao",
+            "7"
+          ],
+          "ms": [
+            3.224705,
+            2.862875,
+            2.810596,
+            2.784554,
+            2.773844,
+            2.780095,
+            2.762884
+          ]
+        },
+        "rust": {
+          "command": [
+            "target/scorecard/baseline/target/release/examples/scorecard_decode",
+            "target/upstream-comparison/sao.c7.zxc",
+            "target/upstream-comparison/sao",
+            "7"
+          ],
+          "ms": [
+            14.64792,
+            14.438084,
+            14.669341,
+            14.675041,
+            14.769962,
+            14.500777,
+            14.650638
+          ]
+        }
+      }
+    }
+  }
+}
