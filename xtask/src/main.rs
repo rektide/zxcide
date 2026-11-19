@@ -18,6 +18,13 @@ enum Backend {
     Component,
 }
 
+#[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
+enum Guest {
+    Scalar,
+    Simd128,
+    RelaxedSimd,
+}
+
 #[derive(Clone, Copy)]
 enum BenchMode {
     Timing,
@@ -76,10 +83,19 @@ enum Task {
         case: Option<u64>,
     },
     /// Build, validate, and bundle the release WebAssembly component.
-    Component,
+    Component {
+        #[arg(long, value_enum, conflicts_with = "all")]
+        variant: Option<Guest>,
+        /// Cut all ISA variants into the same bundle.
+        #[arg(long)]
+        all: bool,
+    },
     /// Run Criterion for one backend. Pass Criterion arguments after `--`.
     Bench {
         backend: Backend,
+        /// ISA of the guest under test (component backend only).
+        #[arg(long, value_enum)]
+        variant: Option<Guest>,
         #[arg(last = true)]
         args: Vec<OsString>,
     },
@@ -162,9 +178,29 @@ fn main() -> Result<()> {
             };
             interop::generated::check(&sh, target, &c, &rust, seed, indices, parallel_backend.as_deref())
         }
-        Task::Component => build_component(&sh, target, false).map(drop),
-        Task::Bench { backend, args } => {
-            let bench = build_bench(&sh, target, backend, BenchMode::Timing)?;
+        Task::Component { variant, all } => {
+            let one = [variant.unwrap_or(Guest::Scalar)];
+            for &v in if all {
+                &[Guest::Scalar, Guest::Simd128, Guest::RelaxedSimd][..]
+            } else {
+                &one
+            } {
+                println!("{}", build_component(&sh, target, false, v)?.display());
+            }
+            Ok(())
+        }
+        Task::Bench { backend, variant, args } => {
+            ensure!(
+                backend == Backend::Component || variant.is_none(),
+                "--variant selects a Wasm component"
+            );
+            let bench = build_bench_variant(
+                &sh,
+                target,
+                backend,
+                BenchMode::Timing,
+                variant.unwrap_or(Guest::Scalar),
+            )?;
             cmd!(sh, "{bench} --bench {args...}").run()?;
             Ok(())
         }
@@ -190,27 +226,60 @@ fn main() -> Result<()> {
     }
 }
 
-fn build_component(sh: &Shell, target: &Path, dwarf: bool) -> Result<PathBuf> {
+fn build_component(sh: &Shell, target: &Path, dwarf: bool, guest: Guest) -> Result<PathBuf> {
     let profile = if dwarf { "profiling" } else { "release" };
+    let (filename, features, validation) = match guest {
+        Guest::Scalar => ("zxc-codec.wasm", "-simd128,-relaxed-simd", "-simd,-relaxed-simd"),
+        Guest::Simd128 => ("zxc-codec-simd128.wasm", "+simd128,-relaxed-simd", "simd,-relaxed-simd"),
+        Guest::RelaxedSimd => (
+            "zxc-codec-relaxed-simd.wasm",
+            "+simd128,+relaxed-simd",
+            "simd,relaxed-simd",
+        ),
+    };
+    let extra = if guest == Guest::Scalar {
+        &[][..]
+    } else {
+        &["--features", "zxc-codec/merge-simd"][..]
+    };
     cmd!(
         sh,
-        "cargo build --locked --profile {profile} -p zxc-component --target wasm32-unknown-unknown"
+        "cargo build --locked --profile {profile} -p zxc-component --target wasm32-unknown-unknown {extra...}"
     )
+    .env("CARGO_ENCODED_RUSTFLAGS", format!("-Ctarget-feature={features}"))
     .run()?;
     let core = target
         .join("wasm32-unknown-unknown")
         .join(profile)
         .join("zxc_component.wasm");
     let out = sh.create_dir(target.join(if dwarf { "profiling/component" } else { "component" }))?;
-    let component = out.join("zxc-codec.wasm");
+    let component = out.join(filename);
     cmd!(sh, "wasm-tools component new {core} -o {component}").run()?;
-    cmd!(sh, "wasm-tools validate {component}").run()?;
+    cmd!(sh, "wasm-tools validate --features={validation} {component}").run()?;
+    if guest != Guest::Scalar {
+        let op = if guest == Guest::Simd128 {
+            "i8x16.swizzle"
+        } else {
+            "i8x16.relaxed_swizzle"
+        };
+        ensure!(
+            cmd!(sh, "wasm-tools print {component}")
+                .read()?
+                .split_whitespace()
+                .any(|word| word == op),
+            "expected {op} in {filename}"
+        );
+    }
     sh.copy_file("crates/component/wit/codec.wit", out.join("codec.wit"))?;
     sh.copy_file("LICENSE", out.join("LICENSE"))?;
     Ok(component)
 }
 
 fn build_bench(sh: &Shell, target: &Path, backend: Backend, mode: BenchMode) -> Result<PathBuf> {
+    build_bench_variant(sh, target, backend, mode, Guest::Scalar)
+}
+
+fn build_bench_variant(sh: &Shell, target: &Path, backend: Backend, mode: BenchMode, guest: Guest) -> Result<PathBuf> {
     let mut build = cmd!(
         sh,
         "cargo bench --locked --no-run --message-format=json-render-diagnostics"
@@ -222,7 +291,7 @@ fn build_bench(sh: &Shell, target: &Path, backend: Backend, mode: BenchMode) -> 
     build = match backend {
         Backend::Native => build.args(["-p", "zxc-codec"]),
         Backend::Component => {
-            sh.set_var("ZXC_COMPONENT", build_component(sh, target, dwarf)?);
+            sh.set_var("ZXC_COMPONENT", build_component(sh, target, dwarf, guest)?);
             build.args([
                 "-p",
                 "zxc-component",

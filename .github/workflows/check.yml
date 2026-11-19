@@ -12,8 +12,12 @@ jobs:
         with:
           tool: wasm-tools@1.245.1
       - run: cargo clippy --locked -p zxc-component --target wasm32-unknown-unknown -- -D warnings
-      - name: Exercise the release component through its WIT API
-        run: ZXC_BENCH_MODE=all cargo xtask bench component -- --test
+      - name: Exercise all release variants through the same WIT API
+        run: |
+          for variant in scalar simd128 relaxed-simd; do
+            ZXC_BENCH_MODE=all cargo xtask bench component --variant "$variant" -- --test
+          done
+          (cd target/component && sha256sum *.wasm > SHA256SUMS)
       - uses: actions/upload-artifact@v4
         with:
           name: zxc-codec-component
