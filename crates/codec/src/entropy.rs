@@ -2,6 +2,8 @@
 //! symbol lists bottom-up. Each subtree owns a disjoint output interval.
 use crate::{require, take};
 use std::{collections::VecDeque, io};
+mod pack;
+pub(crate) use pack::best;
 
 #[derive(Default, Debug)]
 struct Node {

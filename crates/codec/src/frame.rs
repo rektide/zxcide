@@ -6,6 +6,8 @@ pub enum Mode {
     #[default]
     Split,
     Packed,
+    /// SPL with size-priced RLE and PivCo literal/token sections.
+    Dense,
 }
 
 #[derive(Clone, Copy, Debug)]

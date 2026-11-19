@@ -31,6 +31,7 @@ struct Files {
 enum Layout {
     Split,
     Packed,
+    Dense,
 }
 #[derive(Subcommand)]
 enum Command {
@@ -147,6 +148,7 @@ fn run(cli: Cli) -> io::Result<()> {
                 mode: match mode {
                     Layout::Split => Mode::Split,
                     Layout::Packed => Mode::Packed,
+                    Layout::Dense => Mode::Dense,
                 },
                 checksum: !no_checksum,
                 seekable,

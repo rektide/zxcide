@@ -14,6 +14,7 @@ pub struct Workspace {
     matches: Vec<Match>,
     history: Vec<u8>,
     payload: Vec<u8>,
+    dense: Vec<u8>,
 }
 
 fn key(data: &[u8], i: usize) -> usize {
@@ -74,7 +75,7 @@ impl Workspace {
             (plain, 0)
         };
         parse(input, prefix, &mut self.table, &mut self.matches);
-        if self.matches.is_empty() {
+        if self.matches.is_empty() && !matches!(mode, Mode::Dense) {
             return (0, plain);
         }
         zone!("pack sequences");
@@ -93,7 +94,7 @@ impl Workspace {
             last = m.at + m.len;
         }
         out.extend_from_slice(&plain[last..]);
-        let end_lit = out.len();
+        let mut end_lit = out.len();
         last = 0;
         for m in &self.matches {
             let ll = (m.at - last).min(mask) as u8;
@@ -124,6 +125,30 @@ impl Workspace {
                 varint(out, m.len - 5 - mask);
             }
             last = m.at + m.len;
+        }
+        if matches!(mode, Mode::Dense) {
+            let ns = self.matches.len();
+            let (le, lit) = crate::entropy::best(&out[12..end_lit], true, dict);
+            let (te, tok) = crate::entropy::best(&out[end_lit..end_lit + ns], false, None);
+            if le != 0 || te != 0 {
+                let dense = &mut self.dense;
+                dense.clear();
+                dense.extend_from_slice(&out[..12]);
+                dense[8] = le;
+                dense[9] = te;
+                if le != 0 {
+                    dense.extend((lit.len() as u32).to_le_bytes());
+                }
+                if te != 0 {
+                    dense.extend((tok.len() as u32).to_le_bytes());
+                }
+                dense.extend_from_slice(&lit);
+                let new_end = dense.len();
+                dense.extend_from_slice(&tok);
+                dense.extend_from_slice(&out[end_lit + ns..]);
+                end_lit = new_end;
+                std::mem::swap(dense, out);
+            }
         }
         if out.len() < end_lit + 32 {
             out.resize(end_lit + 32, 0);
