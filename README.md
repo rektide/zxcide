@@ -19,7 +19,13 @@ For streaming commands, omit a path or use `-` for standard I/O. Named outputs m
 
 All modes fall back to RAW when compression would expand the block. `--block-log 12..21` controls the block size; the default is 19 (512 KiB). Checksums are on by default. `--seekable` writes a grouped index for readers that support range access. Use `-D dictionary.zxd` on encode and decode; decode accepts repeated `-D` for concatenated frames. `decode` and `test` optionally take `--max-output BYTES` across the entire stream.
 
-The decoder accepts archives from upstream levels 1–7, including dictionaries, seek tables and concatenated frames. These encoder modes are independent policies, not replicas of upstream level numbers. The implementation is single-threaded; dictionary training and SIMD backends are not implemented. Sequential `test` verifies payloads, checksums when present, and frame structure; it does not validate individual seek entries.
+The decoder accepts archives from upstream levels 1–7, including dictionaries, seek tables and concatenated frames. These encoder modes are independent policies, not replicas of upstream level numbers. Sequential `test` verifies payloads, checksums when present, and frame structure; it does not validate individual seek entries.
+
+### Parallel streaming
+
+Encode, decode and test default to one thread. For a bounded worker pipeline, pass e.g. `zxc encode --threads 4 --slots 8 input.bin -o output.zxc`. A slot covers the whole lifetime of a block, including time spent waiting to be written in order. The default slot count is twice the worker count. Compression uses the serial codec's match choices, so changing workers or transport produces the same archive bytes.
+
+The default build uses crossbeam-channel. To try flume, kanal, crossfire or fixed-batch Rayon, build `cargo build --release -p zxc-cli --features transports`, then select `--backend flume` (or another compiled name). `cargo xtask interop --parallel-backend flume` exercises that scheduler against both serial Rust and the pinned C reference. See the [transport design](doc/architecture/parallel-transports.md) and [measurement recipe](doc/profiling/README.md#compare-parallel-transports).
 
 ### Indexed reads
 

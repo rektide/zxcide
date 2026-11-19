@@ -38,6 +38,11 @@ jobs:
         run: ZXC_BENCH_MODE=all cargo xtask bench native -- --test
       - name: Cross-check with the pinned upstream C binary
         run: cargo xtask interop
+      - name: Check generated archives with each parallel backend
+        run: |
+          for backend in crossbeam flume kanal crossfire rayon; do
+            cargo xtask interop --parallel-backend "$backend"
+          done
       - name: Preserve generated-case reproducers
         if: failure()
         uses: actions/upload-artifact@v4

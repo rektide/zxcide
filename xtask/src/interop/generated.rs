@@ -192,12 +192,21 @@ fn generate(seed: u64, index: u64) -> Case {
     }
 }
 
-pub fn check(sh: &Shell, target: &Path, c: &Path, rust: &Path, seed: u64, indices: RangeInclusive<u64>) -> Result<()> {
+pub fn check(
+    sh: &Shell,
+    target: &Path,
+    c: &Path,
+    rust: &Path,
+    seed: u64,
+    indices: RangeInclusive<u64>,
+    backend: Option<&str>,
+) -> Result<()> {
     let (mut cases, mut range_checks) = (0u64, 0u128);
     for index in indices {
         let case = generate(seed, index);
+        let selection = backend.map_or_else(String::new, |b| format!(" --parallel-backend {b}"));
         let replay = format!(
-            "cargo xtask interop --seed {seed} --case {index} -- {} {}",
+            "cargo xtask interop --seed {seed} --case {index}{selection} -- {} {}",
             replay_path(c),
             replay_path(rust),
         );
@@ -213,7 +222,7 @@ pub fn check(sh: &Shell, target: &Path, c: &Path, rust: &Path, seed: u64, indice
         let result = (|| {
             fs::write(dir.join("case.txt"), &recipe)?;
             fs::write(dir.join("expected.bin"), &case.plain)?;
-            verify(sh, c, rust, dir, &case)
+            verify(sh, c, rust, dir, &case, backend)
         })();
         if let Err(error) = result {
             let dir = scratch.keep();
@@ -243,10 +252,13 @@ fn replay_path(path: &Path) -> String {
     format!("'{path}'")
 }
 
-fn verify(sh: &Shell, c: &Path, rust: &Path, dir: &Path, case: &Case) -> Result<()> {
+fn verify(sh: &Shell, c: &Path, rust: &Path, dir: &Path, case: &Case, backend: Option<&str>) -> Result<()> {
     let rust_archive = dir.join("rust.zxc");
     let c_archive = dir.join("c.zxc");
     let dictionary = case.dictionary.into_iter().flat_map(|path| ["-D", path]);
+    let execution = backend
+        .into_iter()
+        .flat_map(|name| ["--threads", "3", "--slots", "4", "--backend", name]);
     let mut start = 0;
     for (i, frame) in case.frames.iter().enumerate() {
         let input = dir.join("frame-input.bin");
@@ -261,6 +273,14 @@ fn verify(sh: &Shell, c: &Path, rust: &Path, dir: &Path, case: &Case) -> Result<
         }
         if case.indexed {
             r.arg("--seekable");
+        }
+        if backend.is_some() {
+            let output = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(dir.join("serial.zxc"))?;
+            run(sh, &mut r, Some(&input), output).context("serial archive baseline")?;
+            r.args(execution.clone());
         }
         let mut reference = Command::new(c);
         reference
@@ -289,11 +309,17 @@ fn verify(sh: &Shell, c: &Path, rust: &Path, dir: &Path, case: &Case) -> Result<
         fs::remove_file(input)?;
     }
 
+    if backend.is_some() {
+        ensure!(
+            fs::read(dir.join("serial.zxc"))? == fs::read(&rust_archive)?,
+            "parallel Rust archive differs from serial Rust archive"
+        );
+    }
     let output = dir.join("actual.bin");
     let mut c_decode = Command::new(c);
     c_decode.args(["-qdc", "-T1"]).args(dictionary.clone());
     let mut rust_decode = Command::new(rust);
-    rust_decode.arg("decode").args(dictionary.clone());
+    rust_decode.arg("decode").args(dictionary.clone()).args(execution);
     for (direction, command, archive) in [
         ("Rust archive -> C full decode", &mut c_decode, &rust_archive),
         ("C archive -> Rust full decode", &mut rust_decode, &c_archive),

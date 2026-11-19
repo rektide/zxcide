@@ -33,10 +33,58 @@ enum Layout {
     Packed,
     Dense,
 }
+#[derive(Clone, Copy, ValueEnum)]
+enum Transport {
+    Crossbeam,
+    #[cfg(feature = "flume")]
+    Flume,
+    #[cfg(feature = "kanal")]
+    Kanal,
+    #[cfg(feature = "crossfire")]
+    Crossfire,
+    #[cfg(feature = "rayon")]
+    Rayon,
+}
+#[derive(Args)]
+struct Execution {
+    /// Worker count. One runs directly on the caller's thread.
+    #[arg(long, default_value = "1")]
+    threads: std::num::NonZeroUsize,
+    /// Maximum admitted but unwritten blocks (default: twice the workers).
+    #[arg(long)]
+    slots: Option<std::num::NonZeroUsize>,
+    /// Parallel scheduler to use when threads > 1.
+    #[arg(long, value_enum, default_value = "crossbeam")]
+    backend: Transport,
+}
+impl Execution {
+    fn config(&self) -> zxc_parallel::Config {
+        use zxc_parallel::Backend;
+        zxc_parallel::Config {
+            workers: self.threads.get(),
+            slots: self
+                .slots
+                .map_or_else(|| self.threads.get().saturating_mul(2).min(256), |s| s.get()),
+            backend: match self.backend {
+                Transport::Crossbeam => Backend::Crossbeam,
+                #[cfg(feature = "flume")]
+                Transport::Flume => Backend::Flume,
+                #[cfg(feature = "kanal")]
+                Transport::Kanal => Backend::Kanal,
+                #[cfg(feature = "crossfire")]
+                Transport::Crossfire => Backend::Crossfire,
+                #[cfg(feature = "rayon")]
+                Transport::Rayon => Backend::Rayon,
+            },
+        }
+    }
+}
 #[derive(Subcommand)]
 enum Command {
     /// Compress into one frame.
     Encode {
+        #[command(flatten)]
+        execution: Execution,
         #[command(flatten)]
         files: Files,
         #[arg(long, value_enum, default_value = "split")]
@@ -87,6 +135,8 @@ enum Command {
 }
 #[derive(Args)]
 struct DecodeArgs {
+    #[command(flatten)]
+    execution: Execution,
     /// Available .zxd dictionary (repeat for concatenated frames).
     #[arg(short = 'D', long)]
     dictionary: Vec<PathBuf>,
@@ -166,13 +216,14 @@ fn output(path: &Path, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) ->
 }
 fn decode(path: &Path, w: &mut dyn Write, opt: DecodeArgs) -> io::Result<()> {
     let dicts = dictionaries(&opt.dictionary)?;
-    zxc_codec::decode(
+    zxc_parallel::decode(
         input(path)?,
         w,
         DecodeOptions {
             dictionaries: &dicts,
             max_output: opt.max_output,
         },
+        opt.execution.config(),
     )
 }
 fn run(cli: Cli) -> io::Result<()> {
@@ -193,6 +244,7 @@ fn run(cli: Cli) -> io::Result<()> {
     };
     match cli.command {
         Command::Encode {
+            execution,
             files,
             mode,
             block_log,
@@ -212,7 +264,9 @@ fn run(cli: Cli) -> io::Result<()> {
                 seekable,
                 dictionary: dictionary.as_ref(),
             };
-            output(&files.output, |w| zxc_codec::encode(input(&files.input)?, w, opts))
+            output(&files.output, |w| {
+                zxc_parallel::encode(input(&files.input)?, w, opts, execution.config())
+            })
         }
         Command::Decode { files, options } => output(&files.output, |w| decode(&files.input, w, options)),
         Command::Test { input, options } => decode(&input, &mut io::sink(), options),

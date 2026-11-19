@@ -16,6 +16,17 @@ sources:
 
 # Profile a codec change
 
+## Compare parallel transports
+
+```sh
+ZXC_BENCH_THREADS=4 ZXC_BENCH_SLOTS=8 cargo bench --locked -p zxc-parallel \
+  --features flume,kanal,crossfire,rayon --bench transports
+```
+
+Each backend processes the same 4 MiB input alternating repetitive and noisy 4 KiB spans, at 4 KiB and 512 KiB block sizes. The harness checks encoded archive identity and decoded bytes before starting timers. Timings include stream and worker setup, input reads and output copies into reused destination capacity. Compare encode and decode separately. For longer-lived workloads include larger files before selecting a default backend. `--features` here deliberately omits Tracy; enable `tracy` on the CLI to inspect where workers or ordered commits wait.
+
+Initial Criterion quick run on the Ryzen 7 5800X: at 4 KiB blocks, crossbeam with four workers and eight slots encoded the input in 2.08 ms versus 6.59 ms serial. Decode took 605 µs versus 358 µs serial. At 512 KiB blocks, encode took 3.82 ms versus 13.34 ms serial, and decode took 257 µs versus 390 µs serial. All five backends passed the generated C oracle. These small synthetic runs support keeping serial as the default and exposing parallelism as a workload choice; rank transports only after measuring real corpora, wait times and peak memory.
+
 Use Criterion for speed and ratio comparisons; use Tracy to find which phase is worth changing. Production builds omit Tracy, including the dependency. [Architecture](../architecture/README.md) explains the instrumentation boundaries.
 
 ## Measure throughput

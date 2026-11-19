@@ -127,6 +127,7 @@ fn accepts_existing_positionals_and_replay_arguments() {
         seed,
         cases,
         case,
+        ..
     } = Task::try_parse_from(["xtask", "interop", "./c-zxc", "./rust-zxc"]).unwrap()
     else {
         panic!("not interop");

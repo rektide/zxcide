@@ -55,6 +55,9 @@ enum Task {
         c_cli: Option<PathBuf>,
         /// Existing Rust executable. By default build zxc-cli in release mode.
         rust_cli: Option<PathBuf>,
+        /// Run the generated gate using 3 Rust workers and 4 in-flight slots.
+        #[arg(long, value_parser=["crossbeam","flume","kanal","crossfire","rayon"])]
+        parallel_backend: Option<String>,
         /// Seed for generated cases (decimal u64).
         #[arg(long, default_value_t = interop::generated::DEFAULT_SEED)]
         seed: u64,
@@ -116,6 +119,7 @@ fn main() -> Result<()> {
         Task::Interop {
             c_cli,
             rust_cli,
+            parallel_backend,
             seed,
             cases,
             case,
@@ -127,21 +131,28 @@ fn main() -> Result<()> {
             let rust = match rust_cli {
                 Some(path) => std::path::absolute(path)?,
                 None => {
-                    cmd!(sh, "cargo build --locked --release -p zxc-cli").run()?;
+                    let features = if parallel_backend.is_some() {
+                        &["--features", "transports"][..]
+                    } else {
+                        &[]
+                    };
+                    cmd!(sh, "cargo build --locked --release -p zxc-cli {features...}").run()?;
                     target.join("release").join(format!("zxc{}", env::consts::EXE_SUFFIX))
                 }
             };
             let indices = if let Some(index) = case {
                 index..=index
             } else {
-                interop::check(&sh, &c, &rust)?;
+                if parallel_backend.is_none() {
+                    interop::check(&sh, &c, &rust)?;
+                }
                 if cases == 0 {
                     println!("Generated: skipped (--cases 0)");
                     return Ok(());
                 }
                 0..=cases - 1
             };
-            interop::generated::check(&sh, target, &c, &rust, seed, indices)
+            interop::generated::check(&sh, target, &c, &rust, seed, indices, parallel_backend.as_deref())
         }
         Task::Component => build_component(&sh, target, false).map(drop),
         Task::Bench { backend, args } => {
