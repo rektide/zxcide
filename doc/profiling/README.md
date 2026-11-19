@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: WIT component build and Wasmtime Criterion tuning workflow }
   - { resource: 'opencode://ses_e0b1ee216ffelb33FpbVf2g8SE', title: All-mode Criterion suite and named baseline comparison workflow }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Codec measurements, interoperability and capture verification }
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
@@ -50,6 +51,22 @@ cargo bench --locked --bench codec -- mixed/Dense/b19/encode --baseline before
 Criterion reports the estimated change and its confidence interval. Repeat the comparison on unchanged code to see how much the machine varies. Keep CPU power settings, build flags, and corpus fixed; check archive size alongside throughput so a speedup from writing a larger archive is visible. For decode-only changes the fixed upstream archive also isolates decoder speed from changes in encoder output.
 
 For a full sweep, set `ZXC_BENCH_MODE=all` and omit the filter in both commands. For a block-size experiment set `ZXC_BENCH_BLOCK_LOG` (12–21); the size is part of the benchmark ID. CI uses Criterion's `--test` mode to exercise every case once. Use a quiet, consistent host for timing decisions; nextest's parallel test durations are for diagnosing slow tests.
+
+## Benchmark the component
+
+Install the [component build prerequisites](../../README.md#webassembly-component) first. The wrapper rebuilds the release component and runs Criterion on the host using Wasmtime's typed bindings to the shipped WIT interface. For example:
+
+```sh
+ZXC_BENCH_MODE=all scripts/bench-component.sh --test
+export ZXC_BENCH_MODE=dense ZXC_BENCH_BLOCK_LOG=19
+scripts/bench-component.sh component/mixed/Dense/b19/encode --save-baseline wasm-before
+# Change the codec or guest build flags, then repeat with the same workload:
+scripts/bench-component.sh component/mixed/Dense/b19/encode --baseline wasm-before
+```
+
+The component and native suites use the same inputs (including `ZXC_BENCH_INPUT`), mode selection and uncompressed-byte throughput. Each component case verifies the output before measurement. The timer covers one call on an existing instance, including byte-list transfers, per-call codec workspaces, and output allocation and disposal. Component loading, JIT compilation, instantiation, and preparing the decode archive are outside the loop. The native suite reuses workspaces and buffers, so the difference between suites is not solely the cost of WebAssembly execution.
+
+Keep the host runtime and input fixed while tuning the guest. For example, set `CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUSTFLAGS='-C target-feature=+simd128'` for a comparison on SIMD-capable runtimes. Record flags, component size, archive size, and component SHA-256 with the Criterion result. To measure an already distributed artifact, set `ZXC_COMPONENT` to its **absolute path** and run `cargo bench --locked -p zxc-component --features host-bench --bench component` directly.
 
 ## Capture phases
 

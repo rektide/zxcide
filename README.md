@@ -40,6 +40,19 @@ fn main() -> std::io::Result<()> {
 
 See the [architecture and peer-review decisions](doc/architecture/README.md) and [profiling guide](doc/profiling/README.md) for the benchmark, measured baseline, and direct Tracy capture workflow.
 
+## WebAssembly component
+
+Download `zxc-codec-component` from a successful **Codec checks** workflow run, or build it locally:
+
+```sh
+rustup target add wasm32-unknown-unknown
+cargo install --locked wasm-tools --version 1.245.1
+scripts/build-component.sh
+wasm-tools component wit target/component/zxc-codec.wasm
+```
+
+Ship `target/component/`: it contains the validated release component, its [WIT contract](crates/component/wit/codec.wit), and the license. The `zxc:codec/buffers@0.1.0` export takes and returns byte lists and requires no host imports. Encode accepts mode, block size log, checksum and seek-index options. Decode takes a maximum plaintext length in bytes; codec errors return `err(string)`. Both operations buffer a whole job in memory and support dictionary-free archives. See [benchmarking the component](doc/profiling/README.md#benchmark-the-component) to tune this API.
+
 ## Compatibility checks
 
 ```sh

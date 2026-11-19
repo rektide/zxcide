@@ -3,6 +3,22 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
+  component:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable && rustup target add wasm32-unknown-unknown
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-tools@1.245.1
+      - run: cargo clippy --locked -p zxc-component --target wasm32-unknown-unknown -- -D warnings
+      - name: Exercise the release component through its WIT API
+        run: ZXC_BENCH_MODE=all scripts/bench-component.sh --test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zxc-codec-component
+          path: target/component/
+          if-no-files-found: error
   codec:
     runs-on: ubuntu-latest
     steps:
@@ -16,8 +32,8 @@ jobs:
       - run: |
           cargo nextest run --locked --workspace
           cargo test --doc --locked --workspace
-          cargo nextest run --locked --workspace --all-features
-          cargo test --doc --locked --workspace --all-features
+          cargo nextest run --locked --all-features
+          cargo test --doc --locked --all-features
       - name: Exercise all benchmark cases once
         run: ZXC_BENCH_MODE=all cargo bench --locked --bench codec -- --test
       - uses: actions/checkout@v4
