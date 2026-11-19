@@ -133,6 +133,10 @@ impl Tree {
         }
         require(src.is_empty(), "trailing Huffman data")?;
         let mut scratch = vec![0; count];
+        crate::probe!({
+            add("zero:Huffman vectors", 2 * count);
+            add("produce:Huffman symbols", count);
+        });
         for (start, n, ones, run) in order.into_iter().rev() {
             if ones == 0 || ones == n {
                 continue;
@@ -147,6 +151,10 @@ impl Tree {
                 }
             }
             region.copy_from_slice(&scratch[..n]);
+            crate::probe!({
+                add("copy:Huffman gather", n);
+                add("copy:Huffman return", n);
+            });
         }
         Ok(output)
     }
@@ -166,5 +174,6 @@ pub fn rle(mut data: &[u8], count: usize) -> io::Result<Vec<u8>> {
         }
     }
     require(out.len() == count, "short RLE output")?;
+    crate::probe!({ add("produce:RLE symbols", count) });
     Ok(out)
 }

@@ -60,9 +60,10 @@ fn read<const N: usize>(r: &mut impl Read) -> io::Result<[u8; N]> {
 /// Fill one source block, retrying interrupted reads. A short block is final.
 pub fn read_source_block(r: &mut impl Read, buf: &mut Vec<u8>, block_size: usize) -> io::Result<()> {
     zone!("read source block");
-    buf.resize(block_size, 0);
+    crate::resize_zero!(buf, block_size);
     let len = fill(r, buf)?;
     buf.truncate(len);
+    crate::probe!({ add("copy:read source", len) });
     Ok(())
 }
 
@@ -296,9 +297,10 @@ pub fn read_data_block(
         return Ok(None);
     }
     let header = DataBlockHeader::parse(h, frame)?;
-    body.resize(header.body_size(), 0);
+    crate::resize_zero!(body, header.body_size());
     zone!("read payload");
     r.read_exact(body)?;
+    crate::probe!({ add("copy:read body", body.len()) });
     Ok(Some(header))
 }
 

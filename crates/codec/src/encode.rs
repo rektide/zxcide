@@ -40,6 +40,7 @@ fn parse(data: &[u8], prefix: usize, table: &mut Vec<u32>, matches: &mut Vec<Mat
     zone!("match finder");
     table.clear();
     table.resize(65536, u32::MAX);
+    crate::probe!({ add("fill:match table (ff)", table.len() * 4) });
     matches.clear();
     for i in 0..prefix.min(data.len().saturating_sub(4)) {
         table[key(data, i)] = i as u32;
@@ -118,6 +119,10 @@ impl BlockEncoder {
             self.history.clear();
             self.history.extend_from_slice(&d.content);
             self.history.extend_from_slice(plain);
+            crate::probe!({
+                add("copy:history prefix", d.content.len());
+                add("copy:history plain", plain.len());
+            });
             (&self.history[..], d.content.len())
         } else {
             (plain, 0)
@@ -142,6 +147,7 @@ impl BlockEncoder {
             last = m.at + m.len;
         }
         out.extend_from_slice(&plain[last..]);
+        crate::probe!({ add("copy:candidate literals", lit_count) });
         let mut end_lit = out.len();
         last = 0;
         for m in &self.matches {
@@ -194,11 +200,18 @@ impl BlockEncoder {
                 let new_end = dense.len();
                 dense.extend_from_slice(&tok);
                 dense.extend_from_slice(&out[end_lit + ns..]);
+                crate::probe!({
+                    add(
+                        "copy:dense assembly",
+                        12 + lit.len() + tok.len() + out.len() - end_lit - ns,
+                    );
+                });
                 end_lit = new_end;
                 std::mem::swap(dense, out);
             }
         }
         if out.len() < end_lit + 32 {
+            crate::probe!({ add("zero:slack", end_lit + 32 - out.len()) });
             out.resize(end_lit + 32, 0);
         }
         if out.len() >= plain.len() {

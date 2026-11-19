@@ -181,6 +181,7 @@ fn unpack<'a>(
     let mut lit = &literals[..];
     out.clear();
     if let Some(dict) = dict {
+        crate::probe!({ add("copy:history prefix", dict.content.len()) });
         out.extend_from_slice(&dict.content);
     }
     let prefix = out.len();
@@ -223,5 +224,9 @@ fn unpack<'a>(
         }
     }
     out.extend_from_slice(lit);
+    crate::probe!({
+        add("reconstruct:literals", nl);
+        add("reconstruct:matches", out.len() - prefix - nl);
+    });
     Ok(&out[prefix..])
 }

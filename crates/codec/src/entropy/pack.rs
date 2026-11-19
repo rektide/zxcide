@@ -92,6 +92,7 @@ impl Tree {
             return None;
         }
         let mut packed = vec![0; size + 1];
+        crate::probe!({ add("zero:Huffman bitstream", size + 1) });
         for &s in data {
             for &(run, code, width) in &paths[s as usize] {
                 let bit = bits[run];
@@ -127,6 +128,7 @@ fn encode_rle(src: &[u8]) -> Vec<u8> {
             }
             out.push((i - begin - 1) as u8);
             out.extend_from_slice(&src[begin..i]);
+            crate::probe!({ add("copy:RLE candidate literals", i - begin) });
         }
     }
     out
@@ -162,6 +164,7 @@ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) 
         let tree = Tree::new(&table).expect("generated a complete Huffman tree");
         if let Some(bits) = tree.emit(src, &freq, budget - 128) {
             let mut buf = table.to_vec();
+            crate::probe!({ add("copy:Huffman candidate", table.len() + bits.len()) });
             buf.extend(bits);
             best = (2, Cow::Owned(buf));
         }

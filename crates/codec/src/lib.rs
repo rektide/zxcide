@@ -1,6 +1,24 @@
 //! Native, block-bounded ZXC v9 compression and decompression.
 #![forbid(unsafe_code)]
 
+#[cfg(feature = "ledger")]
+pub mod ledger;
+
+/// Include a diagnostic block only in a ledger build (including downstream probes).
+#[cfg(feature = "ledger")]
+#[macro_export]
+macro_rules! probe {
+    ($body:block) => {{
+        use $crate::ledger::add;
+        $body
+    }};
+}
+#[cfg(not(feature = "ledger"))]
+#[macro_export]
+macro_rules! probe {
+    ($body:block) => {};
+}
+
 macro_rules! zone {
     ($name:literal) => {
         #[cfg(feature = "tracy")]
@@ -9,6 +27,30 @@ macro_rules! zone {
 }
 
 mod block;
+/// Diagnostic wrapper for the block input/body buffers, including positioned reads.
+#[macro_export]
+#[cfg(feature = "ledger")]
+macro_rules! resize_zero {
+    ($buf:ident, $len:expr) => {{
+        let len = $len;
+        let old = $buf.capacity();
+        $crate::probe!({
+            add("zero:read buffer", len.saturating_sub($buf.len()));
+            if len <= $buf.capacity() {
+                add("capacity:request fits", len);
+            }
+        });
+        $buf.resize(len, 0);
+        $crate::ledger::add("capacity:growth delta", $buf.capacity() - old);
+    }};
+}
+#[cfg(not(feature = "ledger"))]
+#[macro_export]
+macro_rules! resize_zero {
+    ($buf:ident, $len:expr) => {
+        $buf.resize($len, 0)
+    };
+}
 mod dict;
 mod encode;
 mod entropy;

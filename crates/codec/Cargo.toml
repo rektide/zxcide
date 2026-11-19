@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [features]
+ledger = []
 tracy = ["dep:tracy-client"]
 
 [dependencies]
