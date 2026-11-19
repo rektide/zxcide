@@ -1,40 +1,13 @@
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use std::hint::black_box;
-use zxc_codec::{DecodeOptions, Decoder, EncodeOptions, Encoder, Mode};
+use zxc_codec::{DecodeOptions, Decoder, EncodeOptions, Encoder};
+
+#[path = "../../../tests/bench_inputs.rs"]
+mod inputs;
 
 fn bench(c: &mut Criterion) {
-    let text = include_bytes!("../../../tests/conformance/v9/valid/text_64k_level1.expected").repeat(16);
-    let mut x = 42u64;
-    let noise = (0..text.len())
-        .map(|_| {
-            x ^= x << 13;
-            x ^= x >> 7;
-            x ^= x << 17;
-            x as u8
-        })
-        .collect();
-    let mixed = include_bytes!("../../../tests/conformance/v9/valid/multiblock_mixed.expected").to_vec();
-    let mut corpora = vec![
-        ("text".to_owned(), text),
-        ("noise".to_owned(), noise),
-        ("mixed".to_owned(), mixed),
-    ];
-    if let Some(path) = std::env::var_os("ZXC_BENCH_INPUT") {
-        let path = std::path::PathBuf::from(path);
-        corpora.push((
-            path.file_name().unwrap().to_string_lossy().into_owned(),
-            std::fs::read(path).unwrap(),
-        ));
-    }
-    let block_log = std::env::var("ZXC_BENCH_BLOCK_LOG").map_or(19, |s| s.parse().unwrap());
-    let modes: &[Mode] = match std::env::var("ZXC_BENCH_MODE").as_deref() {
-        Ok("all") => &[Mode::Split, Mode::Packed, Mode::Dense],
-        Ok("dense") => &[Mode::Dense],
-        Ok("packed") => &[Mode::Packed],
-        Ok("split") | Err(_) => &[Mode::Split],
-        _ => panic!("expected all, dense, packed or split"),
-    };
-    for (name, plain) in corpora {
+    let (block_log, modes) = inputs::settings();
+    for (name, plain) in inputs::corpora() {
         for &mode in modes {
             bench_roundtrip(
                 c,
@@ -85,19 +58,18 @@ fn bench_roundtrip(c: &mut Criterion, name: &str, plain: &[u8], opt: EncodeOptio
 }
 
 fn bench_upstream(c: &mut Criterion) {
-    let fixture = include_bytes!("../../../tests/conformance/v9/valid/spl_pivco_wide_l7.zxc");
-    let expected = include_bytes!("../../../tests/conformance/v9/valid/spl_pivco_wide_l7.expected");
+    let fixture = inputs::UPSTREAM;
+    let expected = inputs::EXPECTED;
     let mut group = c.benchmark_group("upstream-l7");
     group.throughput(Throughput::Bytes(expected.len() as u64));
     let mut dec = Decoder::default();
     let mut output = Vec::new();
-    dec.decode(&fixture[..], &mut output, Default::default()).unwrap();
+    dec.decode(fixture, &mut output, Default::default()).unwrap();
     assert_eq!(output, expected);
     group.bench_function("decode", |b| {
         b.iter(|| {
             output.clear();
-            dec.decode(black_box(&fixture[..]), &mut output, Default::default())
-                .unwrap();
+            dec.decode(black_box(fixture), &mut output, Default::default()).unwrap();
             black_box(&output);
         })
     });

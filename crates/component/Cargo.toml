@@ -8,6 +8,20 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[dependencies]
+zxc-codec = { path = "../codec" }
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wit-bindgen = { version = "0.63", default-features = false, features = ["macros", "realloc", "std"] }
-zxc-codec = { path = "../codec" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+criterion = { version = "0.8", default-features = false, optional = true }
+wasmtime = { version = "46", default-features = false, features = ["component-model", "cranelift", "runtime", "std"], optional = true }
+
+[features]
+host-bench = ["dep:criterion", "dep:wasmtime"]
+
+[[bench]]
+name = "component"
+harness = false
+required-features = ["host-bench"]
