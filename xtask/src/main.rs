@@ -49,12 +49,21 @@ enum Task {
         #[arg(long,default_value="18086",value_parser=clap::value_parser!(u16).range(1..))]
         port: u16,
     },
-    /// Cross-decode every fixture with the pinned C CLI and the native Rust CLI.
+    /// Cross-decode frozen fixtures and generated cases with the C and Rust CLIs.
     Interop {
         /// Existing C executable. By default fetch and build the pinned reference.
         c_cli: Option<PathBuf>,
         /// Existing Rust executable. By default build zxc-cli in release mode.
         rust_cli: Option<PathBuf>,
+        /// Seed for generated cases (decimal u64).
+        #[arg(long, default_value_t = interop::generated::DEFAULT_SEED)]
+        seed: u64,
+        /// Number of generated cases after the fixtures (0 runs only the fixtures).
+        #[arg(long, default_value_t = interop::generated::DEFAULT_CASES)]
+        cases: u64,
+        /// Replay one zero-based generated case, skipping the frozen matrix.
+        #[arg(long, conflicts_with = "cases")]
+        case: Option<u64>,
     },
     /// Build, validate, and bundle the release WebAssembly component.
     Component,
@@ -104,7 +113,13 @@ fn main() -> Result<()> {
     match task {
         Task::FuzzSmoke { runs } => smoke::fuzz(&sh, target, runs),
         Task::Tracy { capture, repeats, port } => smoke::tracy(&sh, target, &capture, repeats, port),
-        Task::Interop { c_cli, rust_cli } => {
+        Task::Interop {
+            c_cli,
+            rust_cli,
+            seed,
+            cases,
+            case,
+        } => {
             let c = match c_cli {
                 Some(path) => std::path::absolute(path)?,
                 None => interop::oracle(&sh, target)?,
@@ -116,7 +131,17 @@ fn main() -> Result<()> {
                     target.join("release").join(format!("zxc{}", env::consts::EXE_SUFFIX))
                 }
             };
-            interop::check(&sh, &c, &rust)
+            let indices = if let Some(index) = case {
+                index..=index
+            } else {
+                interop::check(&sh, &c, &rust)?;
+                if cases == 0 {
+                    println!("Generated: skipped (--cases 0)");
+                    return Ok(());
+                }
+                0..=cases - 1
+            };
+            interop::generated::check(&sh, target, &c, &rust, seed, indices)
         }
         Task::Component => build_component(&sh, target, false).map(drop),
         Task::Bench { backend, args } => {

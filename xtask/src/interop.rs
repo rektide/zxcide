@@ -8,6 +8,8 @@ use xshell::{Shell, cmd};
 const REV: &str = "2992c28e6e1df07feec0cb39678a6d4a9665c6bb";
 const REPO: &str = "https://github.com/hellobertrand/zxc";
 
+pub mod generated;
+
 /// Cache the C checkout outside the source tree. Reuse it only if it still
 /// matches the verification target; never reset a developer's edited files.
 pub fn oracle(sh: &Shell, target: &Path) -> Result<PathBuf> {
@@ -112,6 +114,6 @@ pub fn check(sh: &Shell, c: &Path, rust: &Path) -> Result<()> {
         }
     }
     ensure!(checks > 0, "no conformance inputs found");
-    println!("{checks} byte-for-byte cross-decoding checks and {range_checks} indexed range checks passed");
+    println!("Frozen: {checks} byte-for-byte cross-decoding checks and {range_checks} indexed range checks passed");
     Ok(())
 }
