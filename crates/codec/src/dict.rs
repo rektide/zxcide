@@ -4,7 +4,7 @@ use crate::{
     require,
     wire::{checksum, header_sum},
 };
-use std::io;
+use std::{io, sync::OnceLock};
 
 /// An authenticated-by-ID (non-cryptographic) `.zxd` v2 dictionary.
 #[derive(Debug)]
@@ -12,6 +12,7 @@ pub struct Dictionary {
     pub(crate) content: Vec<u8>,
     pub(crate) tree: Option<Tree>,
     pub(crate) id: u32,
+    pub(crate) match_seed: OnceLock<Box<[u32]>>,
 }
 impl Dictionary {
     /// Parse and validate the content, optional shared codebook and their binding.
@@ -43,6 +44,7 @@ impl Dictionary {
             content: content.to_vec(),
             tree,
             id,
+            match_seed: OnceLock::new(),
         })
     }
     pub fn id(&self) -> u32 {

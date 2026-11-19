@@ -6,6 +6,7 @@ fn dictionary(content: Vec<u8>) -> Dictionary {
         content,
         tree: None,
         id: 0,
+        match_seed: Default::default(),
     }
 }
 

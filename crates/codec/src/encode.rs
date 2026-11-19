@@ -1,6 +1,14 @@
 //! Greedy 64 KiB-window parser. The same parse can be priced in either layout.
 use crate::{Dictionary, EncodeOptions, Mode, wire::checksum};
 
+const MATCH_SLOTS: usize = 65536;
+const MIN_SEED_DICTIONARY: usize = 16 * 1024;
+const MAX_SEEDED_BLOCK_LOG: u8 = 14;
+const FIRST_SEEDED_INDEX: u64 = 16;
+
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Copy)]
 struct Match {
     at: usize,
@@ -36,15 +44,51 @@ impl<B> EncodedBlock<B> {
 fn key(data: &[u8], i: usize) -> usize {
     (u32::from_le_bytes(data[i..i + 4].try_into().unwrap()).wrapping_mul(0x9e3779b1) >> 16) as usize
 }
-fn parse(data: &[u8], prefix: usize, table: &mut Vec<u32>, matches: &mut Vec<Match>) {
-    zone!("match finder");
+fn reset_table(table: &mut Vec<u32>) {
     table.clear();
-    table.resize(65536, u32::MAX);
+    table.resize(MATCH_SLOTS, u32::MAX);
     crate::probe!({ add("fill:match table (ff)", table.len() * 4) });
-    matches.clear();
-    for i in 0..prefix.min(data.len().saturating_sub(4)) {
+}
+
+fn seed_prefix(data: &[u8], range: std::ops::Range<usize>, table: &mut [u32]) {
+    crate::probe!({ add("index:dictionary prefix", range.len() * 4) });
+    for i in range {
         table[key(data, i)] = i as u32;
     }
+}
+
+fn prepare_seed(data: &[u8], dict: &Dictionary, table: &mut Vec<u32>) {
+    let prefix = dict.content.len();
+    let interior = prefix - 3;
+    let mut seeded_here = false;
+    let seed = dict.match_seed.get_or_init(|| {
+        // Seed the current block's scratch too: the initializing worker need
+        // not copy the snapshot back after making it.
+        reset_table(table);
+        seed_prefix(data, 0..interior, table);
+        seeded_here = true;
+        crate::probe!({ add("copy:make match table seed", table.len() * 4) });
+        Box::from(&table[..])
+    });
+    if !seeded_here {
+        table.clear();
+        table.extend_from_slice(seed);
+        crate::probe!({ add("copy:match table seed", seed.len() * 4) });
+    }
+    // Apply the latest entries last, including collisions with the snapshot.
+    // These three four-byte keys use one, two or three current plaintext bytes.
+    seed_prefix(data, interior..prefix, table);
+}
+
+fn parse(data: &[u8], prefix: usize, seed: Option<&Dictionary>, table: &mut Vec<u32>, matches: &mut Vec<Match>) {
+    zone!("match finder");
+    if let Some(dict) = seed {
+        prepare_seed(data, dict, table);
+    } else {
+        reset_table(table);
+        seed_prefix(data, 0..prefix.min(data.len().saturating_sub(4)), table);
+    }
+    matches.clear();
     let mut i = prefix;
     while i + 5 <= data.len() {
         let slot = &mut table[key(data, i)];
@@ -82,7 +126,7 @@ impl BlockEncoder {
     /// Encode a block of at most the configured frame block size. `index` is
     /// its zero-based position within the frame (used as the checksum seed).
     pub fn encode<'a>(&'a mut self, plain: &'a [u8], opt: EncodeOptions<'_>, index: u64) -> EncodedBlock<&'a [u8]> {
-        let (kind, payload) = self.block(plain, opt.mode, opt.dictionary);
+        let (kind, payload) = self.block(plain, opt, index);
         EncodedBlock {
             kind,
             payload,
@@ -111,10 +155,16 @@ impl BlockEncoder {
         }
     }
 
-    fn block<'a>(&'a mut self, plain: &'a [u8], mode: Mode, dict: Option<&Dictionary>) -> (u8, &'a [u8]) {
+    fn block<'a>(&'a mut self, plain: &'a [u8], opt: EncodeOptions<'_>, index: u64) -> (u8, &'a [u8]) {
         if plain.len() <= 44 {
             return (0, plain);
         }
+        let EncodeOptions {
+            mode,
+            dictionary: dict,
+            block_log,
+            ..
+        } = opt;
         let (input, prefix) = if let Some(d) = dict {
             self.history.clear();
             self.history.extend_from_slice(&d.content);
@@ -127,7 +177,14 @@ impl BlockEncoder {
         } else {
             (plain, 0)
         };
-        parse(input, prefix, &mut self.table, &mut self.matches);
+        // Do not allocate a seed for decoding, small dictionaries, or short
+        // streams. Once warmed, share the sole template across workers.
+        let seed = dict.filter(|d| {
+            block_log <= MAX_SEEDED_BLOCK_LOG
+                && prefix >= MIN_SEED_DICTIONARY
+                && (index >= FIRST_SEEDED_INDEX || d.match_seed.get().is_some())
+        });
+        parse(input, prefix, seed, &mut self.table, &mut self.matches);
         if self.matches.is_empty() && !matches!(mode, Mode::Dense) {
             return (0, plain);
         }
