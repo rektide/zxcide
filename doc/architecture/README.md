@@ -35,6 +35,8 @@ The shipped `dense` policy adds size-priced entropy coding on top of the same ma
 
 ## Decisions after peer review
 
+The [indexed read and execution design](indexed-execution.md) extends the sequential design with a separate seek crate and defines the admission bound for future parallel backends.
+
 **Streaming contract (Astra).** Fill encode blocks across short reads; decode short interior plain blocks as supplied. Reset disk/plain counters, block index, digest and dictionary on each magic. Construct the canonical footer from these counters (including its own minimal-width size), independent of the reader's prefetch. A named CLI output is a same-directory temporary file published without replacement after verification and flush. A stream cannot retract bytes.
 
 **Seek and dictionary boundaries (both reviews).** `HAS_DICTIONARY`, not an ID's truthiness, selects a dictionary, resolved per frame from a caller-supplied set. Only its prefix and current output form match history. Literal encodings 0–3 and token encodings 0/2 share one section decoder, including shared tables without inline lengths. Require 32 post-literal bytes in both layouts regardless of the scalar copy strategy. Sequential SEK handling derives the 64-bit table size from plaintext size, validates its folded-size header and skips exactly that many bytes in bounded memory. `test` checks frame integrity, not seek entries. Seekable *writing* retains one size per block and emits grouped anchors; opt in to this memory cost.
