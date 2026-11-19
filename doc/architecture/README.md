@@ -31,6 +31,8 @@ Use nagisa's `tracy-client` directly behind a non-default Cargo feature. Put sta
 
 The pinned upstream conformance corpus is the decode oracle; check Rust output with the upstream C CLI as a separate encode oracle. Corpus checks, boundary/error tests, streaming tests and interop matter more than self-roundtrips. Benchmarks should distinguish stream setup costs from steady-state codec work before motivating optimizations.
 
+The shipped `dense` policy adds size-priced entropy coding on top of the same match parse; it can use shared dictionary or inline tables and Huffman-coded tokens. [Profiling results and reproduction](../profiling/README.md) document why the initial symbol-by-symbol PivCo decoder was replaced by bottom-up merges.
+
 ## Decisions after peer review
 
 **Streaming contract (Astra).** Fill encode blocks across short reads; decode short interior plain blocks as supplied. Reset disk/plain counters, block index, digest and dictionary on each magic. Construct the canonical footer from these counters (including its own minimal-width size), independent of the reader's prefetch. A named CLI output is a same-directory temporary file published without replacement after verification and flush. A stream cannot retract bytes.
