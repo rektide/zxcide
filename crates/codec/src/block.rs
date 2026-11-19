@@ -85,7 +85,7 @@ impl BlockDecoder {
     }
 
     /// Like [`Self::decode`], transferring a buffer without copying verified
-    /// plaintext. Its range excludes any dictionary prefix or checksum bytes.
+    /// plaintext. A RAW block's backing buffer can also hold checksum bytes.
     pub fn decode_owned(
         &mut self,
         header: DataBlockHeader,
@@ -180,11 +180,7 @@ fn unpack<'a>(
     zone!("LZ reconstruct");
     let mut lit = &literals[..];
     out.clear();
-    if let Some(dict) = dict {
-        crate::probe!({ add("copy:history prefix", dict.content.len()) });
-        out.extend_from_slice(&dict.content);
-    }
-    let prefix = out.len();
+    let history = dict.map_or(&[][..], |d| d.content.as_slice());
     let mut match_budget = limit - nl;
     for i in 0..n {
         let (mut ll, mut ml, off, mask) = if packed {
@@ -214,7 +210,21 @@ fn unpack<'a>(
         require(ml <= match_budget, "match exceeds block size")?;
         match_budget -= ml;
         out.extend_from_slice(take(&mut lit, ll)?);
-        require(off <= out.len(), "match before start of history")?;
+        if off > out.len() {
+            // The dictionary precedes the output in the logical history. Copy
+            // at most its suffix, then continue at output[0] if the match crosses.
+            let missing = off - out.len();
+            let start = history
+                .len()
+                .checked_sub(missing)
+                .ok_or_else(|| bad("match before start of history"))?;
+            let amount = ml.min(missing);
+            out.extend_from_slice(&history[start..start + amount]);
+            ml -= amount;
+            if ml == 0 {
+                continue;
+            }
+        }
         let start = out.len() - off;
         // Copy the already available pattern, doubling it on each overlap.
         while ml != 0 {
@@ -226,7 +236,10 @@ fn unpack<'a>(
     out.extend_from_slice(lit);
     crate::probe!({
         add("reconstruct:literals", nl);
-        add("reconstruct:matches", out.len() - prefix - nl);
+        add("reconstruct:matches", out.len() - nl);
     });
-    Ok(&out[prefix..])
+    Ok(out)
 }
+
+#[cfg(test)]
+mod tests;
