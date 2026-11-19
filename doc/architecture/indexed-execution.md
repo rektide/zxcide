@@ -7,6 +7,7 @@ status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Random-access priority and transport experiments }
+  - { resource: 'opencode://ses_e0b0196e8ffe7Eus0ytN0ASygB', title: Sol implementation and indexed validation tests }
   - { resource: 'https://github.com/hellobertrand/zxc/blob/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/docs/FORMAT.md', title: Seek groups and v9 integrity semantics }
   - { resource: 'https://github.com/hellobertrand/zxc/blob/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/src/lib/zxc_driver.c', title: Reference reader, workers and ordered ring writer }
 ---

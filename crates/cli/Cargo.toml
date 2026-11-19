@@ -9,10 +9,11 @@ name = "zxc"
 path = "src/main.rs"
 
 [features]
-tracy = ["zxc-codec/tracy", "dep:tracy-client"]
+tracy = ["zxc-codec/tracy", "zxc-seek/tracy", "dep:tracy-client"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 tempfile = "3"
 tracy-client = { workspace = true, optional = true }
 zxc-codec = { path = "../codec" }
+zxc-seek = { path = "../seek" }

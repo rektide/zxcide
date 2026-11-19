@@ -13,7 +13,8 @@ mod dict;
 mod encode;
 mod entropy;
 mod frame;
-mod wire;
+pub mod wire;
+pub use block::{BlockDecoder, VerifiedBlock};
 pub use dict::Dictionary;
 pub use frame::{DecodeOptions, Decoder, EncodeOptions, Encoder, Mode, decode, encode};
 

@@ -1,0 +1,12 @@
+[package]
+name = "zxc-seek"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+tracy = ["zxc-codec/tracy", "dep:tracy-client"]
+
+[dependencies]
+tracy-client = { workspace = true, optional = true }
+zxc-codec = { path = "../codec" }

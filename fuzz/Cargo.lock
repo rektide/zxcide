@@ -109,4 +109,12 @@ version = "0.0.0"
 dependencies = [
  "libfuzzer-sys",
  "zxc-codec",
+ "zxc-seek",
+]
+
+[[package]]
+name = "zxc-seek"
+version = "0.1.0"
+dependencies = [
+ "zxc-codec",
 ]

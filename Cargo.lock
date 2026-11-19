@@ -2116,6 +2116,7 @@ dependencies = [
  "tempfile",
  "tracy-client",
  "zxc-codec",
+ "zxc-seek",
 ]
 
 [[package]]
@@ -2134,5 +2135,13 @@ dependencies = [
  "criterion",
  "wasmtime",
  "wit-bindgen",
+ "zxc-codec",
+]
+
+[[package]]
+name = "zxc-seek"
+version = "0.1.0"
+dependencies = [
+ "tracy-client",
  "zxc-codec",
 ]

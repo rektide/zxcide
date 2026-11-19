@@ -1,9 +1,68 @@
 use crate::{
     Dictionary, bad,
     entropy::{self, Tree},
-    require, take, word,
+    require, take,
+    wire::{DataBlockHeader, checksum},
+    word,
 };
 use std::{borrow::Cow, io};
+
+/// Reusable reconstruction scratch for decoding independent data blocks.
+#[derive(Default)]
+pub struct BlockDecoder {
+    out: Vec<u8>,
+}
+
+/// Plaintext and the verified checksum (if any) of one block.
+#[derive(Debug)]
+pub struct VerifiedBlock<'a> {
+    pub bytes: &'a [u8],
+    pub checksum: Option<u32>,
+}
+
+impl BlockDecoder {
+    /// Decode a parsed header's body (payload followed by any checksum).
+    /// `index` is the zero-based block index within the frame. A positioned
+    /// reader should supply the expected plaintext size from the frame layout.
+    pub fn decode<'a>(
+        &'a mut self,
+        header: DataBlockHeader,
+        body: &'a [u8],
+        dictionary: Option<&Dictionary>,
+        index: u64,
+        expected_size: Option<usize>,
+    ) -> io::Result<VerifiedBlock<'a>> {
+        require(body.len() == header.body_size(), "incorrect data block body size")?;
+        require(
+            dictionary.map(Dictionary::id) == header.frame.dictionary_id(),
+            "data block dictionary does not match frame",
+        )?;
+        let (payload, trailer) = body.split_at(header.payload_size);
+        let bytes = if header.kind == 0 {
+            payload
+        } else {
+            unpack(
+                header.kind,
+                payload,
+                header.frame.block_size(),
+                dictionary,
+                &mut self.out,
+            )?
+        };
+        require(
+            expected_size.is_none_or(|size| size == bytes.len()),
+            "unexpected decoded block size",
+        )?;
+        let checksum = if header.frame.checksum() {
+            let c = u32::from_le_bytes(trailer.try_into().unwrap());
+            require(checksum(bytes, index) == c, "block checksum mismatch")?;
+            Some(c)
+        } else {
+            None
+        };
+        Ok(VerifiedBlock { bytes, checksum })
+    }
+}
 
 fn extra(src: &mut &[u8]) -> io::Result<usize> {
     let b = take(src, 1)?[0] as usize;
@@ -36,7 +95,7 @@ fn section<'a>(encoding: u8, mut data: &'a [u8], count: usize, dict: Option<&Dic
 }
 
 /// Reconstruct an SPL/PAK block in reusable storage, returning only source bytes.
-pub fn unpack<'a>(
+fn unpack<'a>(
     kind: u8,
     mut data: &[u8],
     limit: usize,

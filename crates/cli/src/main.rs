@@ -9,7 +9,7 @@ use tempfile::NamedTempFile;
 use zxc_codec::{DecodeOptions, Dictionary, EncodeOptions, Mode};
 
 #[derive(Parser)]
-#[command(version, about = "Stream ZXC v9 archives. Input and output default to standard I/O.")]
+#[command(version, about = "Stream ZXC v9 archives and extract indexed byte ranges.")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -67,6 +67,23 @@ enum Command {
         #[command(flatten)]
         options: DecodeArgs,
     },
+    /// Copy uncompressed bytes from a seek-indexed file.
+    Range {
+        /// Archive path (each frame must have a seek table).
+        archive: PathBuf,
+        /// First uncompressed byte (zero-based, across all frames).
+        start: u64,
+        /// Number of bytes to copy.
+        length: u64,
+        /// Write to a new file (- for stdout).
+        #[arg(short, long, default_value = "-")]
+        output: PathBuf,
+        /// Available .zxd dictionary (repeat for concatenated frames).
+        #[arg(short = 'D', long)]
+        dictionary: Vec<PathBuf>,
+    },
+    /// Show indexed frame metadata without reading block payloads.
+    Info { archive: PathBuf },
 }
 #[derive(Args)]
 struct DecodeArgs {
@@ -89,6 +106,44 @@ fn dict(path: &Path) -> io::Result<Dictionary> {
     File::open(path)?.take(16 + 65535 + 128 + 1).read_to_end(&mut bytes)?;
     Dictionary::from_bytes(&bytes)
 }
+fn dictionaries(paths: &[PathBuf]) -> io::Result<Vec<Dictionary>> {
+    paths.iter().map(|p| dict(p)).collect()
+}
+fn indexed(path: &Path) -> io::Result<zxc_seek::Archive<zxc_seek::FileSource>> {
+    if path == Path::new("-") {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "indexed reads require a file path",
+        ));
+    }
+    zxc_seek::Archive::open(zxc_seek::FileSource::open(path)?)
+}
+fn info(path: &Path, mut w: impl Write) -> io::Result<()> {
+    let archive = indexed(path)?;
+    writeln!(
+        w,
+        "ZXC v9: {} indexed frame(s), {} uncompressed bytes",
+        archive.frames().len(),
+        archive.len()
+    )?;
+    writeln!(
+        w,
+        "frame\tplain_start\tplain_bytes\tarchive_bytes\tblock_bytes\tblocks\tchecksum\tdict_id"
+    )?;
+    let mut start = 0;
+    for (index, frame) in archive.frames().iter().enumerate() {
+        let id = frame
+            .dictionary_id
+            .map_or_else(|| "-".to_owned(), |id| format!("{id:08x}"));
+        writeln!(
+            w,
+            "{index}\t{start}\t{}\t{}\t{}\t{}\t{}\t{id}",
+            frame.plain_size, frame.compressed_size, frame.block_size, frame.blocks, frame.checksum
+        )?;
+        start += frame.plain_size;
+    }
+    w.flush()
+}
 fn output(path: &Path, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) -> io::Result<()> {
     if path == Path::new("-") {
         let mut w = BufWriter::new(io::stdout().lock());
@@ -110,7 +165,7 @@ fn output(path: &Path, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) ->
     }
 }
 fn decode(path: &Path, w: &mut dyn Write, opt: DecodeArgs) -> io::Result<()> {
-    let dicts = opt.dictionary.iter().map(|p| dict(p)).collect::<io::Result<Vec<_>>>()?;
+    let dicts = dictionaries(&opt.dictionary)?;
     zxc_codec::decode(
         input(path)?,
         w,
@@ -161,6 +216,21 @@ fn run(cli: Cli) -> io::Result<()> {
         }
         Command::Decode { files, options } => output(&files.output, |w| decode(&files.input, w, options)),
         Command::Test { input, options } => decode(&input, &mut io::sink(), options),
+        Command::Info { archive } => info(&archive, BufWriter::new(io::stdout().lock())),
+        Command::Range {
+            archive,
+            start,
+            length,
+            output: destination,
+            dictionary,
+        } => {
+            let end = start
+                .checked_add(length)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "start + length overflows"))?;
+            let archive = indexed(&archive)?;
+            let dicts = dictionaries(&dictionary)?;
+            output(&destination, |w| archive.copy_range(start..end, &dicts, w))
+        }
     }
 }
 fn main() -> ExitCode {

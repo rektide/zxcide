@@ -5,6 +5,9 @@ use xshell::{Shell, cmd};
 pub fn check(sh: &Shell, c: &Path, rust: &Path) -> Result<()> {
     let valid = Path::new("tests/conformance/v9/valid");
     let mut checks = 0;
+    let mut range_checks = 0;
+    let scratch = tempfile::tempdir()?;
+    let indexed = scratch.path().join("indexed.zxc");
     for path in sh.read_dir(valid)? {
         if path.extension().is_none_or(|ext| ext != "expected") {
             continue;
@@ -45,6 +48,20 @@ pub fn check(sh: &Shell, c: &Path, rust: &Path) -> Result<()> {
                 .stdin(&plain)
                 .output()
                 .with_context(|| format!("C encode: {name}, level {level}"))?;
+            if level % 2 == 1 {
+                sh.write_file(&indexed, &archive.stdout)?;
+                let start = plain.len() / 2;
+                let length = (plain.len() - start).min(2049);
+                let (offset, count) = (start.to_string(), length.to_string());
+                let range = cmd!(sh, "{rust} range {indexed} {offset} {count} {dict...}")
+                    .output()
+                    .with_context(|| format!("indexed Rust range: {name}, C level {level}"))?;
+                ensure!(
+                    range.stdout == plain[start..start + length],
+                    "range mismatch: {name}, C level {level}"
+                );
+                range_checks += 1;
+            }
             let decoded = cmd!(sh, "{rust} decode {dict...}")
                 .stdin(archive.stdout)
                 .output()
@@ -54,6 +71,6 @@ pub fn check(sh: &Shell, c: &Path, rust: &Path) -> Result<()> {
         }
     }
     ensure!(checks > 0, "no conformance inputs found");
-    println!("{checks} byte-for-byte cross-decoding checks passed");
+    println!("{checks} byte-for-byte cross-decoding checks and {range_checks} indexed range checks passed");
     Ok(())
 }

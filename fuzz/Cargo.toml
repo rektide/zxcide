@@ -10,6 +10,14 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 zxc-codec = { path = "../crates/codec" }
+zxc-seek = { path = "../crates/seek" }
+
+[[bin]]
+name = "indexed"
+path = "fuzz_targets/indexed.rs"
+test = false
+doc = false
+bench = false
 
 [[bin]]
 name = "decode"
