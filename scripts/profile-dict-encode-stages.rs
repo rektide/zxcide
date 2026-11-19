@@ -1,5 +1,5 @@
 //! Estimate baseline stage costs with the ledger's seeded dictionary and plain.
-//! Run standalone: `rustc -O scripts/profile-dict-encode-stages.rs -o <scratch>`,
+//! Run standalone: `rustc --edition 2024 -O scripts/profile-dict-encode-stages.rs -o <scratch>`,
 //! then pin the executable to a core. This is not a whole-encoder benchmark.
 use std::{hint::black_box, time::Instant};
 
