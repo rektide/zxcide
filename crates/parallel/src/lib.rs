@@ -18,6 +18,8 @@ macro_rules! zone {
 mod channel;
 #[cfg(feature = "rayon")]
 mod rayon;
+#[cfg(test)]
+mod scheduler_tests;
 
 /// The transport used for multi-worker operations.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]

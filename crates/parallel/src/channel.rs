@@ -126,7 +126,7 @@ impl<Q: Transport> Driver<Q> {
         mut next: impl FnMut(Vec<u8>) -> io::Result<Option<J>>,
         work: impl Fn(&mut S, u64, J) -> io::Result<O> + Sync,
         mut commit: impl FnMut(O) -> io::Result<Vec<u8>>,
-        mut observe_completion: impl FnMut(u64),
+        mut observe_wait: impl FnMut(u64),
     ) -> io::Result<()> {
         let slots = self.0.slots;
         let (work, cancelled) = (&work, &AtomicBool::new(false));
@@ -199,6 +199,7 @@ impl<Q: Transport> Driver<Q> {
                 {
                     zone!("parallel wait ordered head");
                     while pending[ring(committed)].is_none() {
+                        observe_wait(committed);
                         zone!("parallel receive result");
                         let (index, result) = Q::recv_result(&result_rx)
                             .ok_or_else(|| io::Error::other("block result queue disconnected"))?;
@@ -210,7 +211,6 @@ impl<Q: Transport> Driver<Q> {
                             end.get_or_insert(Ok(()));
                         }
                         pending[ring(index)] = Some(result);
-                        observe_completion(index);
                     }
                 }
 
@@ -221,5 +221,66 @@ impl<Q: Transport> Driver<Q> {
                 }
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::scheduler_tests::{TIMEOUT, bounded, each_channel};
+    use std::{
+        cell::Cell,
+        sync::{Mutex, mpsc},
+    };
+
+    fn blocked_head<Q: Transport + 'static>(config: Config) {
+        bounded(move || {
+            let (wait_tx, wait_rx) = mpsc::channel();
+            let (head_tx, head_rx) = mpsc::channel();
+            let head_rx = Mutex::new(head_rx);
+            thread::scope(|scope| {
+                let coordinator = scope.spawn(move || {
+                    let read = Cell::new(0);
+                    let written = Cell::new(0);
+                    Driver::<Q>::new(config)
+                        .run_observed(
+                            |buf| {
+                                let n = read.get();
+                                if n == 3 {
+                                    return Ok(None);
+                                }
+                                assert!(n < 2 || written.get() > 0, "admitted job 2 before committing job 0");
+                                read.set(n + 1);
+                                Ok(Some(buf))
+                            },
+                            |(): &mut (), i, buf| {
+                                if i == 0 {
+                                    head_rx.lock().unwrap().recv_timeout(TIMEOUT).unwrap();
+                                }
+                                Ok((i, buf))
+                            },
+                            |(i, buf)| {
+                                assert_eq!(written.get(), i);
+                                written.set(i + 1);
+                                Ok(buf)
+                            },
+                            |head| wait_tx.send((head, read.get(), written.get())).unwrap(),
+                        )
+                        .unwrap();
+                    assert_eq!(written.get(), 3);
+                });
+                assert_eq!(wait_rx.recv_timeout(TIMEOUT).unwrap(), (0, 2, 0));
+                // The only result that could have arrived is job 1. The
+                // coordinator must still wait for 0 without admitting job 2.
+                assert_eq!(wait_rx.recv_timeout(TIMEOUT).unwrap(), (0, 2, 0));
+                head_tx.send(()).unwrap();
+                coordinator.join().unwrap();
+            });
+        });
+    }
+
+    #[test]
+    fn out_of_order_completion_does_not_return_credit() {
+        each_channel!(blocked_head, 2, 2);
     }
 }
