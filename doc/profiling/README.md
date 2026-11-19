@@ -6,7 +6,8 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
-  - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: WIT component build and Wasmtime Criterion tuning workflow }
+  - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: WIT component build, Criterion tuning workflow and Linux jitdump measurements }
+  - { resource: 'https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md', title: Wasmtime perf agents and jitdump injection }
   - { resource: 'opencode://ses_e0b1ee216ffelb33FpbVf2g8SE', title: All-mode Criterion suite and named baseline comparison workflow }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Codec measurements, interoperability and capture verification }
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
@@ -67,6 +68,22 @@ scripts/bench-component.sh component/mixed/Dense/b19/encode --baseline wasm-befo
 The component and native suites use the same inputs (including `ZXC_BENCH_INPUT`), mode selection and uncompressed-byte throughput. Each component case verifies the output before measurement. The timer covers one call on an existing instance, including byte-list transfers, per-call codec workspaces, and output allocation and disposal. Component loading, JIT compilation, instantiation, and preparing the decode archive are outside the loop. The native suite reuses workspaces and buffers, so the difference between suites is not solely the cost of WebAssembly execution.
 
 Keep the host runtime and input fixed while tuning the guest. For example, set `CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUSTFLAGS='-C target-feature=+simd128'` for a comparison on SIMD-capable runtimes. Record flags, component size, archive size, and component SHA-256 with the Criterion result. To measure an already distributed artifact, set `ZXC_COMPONENT` to its **absolute path** and run `cargo bench --locked -p zxc-component --features host-bench --bench component` directly.
+
+### Locate component hotspots with Linux perf
+
+Use the [perf capture helper](../../scripts/perf-component.py) to ask which guest functions consume cycles on one exact Criterion case. It requires Python 3, Linux `perf` with `inject --jit` support, and access to user-space cycle counters (`perf stat -e cycles:u -- true`). Build prerequisites and workload settings are the same as above.
+
+```sh
+scripts/perf-component.py component/upstream-l7/decode
+ZXC_BENCH_MODE=dense scripts/perf-component.py component/mixed/Dense/b19/encode --seconds 10
+# In the capture directory printed by the helper:
+perf report --stdio --percent-limit 1 -i perf.jit.data
+perf annotate --stdio -i perf.jit.data --symbol '<zxc_codec::entropy::Tree>::decode'
+```
+
+Following [Wasmtime's perf guide](https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md), the helper enables `ProfilingStrategy::JitDump` in the Rust host (`host-perf` enables `wasmtime/profiling` in 46.0.3). It builds first, then runs the benchmark executable under `perf record -k mono -e cycles:u` for a Criterion `--profile-time` loop. Startup, JIT and correctness checks are also sampled; increase `--seconds` when those obscure the loop. `perf inject --jit` resolves guest code addresses into named functions for reporting and assembly annotation. Keep `perf.jit.data` and the generated `jitted-*.so` files in their capture directory. Use ordinary Criterion baselines to measure whether a change helps.
+
+**First captures:** On a Ryzen 7 5800X (Wasmtime 46.0.3, perf 7.2.11, five seconds per case), `component/upstream-l7/decode` put **83.3% of sampled user cycles in `Tree::decode`** and 7.3% in `Tree::new`. For that wide-Huffman fixture, inspect the [decode loop](../../crates/codec/src/entropy.rs) first. Dense mixed encode had a different profile: `__multi3` (15.9%), `Tree::new` (14.4%) and heap `pop` (12.1%). Those are self costs; this capture does not identify callers of `__multi3`.
 
 ## Capture phases
 
