@@ -16,6 +16,12 @@ enum Backend {
     Component,
 }
 
+#[derive(Clone, Copy)]
+enum BenchMode {
+    Timing,
+    Perf { dwarf: bool },
+}
+
 impl Backend {
     fn bench_name(self) -> &'static str {
         match self {
@@ -52,6 +58,9 @@ enum Task {
         case: String,
         #[arg(long, default_value = "5")]
         seconds: NonZeroU32,
+        /// Retain optimized debug info and collect DWARF call stacks.
+        #[arg(long)]
+        dwarf: bool,
     },
 }
 
@@ -76,15 +85,15 @@ fn main() -> Result<()> {
         Task::Interop { c_cli, rust_cli } => {
             interop::check(&sh, &std::path::absolute(c_cli)?, &std::path::absolute(rust_cli)?)
         }
-        Task::Component => build_component(&sh, target).map(drop),
+        Task::Component => build_component(&sh, target, false).map(drop),
         Task::Bench { backend, args } => {
-            let bench = build_bench(&sh, target, backend, false)?;
+            let bench = build_bench(&sh, target, backend, BenchMode::Timing)?;
             cmd!(sh, "{bench} --bench {args...}").run()?;
             Ok(())
         }
         Task::Compare { case, args } => {
-            let native = build_bench(&sh, target, Backend::Native, false)?;
-            let component = build_bench(&sh, target, Backend::Component, false)?;
+            let native = build_bench(&sh, target, Backend::Native, BenchMode::Timing)?;
+            let component = build_bench(&sh, target, Backend::Component, BenchMode::Timing)?;
             for (bench, id) in [
                 (&native, case.clone()),
                 (&native, format!("oneshot/{case}")),
@@ -95,18 +104,27 @@ fn main() -> Result<()> {
             }
             Ok(())
         }
-        Task::Perf { backend, case, seconds } => perf(&sh, target, backend, &case, seconds),
+        Task::Perf {
+            backend,
+            case,
+            seconds,
+            dwarf,
+        } => perf(&sh, target, backend, &case, seconds, dwarf),
     }
 }
 
-fn build_component(sh: &Shell, target: &Path) -> Result<PathBuf> {
+fn build_component(sh: &Shell, target: &Path, dwarf: bool) -> Result<PathBuf> {
+    let profile = if dwarf { "profiling" } else { "release" };
     cmd!(
         sh,
-        "cargo build --locked --release -p zxc-component --target wasm32-unknown-unknown"
+        "cargo build --locked --profile {profile} -p zxc-component --target wasm32-unknown-unknown"
     )
     .run()?;
-    let core = target.join("wasm32-unknown-unknown/release/zxc_component.wasm");
-    let out = sh.create_dir(target.join("component"))?;
+    let core = target
+        .join("wasm32-unknown-unknown")
+        .join(profile)
+        .join("zxc_component.wasm");
+    let out = sh.create_dir(target.join(if dwarf { "profiling/component" } else { "component" }))?;
     let component = out.join("zxc-codec.wasm");
     cmd!(sh, "wasm-tools component new {core} -o {component}").run()?;
     cmd!(sh, "wasm-tools validate {component}").run()?;
@@ -115,20 +133,27 @@ fn build_component(sh: &Shell, target: &Path) -> Result<PathBuf> {
     Ok(component)
 }
 
-fn build_bench(sh: &Shell, target: &Path, backend: Backend, profiling: bool) -> Result<PathBuf> {
+fn build_bench(sh: &Shell, target: &Path, backend: Backend, mode: BenchMode) -> Result<PathBuf> {
     let mut build = cmd!(
         sh,
         "cargo bench --locked --no-run --message-format=json-render-diagnostics"
     );
+    let dwarf = matches!(mode, BenchMode::Perf { dwarf: true });
+    if dwarf {
+        build = build.args(["--profile", "profiling"]);
+    }
     build = match backend {
         Backend::Native => build.args(["-p", "zxc-codec"]),
         Backend::Component => {
-            sh.set_var("ZXC_COMPONENT", build_component(sh, target)?);
+            sh.set_var("ZXC_COMPONENT", build_component(sh, target, dwarf)?);
             build.args([
                 "-p",
                 "zxc-component",
                 "--features",
-                if profiling { "host-perf" } else { "host-bench" },
+                match mode {
+                    BenchMode::Perf { .. } => "host-perf",
+                    BenchMode::Timing => "host-bench",
+                },
             ])
         }
     };
@@ -155,8 +180,8 @@ fn check_case(sh: &Shell, bench: &Path, case: &str) -> Result<()> {
     Ok(())
 }
 
-fn perf(sh: &Shell, target: &Path, backend: Backend, case: &str, seconds: NonZeroU32) -> Result<()> {
-    let bench = build_bench(sh, target, backend, true)?;
+fn perf(sh: &Shell, target: &Path, backend: Backend, case: &str, seconds: NonZeroU32, dwarf: bool) -> Result<()> {
+    let bench = build_bench(sh, target, backend, BenchMode::Perf { dwarf })?;
     let id = match backend {
         Backend::Native => case.to_owned(),
         Backend::Component => format!("component/{case}"),
@@ -169,9 +194,10 @@ fn perf(sh: &Shell, target: &Path, backend: Backend, case: &str, seconds: NonZer
     eprintln!("Capture: {}", out.display());
     let _dir = sh.push_dir(&out);
     let seconds = seconds.to_string();
+    let stacks = if dwarf { &["--call-graph", "dwarf"][..] } else { &[] };
     let record = cmd!(
         sh,
-        "perf record -k mono -F 997 -e cycles:u -- {bench} --bench --exact {id} --profile-time {seconds}"
+        "perf record -k mono -F 997 -e cycles:u {stacks...} -- {bench} --bench --exact {id} --profile-time {seconds}"
     );
     let report = match backend {
         Backend::Native => {
@@ -179,7 +205,7 @@ fn perf(sh: &Shell, target: &Path, backend: Backend, case: &str, seconds: NonZer
             "perf.data"
         }
         Backend::Component => {
-            record.env("ZXC_JITDUMP", "1").run()?;
+            record.env("ZXC_JITDUMP", if dwarf { "dwarf" } else { "1" }).run()?;
             cmd!(sh, "perf inject --jit -i perf.data -o perf.jit.data").run()?;
             "perf.jit.data"
         }

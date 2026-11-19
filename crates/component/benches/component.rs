@@ -14,8 +14,9 @@ fn bench(c: &mut Criterion) {
     let path =
         std::env::var_os("ZXC_COMPONENT").expect("use cargo xtask bench component to build and select the component");
     let mut config = wasmtime::Config::new();
-    if std::env::var_os("ZXC_JITDUMP").is_some() {
+    if let Some(mode) = std::env::var_os("ZXC_JITDUMP") {
         config.profiler(wasmtime::ProfilingStrategy::JitDump);
+        config.debug_info(mode == "dwarf");
     }
     let engine = Engine::new(&config).expect("creating Wasmtime engine (jitdump requires Linux and host-perf)");
     let component = Component::from_file(&engine, path).unwrap();
