@@ -7,6 +7,7 @@ status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
   - { resource: 'opencode://ses_e0acf0f83ffeOu7mBN3OsQ5Dc8', title: Built and ran the diagnostic and uninstrumented benchmark pair }
+  - { resource: 'opencode://ses_e0ac424eeffe4kk65VvnMwl4oQ', title: Measured the follow-up on dictionary decode preload }
   - { resource: '/crates/parallel/benches/ledger.rs', title: Workloads and validation }
   - { resource: '/xtask/src/ledger.rs', title: Report generation and interval selection }
 ---
@@ -14,6 +15,8 @@ sources:
 # Where bytes go
 
 The largest **payload copy** in the full-frame cases is the 65,535-byte dictionary prefix: 16 bytes copied per plaintext byte in both encode and decode at 4 KiB. For a different access pattern, returning just 4 KiB from a checksummed 512 KiB RAW block stages 128 bytes per returned byte. Address dictionary history first for small-block streams; prioritize range scratch/borrowing separately for repeated short reads. Neither result calls for bypassing verification.
+
+These are baseline counts; see [the paired dictionary-decode follow-up](dictionary-decode.md) for the effect of borrowing match history. It does not change the encoder.
 
 ## Reproduce
 
