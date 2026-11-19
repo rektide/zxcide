@@ -1,0 +1,262 @@
+case	plaintext_B	site	bytes	B_per_B	CI95_low_us	CI95_high_us
+noise/b12/w1/encode	1048576	fill:match table (ff)	67108864	64.00000	2148.858	2210.845
+noise/b12/w1/encode	1048576	output:destination	1051687	1.00297	2148.858	2210.845
+noise/b12/w1/encode	1048576	capacity:request fits	1048576	1.00000	2148.858	2210.845
+noise/b12/w1/encode	1048576	copy:read source	1048576	1.00000	2148.858	2210.845
+noise/b12/w1/encode	1048576	capacity:growth delta	4096	0.00391	2148.858	2210.845
+noise/b12/w1/encode	1048576	zero:read buffer	4096	0.00391	2148.858	2210.845
+noise/b12/w1/decode	1048576	copy:read body	1049600	1.00098	76.469	76.682
+noise/b12/w1/decode	1048576	output:destination	1048576	1.00000	76.469	76.682
+noise/b12/w1/decode	1048576	capacity:request fits	1045500	0.99707	76.469	76.682
+noise/b12/w1/decode	1048576	capacity:growth delta	4100	0.00391	76.469	76.682
+noise/b12/w1/decode	1048576	zero:read buffer	4100	0.00391	76.469	76.682
+noise/b12/w4/encode	1048576	fill:match table (ff)	67108864	64.00000	728.988	791.796
+noise/b12/w4/encode	1048576	output:destination	1051687	1.00297	728.988	791.796
+noise/b12/w4/encode	1048576	copy:read source	1048576	1.00000	728.988	791.796
+noise/b12/w4/encode	1048576	capacity:request fits	1019904	0.97266	728.988	791.796
+noise/b12/w4/encode	1048576	capacity:growth delta	32768	0.03125	728.988	791.796
+noise/b12/w4/encode	1048576	zero:read buffer	32768	0.03125	728.988	791.796
+noise/b12/w4/decode	1048576	copy:read body	1049600	1.00098	268.396	275.329
+noise/b12/w4/decode	1048576	output:destination	1048576	1.00000	268.396	275.329
+noise/b12/w4/decode	1048576	capacity:request fits	1016800	0.96970	268.396	275.329
+noise/b12/w4/decode	1048576	capacity:growth delta	32800	0.03128	268.396	275.329
+noise/b12/w4/decode	1048576	zero:read buffer	32800	0.03128	268.396	275.329
+mixed/b12/w1/encode	1048576	fill:match table (ff)	67108864	64.00000	20791.484	20977.530
+mixed/b12/w1/encode	1048576	capacity:request fits	1048576	1.00000	20791.484	20977.530
+mixed/b12/w1/encode	1048576	copy:read source	1048576	1.00000	20791.484	20977.530
+mixed/b12/w1/encode	1048576	copy:candidate literals	589755	0.56243	20791.484	20977.530
+mixed/b12/w1/encode	1048576	copy:RLE candidate literals	589698	0.56238	20791.484	20977.530
+mixed/b12/w1/encode	1048576	output:destination	473238	0.45131	20791.484	20977.530
+mixed/b12/w1/encode	1048576	copy:dense assembly	462511	0.44108	20791.484	20977.530
+mixed/b12/w1/encode	1048576	copy:Huffman candidate	457839	0.43663	20791.484	20977.530
+mixed/b12/w1/encode	1048576	zero:Huffman bitstream	425327	0.40562	20791.484	20977.530
+mixed/b12/w1/encode	1048576	zero:slack	6592	0.00629	20791.484	20977.530
+mixed/b12/w1/encode	1048576	capacity:growth delta	4096	0.00391	20791.484	20977.530
+mixed/b12/w1/encode	1048576	zero:read buffer	4096	0.00391	20791.484	20977.530
+mixed/b12/w1/decode	1048576	copy:Huffman gather	1380371	1.31642	6473.464	7008.887
+mixed/b12/w1/decode	1048576	copy:Huffman return	1380371	1.31642	6473.464	7008.887
+mixed/b12/w1/decode	1048576	zero:Huffman vectors	1179510	1.12487	6473.464	7008.887
+mixed/b12/w1/decode	1048576	output:destination	1048576	1.00000	6473.464	7008.887
+mixed/b12/w1/decode	1048576	produce:Huffman symbols	589755	0.56243	6473.464	7008.887
+mixed/b12/w1/decode	1048576	reconstruct:literals	589755	0.56243	6473.464	7008.887
+mixed/b12/w1/decode	1048576	copy:read body	471151	0.44932	6473.464	7008.887
+mixed/b12/w1/decode	1048576	capacity:request fits	467467	0.44581	6473.464	7008.887
+mixed/b12/w1/decode	1048576	reconstruct:matches	458821	0.43757	6473.464	7008.887
+mixed/b12/w1/decode	1048576	capacity:growth delta	3682	0.00351	6473.464	7008.887
+mixed/b12/w1/decode	1048576	zero:read buffer	2118	0.00202	6473.464	7008.887
+mixed/b12/w4/encode	1048576	fill:match table (ff)	67108864	64.00000	6393.937	7824.875
+mixed/b12/w4/encode	1048576	copy:read source	1048576	1.00000	6393.937	7824.875
+mixed/b12/w4/encode	1048576	capacity:request fits	1003520	0.95703	6393.937	7824.875
+mixed/b12/w4/encode	1048576	zero:read buffer	595407	0.56782	6393.937	7824.875
+mixed/b12/w4/encode	1048576	copy:candidate literals	589755	0.56243	6393.937	7824.875
+mixed/b12/w4/encode	1048576	copy:RLE candidate literals	589698	0.56238	6393.937	7824.875
+mixed/b12/w4/encode	1048576	output:destination	473238	0.45131	6393.937	7824.875
+mixed/b12/w4/encode	1048576	copy:dense assembly	462511	0.44108	6393.937	7824.875
+mixed/b12/w4/encode	1048576	copy:Huffman candidate	457839	0.43663	6393.937	7824.875
+mixed/b12/w4/encode	1048576	zero:Huffman bitstream	425327	0.40562	6393.937	7824.875
+mixed/b12/w4/encode	1048576	capacity:growth delta	47200	0.04501	6393.937	7824.875
+mixed/b12/w4/encode	1048576	zero:slack	6592	0.00629	6393.937	7824.875
+mixed/b12/w4/decode	1048576	copy:Huffman gather	1380371	1.31642	1953.918	2272.854
+mixed/b12/w4/decode	1048576	copy:Huffman return	1380371	1.31642	1953.918	2272.854
+mixed/b12/w4/decode	1048576	zero:Huffman vectors	1179510	1.12487	1953.918	2272.854
+mixed/b12/w4/decode	1048576	output:destination	1048576	1.00000	1953.918	2272.854
+mixed/b12/w4/decode	1048576	produce:Huffman symbols	589755	0.56243	1953.918	2272.854
+mixed/b12/w4/decode	1048576	reconstruct:literals	589755	0.56243	1953.918	2272.854
+mixed/b12/w4/decode	1048576	copy:read body	471151	0.44932	1953.918	2272.854
+mixed/b12/w4/decode	1048576	reconstruct:matches	458821	0.43757	1953.918	2272.854
+mixed/b12/w4/decode	1048576	capacity:request fits	456428	0.43528	1953.918	2272.854
+mixed/b12/w4/decode	1048576	capacity:growth delta	14723	0.01404	1953.918	2272.854
+mixed/b12/w4/decode	1048576	zero:read buffer	14723	0.01404	1953.918	2272.854
+dict/b12/w1/encode	1048576	fill:match table (ff)	67108864	64.00000	21353.351	21559.548
+dict/b12/w1/encode	1048576	copy:history prefix	16776960	15.99976	21353.351	21559.548
+dict/b12/w1/encode	1048576	capacity:request fits	1048576	1.00000	21353.351	21559.548
+dict/b12/w1/encode	1048576	copy:history plain	1048576	1.00000	21353.351	21559.548
+dict/b12/w1/encode	1048576	copy:read source	1048576	1.00000	21353.351	21559.548
+dict/b12/w1/encode	1048576	output:destination	14374	0.01371	21353.351	21559.548
+dict/b12/w1/encode	1048576	zero:slack	6912	0.00659	21353.351	21559.548
+dict/b12/w1/encode	1048576	capacity:growth delta	4096	0.00391	21353.351	21559.548
+dict/b12/w1/encode	1048576	zero:read buffer	4096	0.00391	21353.351	21559.548
+dict/b12/w1/encode	1048576	copy:candidate literals	0	0.00000	21353.351	21559.548
+dict/b12/w1/decode	1048576	copy:history prefix	16776960	15.99976	375.739	394.632
+dict/b12/w1/decode	1048576	output:destination	1048576	1.00000	375.739	394.632
+dict/b12/w1/decode	1048576	reconstruct:matches	1048576	1.00000	375.739	394.632
+dict/b12/w1/decode	1048576	copy:read body	12288	0.01172	375.739	394.632
+dict/b12/w1/decode	1048576	capacity:request fits	12240	0.01167	375.739	394.632
+dict/b12/w1/decode	1048576	capacity:growth delta	48	0.00005	375.739	394.632
+dict/b12/w1/decode	1048576	zero:read buffer	48	0.00005	375.739	394.632
+dict/b12/w1/decode	1048576	reconstruct:literals	0	0.00000	375.739	394.632
+dict/b12/w4/encode	1048576	fill:match table (ff)	67108864	64.00000	5793.747	6035.947
+dict/b12/w4/encode	1048576	copy:history prefix	16776960	15.99976	5793.747	6035.947
+dict/b12/w4/encode	1048576	copy:history plain	1048576	1.00000	5793.747	6035.947
+dict/b12/w4/encode	1048576	copy:read source	1048576	1.00000	5793.747	6035.947
+dict/b12/w4/encode	1048576	zero:read buffer	1041716	0.99346	5793.747	6035.947
+dict/b12/w4/encode	1048576	capacity:request fits	1003520	0.95703	5793.747	6035.947
+dict/b12/w4/encode	1048576	capacity:growth delta	48896	0.04663	5793.747	6035.947
+dict/b12/w4/encode	1048576	output:destination	14374	0.01371	5793.747	6035.947
+dict/b12/w4/encode	1048576	zero:slack	6912	0.00659	5793.747	6035.947
+dict/b12/w4/encode	1048576	copy:candidate literals	0	0.00000	5793.747	6035.947
+dict/b12/w4/decode	1048576	copy:history prefix	16776960	15.99976	215.878	221.889
+dict/b12/w4/decode	1048576	output:destination	1048576	1.00000	215.878	221.889
+dict/b12/w4/decode	1048576	reconstruct:matches	1048576	1.00000	215.878	221.889
+dict/b12/w4/decode	1048576	copy:read body	12288	0.01172	215.878	221.889
+dict/b12/w4/decode	1048576	capacity:request fits	11904	0.01135	215.878	221.889
+dict/b12/w4/decode	1048576	capacity:growth delta	384	0.00037	215.878	221.889
+dict/b12/w4/decode	1048576	zero:read buffer	384	0.00037	215.878	221.889
+dict/b12/w4/decode	1048576	reconstruct:literals	0	0.00000	215.878	221.889
+range/b12/slice/r4096	4096	input:positioned body	8200	2.00195	0.723	0.746
+range/b12/slice/r4096	4096	capacity:growth delta	4100	1.00098	0.723	0.746
+range/b12/slice/r4096	4096	capacity:request fits	4100	1.00098	0.723	0.746
+range/b12/slice/r4096	4096	zero:read buffer	4100	1.00098	0.723	0.746
+range/b12/slice/r4096	4096	output:destination	4096	1.00000	0.723	0.746
+range/b12/slice/r524288	524288	input:positioned body	528900	1.00880	38.875	39.537
+range/b12/slice/r524288	524288	capacity:request fits	524800	1.00098	38.875	39.537
+range/b12/slice/r524288	524288	output:destination	524288	1.00000	38.875	39.537
+range/b12/slice/r524288	524288	capacity:growth delta	4100	0.00782	38.875	39.537
+range/b12/slice/r524288	524288	zero:read buffer	4100	0.00782	38.875	39.537
+range/b12/file/r4096	4096	input:positioned body	8200	2.00195	1.921	1.948
+range/b12/file/r4096	4096	capacity:growth delta	4100	1.00098	1.921	1.948
+range/b12/file/r4096	4096	capacity:request fits	4100	1.00098	1.921	1.948
+range/b12/file/r4096	4096	zero:read buffer	4100	1.00098	1.921	1.948
+range/b12/file/r4096	4096	output:destination	4096	1.00000	1.921	1.948
+range/b12/file/r524288	524288	input:positioned body	528900	1.00880	99.609	102.036
+range/b12/file/r524288	524288	capacity:request fits	524800	1.00098	99.609	102.036
+range/b12/file/r524288	524288	output:destination	524288	1.00000	99.609	102.036
+range/b12/file/r524288	524288	capacity:growth delta	4100	0.00782	99.609	102.036
+range/b12/file/r524288	524288	zero:read buffer	4100	0.00782	99.609	102.036
+noise/b19/w1/encode	1048576	output:destination	1048639	1.00006	5429.752	5455.695
+noise/b19/w1/encode	1048576	capacity:request fits	1048576	1.00000	5429.752	5455.695
+noise/b19/w1/encode	1048576	copy:read source	1048576	1.00000	5429.752	5455.695
+noise/b19/w1/encode	1048576	capacity:growth delta	524288	0.50000	5429.752	5455.695
+noise/b19/w1/encode	1048576	fill:match table (ff)	524288	0.50000	5429.752	5455.695
+noise/b19/w1/encode	1048576	zero:read buffer	524288	0.50000	5429.752	5455.695
+noise/b19/w1/decode	1048576	copy:read body	1048584	1.00001	84.224	84.601
+noise/b19/w1/decode	1048576	output:destination	1048576	1.00000	84.224	84.601
+noise/b19/w1/decode	1048576	capacity:growth delta	524292	0.50000	84.224	84.601
+noise/b19/w1/decode	1048576	capacity:request fits	524292	0.50000	84.224	84.601
+noise/b19/w1/decode	1048576	zero:read buffer	524292	0.50000	84.224	84.601
+noise/b19/w4/encode	1048576	capacity:growth delta	1572864	1.50000	3309.788	3366.829
+noise/b19/w4/encode	1048576	zero:read buffer	1572864	1.50000	3309.788	3366.829
+noise/b19/w4/encode	1048576	output:destination	1048639	1.00006	3309.788	3366.829
+noise/b19/w4/encode	1048576	copy:read source	1048576	1.00000	3309.788	3366.829
+noise/b19/w4/encode	1048576	fill:match table (ff)	524288	0.50000	3309.788	3366.829
+noise/b19/w4/decode	1048576	capacity:growth delta	1048584	1.00001	149.962	154.949
+noise/b19/w4/decode	1048576	copy:read body	1048584	1.00001	149.962	154.949
+noise/b19/w4/decode	1048576	zero:read buffer	1048584	1.00001	149.962	154.949
+noise/b19/w4/decode	1048576	output:destination	1048576	1.00000	149.962	154.949
+mixed/b19/w1/encode	1048576	capacity:request fits	1048576	1.00000	3903.977	3967.836
+mixed/b19/w1/encode	1048576	copy:read source	1048576	1.00000	3903.977	3967.836
+mixed/b19/w1/encode	1048576	output:destination	528385	0.50391	3903.977	3967.836
+mixed/b19/w1/encode	1048576	copy:dense assembly	528314	0.50384	3903.977	3967.836
+mixed/b19/w1/encode	1048576	copy:candidate literals	524400	0.50011	3903.977	3967.836
+mixed/b19/w1/encode	1048576	copy:RLE candidate literals	524343	0.50005	3903.977	3967.836
+mixed/b19/w1/encode	1048576	capacity:growth delta	524288	0.50000	3903.977	3967.836
+mixed/b19/w1/encode	1048576	fill:match table (ff)	524288	0.50000	3903.977	3967.836
+mixed/b19/w1/encode	1048576	zero:read buffer	524288	0.50000	3903.977	3967.836
+mixed/b19/w1/encode	1048576	copy:Huffman candidate	434	0.00041	3903.977	3967.836
+mixed/b19/w1/encode	1048576	zero:Huffman bitstream	180	0.00017	3903.977	3967.836
+mixed/b19/w1/decode	1048576	output:destination	1048576	1.00000	113.244	114.396
+mixed/b19/w1/decode	1048576	copy:read body	528330	0.50385	113.244	114.396
+mixed/b19/w1/decode	1048576	reconstruct:literals	524400	0.50011	113.244	114.396
+mixed/b19/w1/decode	1048576	reconstruct:matches	524176	0.49989	113.244	114.396
+mixed/b19/w1/decode	1048576	capacity:growth delta	264241	0.25200	113.244	114.396
+mixed/b19/w1/decode	1048576	zero:read buffer	264241	0.25200	113.244	114.396
+mixed/b19/w1/decode	1048576	capacity:request fits	264089	0.25185	113.244	114.396
+mixed/b19/w1/decode	1048576	zero:Huffman vectors	1518	0.00145	113.244	114.396
+mixed/b19/w1/decode	1048576	copy:Huffman gather	1359	0.00130	113.244	114.396
+mixed/b19/w1/decode	1048576	copy:Huffman return	1359	0.00130	113.244	114.396
+mixed/b19/w1/decode	1048576	produce:Huffman symbols	759	0.00072	113.244	114.396
+mixed/b19/w4/encode	1048576	capacity:growth delta	1572864	1.50000	2395.724	2434.502
+mixed/b19/w4/encode	1048576	zero:read buffer	1572864	1.50000	2395.724	2434.502
+mixed/b19/w4/encode	1048576	copy:read source	1048576	1.00000	2395.724	2434.502
+mixed/b19/w4/encode	1048576	output:destination	528385	0.50391	2395.724	2434.502
+mixed/b19/w4/encode	1048576	copy:dense assembly	528314	0.50384	2395.724	2434.502
+mixed/b19/w4/encode	1048576	copy:candidate literals	524400	0.50011	2395.724	2434.502
+mixed/b19/w4/encode	1048576	copy:RLE candidate literals	524343	0.50005	2395.724	2434.502
+mixed/b19/w4/encode	1048576	fill:match table (ff)	524288	0.50000	2395.724	2434.502
+mixed/b19/w4/encode	1048576	copy:Huffman candidate	434	0.00041	2395.724	2434.502
+mixed/b19/w4/encode	1048576	zero:Huffman bitstream	180	0.00017	2395.724	2434.502
+mixed/b19/w4/decode	1048576	output:destination	1048576	1.00000	148.882	156.559
+mixed/b19/w4/decode	1048576	capacity:growth delta	528330	0.50385	148.882	156.559
+mixed/b19/w4/decode	1048576	copy:read body	528330	0.50385	148.882	156.559
+mixed/b19/w4/decode	1048576	zero:read buffer	528330	0.50385	148.882	156.559
+mixed/b19/w4/decode	1048576	reconstruct:literals	524400	0.50011	148.882	156.559
+mixed/b19/w4/decode	1048576	reconstruct:matches	524176	0.49989	148.882	156.559
+mixed/b19/w4/decode	1048576	zero:Huffman vectors	1518	0.00145	148.882	156.559
+mixed/b19/w4/decode	1048576	copy:Huffman gather	1359	0.00130	148.882	156.559
+mixed/b19/w4/decode	1048576	copy:Huffman return	1359	0.00130	148.882	156.559
+mixed/b19/w4/decode	1048576	produce:Huffman symbols	759	0.00072	148.882	156.559
+dict/b19/w1/encode	1048576	capacity:request fits	1048576	1.00000	363.107	367.545
+dict/b19/w1/encode	1048576	copy:history plain	1048576	1.00000	363.107	367.545
+dict/b19/w1/encode	1048576	copy:read source	1048576	1.00000	363.107	367.545
+dict/b19/w1/encode	1048576	capacity:growth delta	524288	0.50000	363.107	367.545
+dict/b19/w1/encode	1048576	fill:match table (ff)	524288	0.50000	363.107	367.545
+dict/b19/w1/encode	1048576	zero:read buffer	524288	0.50000	363.107	367.545
+dict/b19/w1/encode	1048576	copy:history prefix	131070	0.12500	363.107	367.545
+dict/b19/w1/encode	1048576	output:destination	149	0.00014	363.107	367.545
+dict/b19/w1/encode	1048576	zero:slack	42	0.00004	363.107	367.545
+dict/b19/w1/encode	1048576	copy:candidate literals	0	0.00000	363.107	367.545
+dict/b19/w1/decode	1048576	output:destination	1048576	1.00000	86.522	86.941
+dict/b19/w1/decode	1048576	reconstruct:matches	1048576	1.00000	86.522	86.941
+dict/b19/w1/decode	1048576	copy:history prefix	131070	0.12500	86.522	86.941
+dict/b19/w1/decode	1048576	copy:read body	96	0.00009	86.522	86.941
+dict/b19/w1/decode	1048576	capacity:growth delta	48	0.00005	86.522	86.941
+dict/b19/w1/decode	1048576	capacity:request fits	48	0.00005	86.522	86.941
+dict/b19/w1/decode	1048576	zero:read buffer	48	0.00005	86.522	86.941
+dict/b19/w1/decode	1048576	reconstruct:literals	0	0.00000	86.522	86.941
+dict/b19/w4/encode	1048576	capacity:growth delta	1572864	1.50000	308.055	320.734
+dict/b19/w4/encode	1048576	zero:read buffer	1572864	1.50000	308.055	320.734
+dict/b19/w4/encode	1048576	copy:history plain	1048576	1.00000	308.055	320.734
+dict/b19/w4/encode	1048576	copy:read source	1048576	1.00000	308.055	320.734
+dict/b19/w4/encode	1048576	fill:match table (ff)	524288	0.50000	308.055	320.734
+dict/b19/w4/encode	1048576	copy:history prefix	131070	0.12500	308.055	320.734
+dict/b19/w4/encode	1048576	output:destination	149	0.00014	308.055	320.734
+dict/b19/w4/encode	1048576	zero:slack	42	0.00004	308.055	320.734
+dict/b19/w4/encode	1048576	copy:candidate literals	0	0.00000	308.055	320.734
+dict/b19/w4/decode	1048576	output:destination	1048576	1.00000	113.129	115.998
+dict/b19/w4/decode	1048576	reconstruct:matches	1048576	1.00000	113.129	115.998
+dict/b19/w4/decode	1048576	copy:history prefix	131070	0.12500	113.129	115.998
+dict/b19/w4/decode	1048576	capacity:growth delta	96	0.00009	113.129	115.998
+dict/b19/w4/decode	1048576	copy:read body	96	0.00009	113.129	115.998
+dict/b19/w4/decode	1048576	zero:read buffer	96	0.00009	113.129	115.998
+dict/b19/w4/decode	1048576	reconstruct:literals	0	0.00000	113.129	115.998
+range/b19/slice/r4096	4096	capacity:growth delta	524292	128.00098	33.899	33.943
+range/b19/slice/r4096	4096	input:positioned body	524292	128.00098	33.899	33.943
+range/b19/slice/r4096	4096	zero:read buffer	524292	128.00098	33.899	33.943
+range/b19/slice/r4096	4096	output:destination	4096	1.00000	33.899	33.943
+range/b19/slice/r524288	524288	input:positioned body	1048584	2.00002	72.580	72.884
+range/b19/slice/r524288	524288	capacity:growth delta	524292	1.00001	72.580	72.884
+range/b19/slice/r524288	524288	capacity:request fits	524292	1.00001	72.580	72.884
+range/b19/slice/r524288	524288	zero:read buffer	524292	1.00001	72.580	72.884
+range/b19/slice/r524288	524288	output:destination	524288	1.00000	72.580	72.884
+range/b19/file/r4096	4096	capacity:growth delta	524292	128.00098	45.405	46.698
+range/b19/file/r4096	4096	input:positioned body	524292	128.00098	45.405	46.698
+range/b19/file/r4096	4096	zero:read buffer	524292	128.00098	45.405	46.698
+range/b19/file/r4096	4096	output:destination	4096	1.00000	45.405	46.698
+range/b19/file/r524288	524288	input:positioned body	1048584	2.00002	96.019	96.452
+range/b19/file/r524288	524288	capacity:growth delta	524292	1.00001	96.019	96.452
+range/b19/file/r524288	524288	capacity:request fits	524292	1.00001	96.019	96.452
+range/b19/file/r524288	524288	zero:read buffer	524292	1.00001	96.019	96.452
+range/b19/file/r524288	524288	output:destination	524288	1.00000	96.019	96.452
+wide/w1/decode	16384	copy:Huffman gather	65042	3.96985	117.556	121.368
+wide/w1/decode	16384	copy:Huffman return	65042	3.96985	117.556	121.368
+wide/w1/decode	16384	zero:Huffman vectors	32172	1.96362	117.556	121.368
+wide/w1/decode	16384	output:destination	16384	1.00000	117.556	121.368
+wide/w1/decode	16384	produce:Huffman symbols	16086	0.98181	117.556	121.368
+wide/w1/decode	16384	reconstruct:literals	16086	0.98181	117.556	121.368
+wide/w1/decode	16384	capacity:growth delta	12782	0.78015	117.556	121.368
+wide/w1/decode	16384	copy:read body	12782	0.78015	117.556	121.368
+wide/w1/decode	16384	zero:read buffer	12782	0.78015	117.556	121.368
+wide/w1/decode	16384	reconstruct:matches	298	0.01819	117.556	121.368
+wide/w4/decode	16384	copy:Huffman gather	65042	3.96985	192.757	313.920
+wide/w4/decode	16384	copy:Huffman return	65042	3.96985	192.757	313.920
+wide/w4/decode	16384	zero:Huffman vectors	32172	1.96362	192.757	313.920
+wide/w4/decode	16384	output:destination	16384	1.00000	192.757	313.920
+wide/w4/decode	16384	produce:Huffman symbols	16086	0.98181	192.757	313.920
+wide/w4/decode	16384	reconstruct:literals	16086	0.98181	192.757	313.920
+wide/w4/decode	16384	capacity:growth delta	12782	0.78015	192.757	313.920
+wide/w4/decode	16384	copy:read body	12782	0.78015	192.757	313.920
+wide/w4/decode	16384	zero:read buffer	12782	0.78015	192.757	313.920
+wide/w4/decode	16384	reconstruct:matches	298	0.01819	192.757	313.920
+oneshot/upstream-l7/decode	16384	output:destination	16384	1.00000	119.956	132.475
+component/upstream-l7/decode	16384	ABI:result list	16384	1.00000	140.017	154.638
+component/upstream-l7/decode	16384	ABI:argument list	12819	0.78241	140.017	154.638

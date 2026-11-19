@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0acf0f83ffeOu7mBN3OsQ5Dc8', title: Native byte ledger, wide-Huffman WIT comparison and paired Criterion measurements }
   - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: Rust xtask, paired native and WIT component benchmarks, Linux perf and opt-in DWARF capture verification }
   - { resource: 'https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md', title: Wasmtime perf agents and jitdump injection }
   - { resource: 'opencode://ses_e0b1ee216ffelb33FpbVf2g8SE', title: All-mode Criterion suite and named baseline comparison workflow }
@@ -15,6 +16,8 @@ sources:
 ---
 
 # Profile a codec change
+
+For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledger](ledger.md) ranks individual sites and pairs each workload with its uninstrumented timing interval.
 
 ## Compare parallel transports
 
