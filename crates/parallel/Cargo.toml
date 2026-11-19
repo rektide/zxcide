@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [features]
+ledger = ["zxc-codec/ledger"]
 flume = ["dep:flume"]
 kanal = ["dep:kanal"]
 crossfire = ["dep:crossfire"]
@@ -21,8 +22,14 @@ tracy-client = { workspace = true, optional = true }
 zxc-codec = { path = "../codec" }
 
 [dev-dependencies]
+zxc-seek = { path = "../seek" }
+tempfile = "3"
 criterion = { version = "0.8", default-features = false }
 
 [[bench]]
 name = "transports"
+harness = false
+
+[[bench]]
+name = "ledger"
 harness = false

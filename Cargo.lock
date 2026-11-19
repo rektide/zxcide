@@ -2314,8 +2314,10 @@ dependencies = [
  "flume",
  "kanal",
  "rayon",
+ "tempfile",
  "tracy-client",
  "zxc-codec",
+ "zxc-seek",
 ]
 
 [[package]]

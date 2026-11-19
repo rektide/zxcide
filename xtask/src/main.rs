@@ -9,6 +9,7 @@ use std::{
 };
 use xshell::{Shell, cmd};
 mod interop;
+mod ledger;
 mod smoke;
 
 #[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
@@ -35,6 +36,12 @@ impl Backend {
 #[derive(Parser)]
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
+    /// Rank native byte-movement sites and time the same cases without probes.
+    Ledger {
+        /// Also time the wide-Huffman WIT boundary and native one-shot control.
+        #[arg(long)]
+        component: bool,
+    },
     /// Seed each libFuzzer target from the pinned corpus and run a bounded smoke test.
     FuzzSmoke {
         #[arg(long, default_value = "2000")]
@@ -114,6 +121,7 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
+        Task::Ledger { component } => ledger::run(&sh, target, component),
         Task::FuzzSmoke { runs } => smoke::fuzz(&sh, target, runs),
         Task::Tracy { capture, repeats, port } => smoke::tracy(&sh, target, &capture, repeats, port),
         Task::Interop {
