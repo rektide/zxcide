@@ -4,6 +4,8 @@ use crate::{require, take};
 use std::{collections::VecDeque, io};
 mod pack;
 pub(crate) use pack::best;
+#[cfg(test)]
+mod tests;
 
 #[derive(Default, Debug)]
 struct Node {
@@ -92,13 +94,19 @@ impl Tree {
         let mut order = Vec::with_capacity(self.0.len());
         let mut queue = VecDeque::from([(0, 0, count)]);
         let mut output = vec![0; count];
-        while let Some((i, start, n)) = queue.pop_front() {
+        let mut scratch = Vec::new();
+        // The low bit tags the bank that owns this interval. The root is
+        // always in output. Only mixed nodes flip their children's bank.
+        while let Some((i, tagged, n)) = queue.pop_front() {
             if n == 0 {
                 continue;
             }
+            let start = tagged >> 1;
+            let bank = tagged & 1;
             let node = &self.0[i];
             if let Some(sym) = node.symbol {
-                output[start..start + n].fill(sym);
+                let dst = if bank == 0 { &mut output } else { &mut scratch };
+                dst[start..start + n].fill(sym);
                 continue;
             }
             let run = take(&mut src, (n * usize::from(node.flat.max(1))).div_ceil(8))?;
@@ -110,20 +118,29 @@ impl Tree {
                     } else {
                         (run[whole] & ((1 << (n % 8)) - 1)).count_ones() as usize
                     };
-                order.push((start, n, ones, run));
+                let child_bank = if ones != 0 && ones != n {
+                    if scratch.is_empty() {
+                        scratch.resize(count, 0);
+                    }
+                    order.push((tagged, n, ones, run));
+                    bank ^ 1
+                } else {
+                    bank
+                };
                 for (child, (base, cnt)) in node
                     .child
                     .into_iter()
                     .zip([(start, n - ones), (start + n - ones, ones)])
                 {
                     if let Some(c) = child {
-                        queue.push_back((c, base, cnt));
+                        queue.push_back((c, (base << 1) | child_bank, cnt));
                     } else {
                         require(cnt == 0, "Huffman run selects missing child")?;
                     }
                 }
             } else {
-                for (k, dst) in output[start..start + n].iter_mut().enumerate() {
+                let dst = if bank == 0 { &mut output } else { &mut scratch };
+                for (k, dst) in dst[start..start + n].iter_mut().enumerate() {
                     let bit = k * usize::from(node.flat);
                     let byte = bit / 8;
                     let pair = u16::from(run[byte]) | (u16::from(*run.get(byte + 1).unwrap_or(&0)) << 8);
@@ -132,9 +149,8 @@ impl Tree {
             }
         }
         require(src.is_empty(), "trailing Huffman data")?;
-        let mut scratch = vec![0; count];
         crate::probe!({
-            add("zero:Huffman vectors", 2 * count);
+            add("zero:Huffman vectors", count + scratch.len());
             add("produce:Huffman symbols", count);
             crate::ledger::max(
                 "peak-section:Huffman auxiliary",
@@ -143,24 +159,23 @@ impl Tree {
                     + queue.capacity() * std::mem::size_of::<(usize, usize, usize)>(),
             );
         });
-        for (start, n, ones, run) in order.into_iter().rev() {
-            if ones == 0 || ones == n {
-                continue;
-            }
-            let region = &mut output[start..start + n];
+        for (tagged, n, ones, run) in order.into_iter().rev() {
+            let start = tagged >> 1;
+            let (dst, src) = if tagged & 1 == 0 {
+                (&mut output, &scratch)
+            } else {
+                (&mut scratch, &output)
+            };
+            let region = &src[start..start + n];
             let mut cursor = [0, n - ones];
-            for (chunk, &bits) in scratch[..n].chunks_mut(8).zip(run) {
+            for (chunk, &bits) in dst[start..start + n].chunks_mut(8).zip(run) {
                 for (j, dst) in chunk.iter_mut().enumerate() {
                     let side = usize::from((bits >> j) & 1);
                     *dst = region[cursor[side]];
                     cursor[side] += 1;
                 }
             }
-            region.copy_from_slice(&scratch[..n]);
-            crate::probe!({
-                add("copy:Huffman gather", n);
-                add("copy:Huffman return", n);
-            });
+            crate::probe!({ add("copy:Huffman gather", n) });
         }
         Ok(output)
     }
