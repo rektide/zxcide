@@ -138,3 +138,5 @@ hyperfine --warmup 2 --runs 5 -N 'target/release/zxc test /path/to/repeated.zxc'
 ```
 
 After the merge change, the Rust CLI took **122 ± 2 ms**, versus **31 ± 1 ms** for the pinned upstream native C release build. Both read the same archive and discard output. This end-to-end gap includes frame setup and I/O; the trace points to entropy decoding as the next place to look on this workload.
+
+**Explicit SIMD comparison (same fixture, Ryzen 7 5800X):** rebuild the pinned upstream checkout in a second CMake build directory with `-DZXC_DISABLE_SIMD=ON`, keeping the Release settings, and compare both C CLIs (`-qt -T1`) with the Rust release CLI (`test`). Across nine warm-cache runs on the 1,000-frame input: upstream default **28.6 ± 0.8 ms**, upstream explicit SIMD disabled **82.8 ± 9.5 ms**, Rust **123.3 ± 3.2 ms**. Disabling explicit kernels does not disable compiler autovectorization. This measures an end-to-end effect of upstream's kernel selection, not the speedup a Rust port of any individual loop will obtain.
