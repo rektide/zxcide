@@ -135,7 +135,7 @@ fn bench(c: &mut Criterion) {
     #[cfg(not(feature = "ledger"))]
     {
         let mut g = c.benchmark_group("ledger/dict-first");
-        for (blocks, workers) in [(1, 1), (2, 1), (8, 1), (8, 4)] {
+        for (blocks, workers) in [(1, 1), (2, 1), (17, 1), (32, 1), (32, 4)] {
             let plain = &records[..blocks * 4096];
             let config = Config {
                 workers,
