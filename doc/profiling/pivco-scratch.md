@@ -16,6 +16,8 @@ sources:
 
 **Drop the alternate layout (`0b8eaeee`).** Removing copy-back did not produce a repeatable native serial win on either entropy-heavy workload. Four-worker 4 KiB mixed improved in both pairs, but that same input slowed by **11.1–12.8%** through WIT with separated intervals. Leave the baseline decoder in place. This tests buffer placement, not whether a faster scalar or SIMD gather would help.
 
+The [bitmap gather comparison](pivco-merge.md) keeps the retained copy-back layout fixed and times only a change of gather kernel within it.
+
 The original scalar decoder unpacks the leaves and flat subtrees into disjoint intervals, gathers each mixed bitmap into scratch, and copies it back. The experiment assigns each interval to one of two same-size byte vectors while reading the wire. The root is assigned to output; mixed nodes put both children in the opposite vector, and uniform nodes keep the same vector and do not merge. Bottom-up gathers therefore write to their final interval for the next merge. The bitmap cursor loop and flat unpacking are unchanged. Depth alone would not suffice: uniform nodes must not flip the assignment or cause a copy. The low bit of each pending interval's bounded start holds its vector assignment, so queue and order entries do not get larger.
 
 Scratch is allocated only after the first mixed bitmap. Each decode of a Huffman section owns its vectors and traversal state. Worker ownership, wire validation, LZ reconstruction, and verified publication are unchanged. No SIMD and no new dependency.

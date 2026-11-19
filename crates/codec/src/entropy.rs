@@ -2,6 +2,11 @@
 //! symbol lists bottom-up. Each subtree owns a disjoint output interval.
 use crate::{require, take};
 use std::{collections::VecDeque, io};
+#[cfg(any(
+    test,
+    not(target_arch = "wasm32"),
+    all(feature = "merge-simd", target_feature = "simd128")
+))]
 mod merge;
 mod pack;
 pub(crate) use pack::best;
@@ -151,7 +156,21 @@ impl Tree {
                 continue;
             }
             let region = &mut output[start..start + n];
+            #[cfg(any(not(target_arch = "wasm32"), all(feature = "merge-simd", target_feature = "simd128")))]
             merge::gather(region, &mut scratch[..n], run, n - ones);
+            // Keep the unflagged component on its original cursor. The table
+            // build did not pass the whole-call WIT regression screen.
+            #[cfg(all(target_arch = "wasm32", not(all(feature = "merge-simd", target_feature = "simd128"))))]
+            {
+                let mut cursor = [0, n - ones];
+                for (chunk, &bits) in scratch[..n].chunks_mut(8).zip(run) {
+                    for (j, dst) in chunk.iter_mut().enumerate() {
+                        let side = usize::from((bits >> j) & 1);
+                        *dst = region[cursor[side]];
+                        cursor[side] += 1;
+                    }
+                }
+            }
             region.copy_from_slice(&scratch[..n]);
             crate::probe!({
                 add("copy:Huffman gather", n);
