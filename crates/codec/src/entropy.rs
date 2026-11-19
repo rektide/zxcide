@@ -1,6 +1,6 @@
-//! Scalar PivCo decoder. Discover the breadth-first wire runs once, then
-//! consume them in symbol order; each node has its own bit cursor.
-use crate::{bad, require, take};
+//! Scalar PivCo: discover breadth-first wire runs, then merge sibling
+//! symbol lists bottom-up. Each subtree owns a disjoint output interval.
+use crate::{require, take};
 use std::{collections::VecDeque, io};
 
 #[derive(Default, Debug)]
@@ -84,15 +84,19 @@ impl Tree {
 
     pub fn decode(&self, mut src: &[u8], count: usize) -> io::Result<Vec<u8>> {
         zone!("PivCo decode");
-        let mut runs = vec![(&[][..], 0usize); self.0.len()];
-        let mut queue = VecDeque::from([(0, count)]);
-        while let Some((i, n)) = queue.pop_front() {
+        let mut order = Vec::with_capacity(self.0.len());
+        let mut queue = VecDeque::from([(0, 0, count)]);
+        let mut output = vec![0; count];
+        while let Some((i, start, n)) = queue.pop_front() {
+            if n == 0 {
+                continue;
+            }
             let node = &self.0[i];
-            if node.symbol.is_some() {
+            if let Some(sym) = node.symbol {
+                output[start..start + n].fill(sym);
                 continue;
             }
             let run = take(&mut src, (n * usize::from(node.flat.max(1))).div_ceil(8))?;
-            runs[i].0 = run;
             if node.flat == 0 {
                 let whole = n / 8;
                 let ones = run[..whole].iter().map(|b| b.count_ones() as usize).sum::<usize>()
@@ -101,38 +105,39 @@ impl Tree {
                     } else {
                         (run[whole] & ((1 << (n % 8)) - 1)).count_ones() as usize
                     };
-                for (child, cnt) in node.child.into_iter().zip([n - ones, ones]) {
+                order.push((start, n, ones, run));
+                for (child, (base, cnt)) in node.child.into_iter().zip([(start, n - ones), (start + n - ones, ones)]) {
                     if let Some(c) = child {
-                        queue.push_back((c, cnt));
+                        queue.push_back((c, base, cnt));
                     } else {
                         require(cnt == 0, "Huffman run selects missing child")?;
                     }
                 }
+            } else {
+                for (k, dst) in output[start..start + n].iter_mut().enumerate() {
+                    let bit = k * usize::from(node.flat);
+                    let byte = bit / 8;
+                    let pair = u16::from(run[byte]) | (u16::from(*run.get(byte + 1).unwrap_or(&0)) << 8);
+                    *dst = node.lookup[usize::from((pair >> (bit % 8)) & ((1 << node.flat) - 1))];
+                }
             }
         }
         require(src.is_empty(), "trailing Huffman data")?;
-        let mut output = Vec::with_capacity(count);
-        for _ in 0..count {
-            let mut i = 0;
-            loop {
-                let node = &self.0[i];
-                if let Some(symbol) = node.symbol {
-                    output.push(symbol);
-                    break;
-                }
-                let (run, bit) = &mut runs[i];
-                let shift = *bit % 8;
-                let byte = *bit / 8;
-                if node.flat > 0 {
-                    let pair = u16::from(run[byte]) | (u16::from(*run.get(byte + 1).unwrap_or(&0)) << 8);
-                    let value = (pair >> shift) & ((1 << node.flat) - 1);
-                    output.push(node.lookup[usize::from(value)]);
-                    *bit += usize::from(node.flat);
-                    break;
-                }
-                i = node.child[usize::from((run[byte] >> shift) & 1)].ok_or_else(|| bad("invalid branch"))?;
-                *bit += 1;
+        let mut scratch = vec![0; count];
+        for (start, n, ones, run) in order.into_iter().rev() {
+            if ones == 0 || ones == n {
+                continue;
             }
+            let region = &mut output[start..start + n];
+            let mut cursor = [0, n - ones];
+            for (chunk, &bits) in scratch[..n].chunks_mut(8).zip(run) {
+                for (j, dst) in chunk.iter_mut().enumerate() {
+                    let side = usize::from((bits >> j) & 1);
+                    *dst = region[cursor[side]];
+                    cursor[side] += 1;
+                }
+            }
+            region.copy_from_slice(&scratch[..n]);
         }
         Ok(output)
     }
