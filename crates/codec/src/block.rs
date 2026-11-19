@@ -5,7 +5,7 @@ use crate::{
     wire::{DataBlockHeader, checksum},
     word,
 };
-use std::{borrow::Cow, io};
+use std::{borrow::Cow, io, ops::Range};
 
 /// Reusable reconstruction scratch for decoding independent data blocks.
 #[derive(Default)]
@@ -18,6 +18,27 @@ pub struct BlockDecoder {
 pub struct VerifiedBlock<'a> {
     pub bytes: &'a [u8],
     pub checksum: Option<u32>,
+}
+
+/// A verified block whose backing buffer can move between threads.
+pub struct OwnedVerifiedBlock {
+    buffer: Vec<u8>,
+    plain: Range<usize>,
+    checksum: Option<u32>,
+}
+
+impl OwnedVerifiedBlock {
+    pub fn as_verified(&self) -> VerifiedBlock<'_> {
+        VerifiedBlock {
+            bytes: &self.buffer[self.plain.clone()],
+            checksum: self.checksum,
+        }
+    }
+
+    /// Reclaim the backing buffer after an ordered write.
+    pub fn into_buffer(self) -> Vec<u8> {
+        self.buffer
+    }
 }
 
 impl BlockDecoder {
@@ -61,6 +82,31 @@ impl BlockDecoder {
             None
         };
         Ok(VerifiedBlock { bytes, checksum })
+    }
+
+    /// Like [`Self::decode`], transferring a buffer without copying verified
+    /// plaintext. Its range excludes any dictionary prefix or checksum bytes.
+    pub fn decode_owned(
+        &mut self,
+        header: DataBlockHeader,
+        mut body: Vec<u8>,
+        dictionary: Option<&Dictionary>,
+        index: u64,
+    ) -> io::Result<OwnedVerifiedBlock> {
+        let block = self.decode(header, &body, dictionary, index, None)?;
+        let (len, checksum) = (block.bytes.len(), block.checksum);
+        let start = if header.kind == 0 {
+            0
+        } else {
+            let start = self.out.len() - len;
+            std::mem::swap(&mut self.out, &mut body);
+            start
+        };
+        Ok(OwnedVerifiedBlock {
+            buffer: body,
+            plain: start..start + len,
+            checksum,
+        })
     }
 }
 

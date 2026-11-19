@@ -14,9 +14,15 @@ mod encode;
 mod entropy;
 mod frame;
 pub mod wire;
-pub use block::{BlockDecoder, VerifiedBlock};
+pub use block::{BlockDecoder, OwnedVerifiedBlock, VerifiedBlock};
 pub use dict::Dictionary;
+pub use encode::{BlockEncoder, EncodedBlock};
 pub use frame::{DecodeOptions, Decoder, EncodeOptions, Encoder, Mode, decode, encode};
+
+/// Frame I/O shared by the serial codec and the parallel codec driver.
+pub mod stream {
+    pub use crate::frame::{DecodeFrame, EncodeFrame, read_data_block, read_source_block};
+}
 
 use std::io;
 fn bad(message: &'static str) -> io::Error {

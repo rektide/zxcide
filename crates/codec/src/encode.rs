@@ -1,5 +1,5 @@
 //! Greedy 64 KiB-window parser. The same parse can be priced in either layout.
-use crate::{Dictionary, Mode};
+use crate::{Dictionary, EncodeOptions, Mode, wire::checksum};
 
 #[derive(Clone, Copy)]
 struct Match {
@@ -8,13 +8,29 @@ struct Match {
     off: u16,
 }
 
+/// Reusable compression scratch for independent data blocks.
 #[derive(Default)]
-pub struct Workspace {
+pub struct BlockEncoder {
     table: Vec<u32>,
     matches: Vec<Match>,
     history: Vec<u8>,
     payload: Vec<u8>,
     dense: Vec<u8>,
+}
+
+/// One encoded block, borrowing the source/scratch or owning its payload.
+pub struct EncodedBlock<B> {
+    pub(crate) kind: u8,
+    pub(crate) payload: B,
+    pub(crate) plain_len: usize,
+    pub(crate) checksum: Option<u32>,
+}
+
+impl<B> EncodedBlock<B> {
+    /// Reclaim the backing buffer after an ordered write.
+    pub fn into_payload(self) -> B {
+        self.payload
+    }
 }
 
 fn key(data: &[u8], i: usize) -> usize {
@@ -61,8 +77,40 @@ fn varint(out: &mut Vec<u8>, n: usize) {
     }
 }
 
-impl Workspace {
-    pub fn block<'a>(&'a mut self, plain: &'a [u8], mode: Mode, dict: Option<&Dictionary>) -> (u8, &'a [u8]) {
+impl BlockEncoder {
+    /// Encode a block of at most the configured frame block size. `index` is
+    /// its zero-based position within the frame (used as the checksum seed).
+    pub fn encode<'a>(&'a mut self, plain: &'a [u8], opt: EncodeOptions<'_>, index: u64) -> EncodedBlock<&'a [u8]> {
+        let (kind, payload) = self.block(plain, opt.mode, opt.dictionary);
+        EncodedBlock {
+            kind,
+            payload,
+            plain_len: plain.len(),
+            checksum: opt.checksum.then(|| checksum(plain, index)),
+        }
+    }
+
+    /// Like [`Self::encode`], transferring a buffer instead of copying bytes
+    /// out of the block scratch. The returned payload can be reused as input.
+    pub fn encode_owned(&mut self, mut plain: Vec<u8>, opt: EncodeOptions<'_>, index: u64) -> EncodedBlock<Vec<u8>> {
+        let EncodedBlock {
+            kind,
+            plain_len,
+            checksum,
+            ..
+        } = self.encode(&plain, opt, index);
+        if kind != 0 {
+            std::mem::swap(&mut self.payload, &mut plain);
+        }
+        EncodedBlock {
+            kind,
+            payload: plain,
+            plain_len,
+            checksum,
+        }
+    }
+
+    fn block<'a>(&'a mut self, plain: &'a [u8], mode: Mode, dict: Option<&Dictionary>) -> (u8, &'a [u8]) {
         if plain.len() <= 44 {
             return (0, plain);
         }
