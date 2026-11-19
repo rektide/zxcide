@@ -1,6 +1,50 @@
 use super::*;
 
 #[test]
+fn skewed_histogram_uses_length_limited_huffman_for_either_section() {
+    // The heap tree for Fibonacci weights reaches 15 bits. Reorder the
+    // 2583 bytes with a coprime stride so RLE does not hide the regression.
+    let weights = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987];
+    let grouped: Vec<_> = weights
+        .iter()
+        .enumerate()
+        .flat_map(|(sym, &n)| std::iter::repeat_n(sym as u8, n))
+        .collect();
+    let src: Vec<_> = (0..grouped.len()).map(|i| grouped[i * 1009 % grouped.len()]).collect();
+    for literal in [false, true] {
+        let (enc, bytes) = best(&src, literal, None);
+        assert_eq!(enc, 2);
+        let (table, bits) = bytes.split_at(128);
+        let tree = Tree::new(table).unwrap(); // wire depth + complete Kraft sum
+        let depth = |sym: usize| table[sym / 2] >> (4 * (sym % 2)) & 15;
+        assert!((0..weights.len()).all(|sym| depth(sym) != 0));
+        assert!((weights.len()..256).all(|sym| depth(sym) == 0));
+        // Optimal 11-bit weighted cost (computed by enumerating leaf counts
+        // per depth in a full tree, assigning heavier leaves first).
+        assert_eq!(
+            weights
+                .iter()
+                .enumerate()
+                .map(|(s, n)| n * usize::from(depth(s)))
+                .sum::<usize>(),
+            6749
+        );
+        assert_eq!(tree.decode(bits, src.len()).unwrap(), src);
+    }
+}
+
+#[test]
+fn entropy_still_falls_back_when_wire_cost_does_not_win() {
+    let flat: Vec<_> = (0..=255).cycle().take(768).collect();
+    for literal in [false, true] {
+        let (enc, bytes) = best(&flat, literal, None);
+        assert_eq!(enc, 0);
+        assert_eq!(&*bytes, flat);
+    }
+    assert_eq!(best(&[1; 12], true, None).0, 1); // RLE beats raw; no room for a table
+}
+
+#[test]
 fn bitmap_kernels_match_the_cursor_at_exact_child_and_output_ends() {
     for first in 0..=255u8 {
         // Balanced padding on each side makes every byte value enter the

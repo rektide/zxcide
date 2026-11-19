@@ -13,6 +13,8 @@ pub(crate) use pack::best;
 #[cfg(test)]
 mod tests;
 
+const MAX_CODE_LEN: u8 = 11;
+
 #[derive(Default, Debug)]
 struct Node {
     child: [Option<usize>; 2],
@@ -31,14 +33,14 @@ impl Tree {
         let mut kraft = 0;
         for i in 0..256 {
             let depth = table[i / 2] >> (4 * (i % 2)) & 15;
-            require(depth <= 11, "Huffman length exceeds 11")?;
+            require(depth <= MAX_CODE_LEN, "Huffman length exceeds 11")?;
             if depth > 0 {
                 symbols.push((depth, i as u8));
-                kraft += 1 << (11 - depth);
+                kraft += 1 << (MAX_CODE_LEN - depth);
             }
         }
         require(
-            kraft == 2048 || (symbols.len() == 1 && symbols[0].0 == 1),
+            kraft == 1 << MAX_CODE_LEN || (symbols.len() == 1 && symbols[0].0 == 1),
             "incomplete Huffman tree",
         )?;
         symbols.sort_unstable();

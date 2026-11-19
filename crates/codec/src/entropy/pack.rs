@@ -1,6 +1,6 @@
 //! Entropy candidates for the density-oriented encoder. Price the actual
 //! byte-aligned runs (including descriptor/table costs) before emitting bits.
-use super::Tree;
+use super::{MAX_CODE_LEN, Tree};
 use crate::Dictionary;
 use std::{
     borrow::Cow,
@@ -8,7 +8,7 @@ use std::{
     collections::{BinaryHeap, VecDeque},
 };
 
-fn lengths(freq: &[usize; 256]) -> Option<[u8; 128]> {
+fn lengths(freq: &[usize; 256]) -> [u8; 128] {
     let mut heap = BinaryHeap::new();
     for (i, &count) in freq.iter().enumerate() {
         if count != 0 {
@@ -18,8 +18,8 @@ fn lengths(freq: &[usize; 256]) -> Option<[u8; 128]> {
     let mut parents = [None; 511];
     let mut next = 256;
     while heap.len() > 1 {
-        let Reverse((ca, a)) = heap.pop()?;
-        let Reverse((cb, b)) = heap.pop()?;
+        let Reverse((ca, a)) = heap.pop().unwrap();
+        let Reverse((cb, b)) = heap.pop().unwrap();
         parents[a] = Some(next);
         parents[b] = Some(next);
         heap.push(Reverse((ca + cb, next)));
@@ -35,14 +35,80 @@ fn lengths(freq: &[usize; 256]) -> Option<[u8; 128]> {
             i = p;
             d += 1;
         }
-        // An unrepresentable tree loses the competition to raw/RLE. No
-        // need to emit an invalid table or change the decoder contract.
-        if d > 11 {
-            return None;
+        // Preserve the usual heap result when already representable.
+        if d > MAX_CODE_LEN {
+            return limited_lengths(freq);
         }
         table[s / 2] |= d.max(1) << (4 * (s % 2));
     }
-    Some(table)
+    table
+}
+
+/// Package-merge, minimizing weighted code lengths subject to the wire cap.
+/// We only get here with multiple leaves, at most 256 (well within 2^11).
+fn limited_lengths(freq: &[usize; 256]) -> [u8; 128] {
+    let mut leaves: Vec<_> = freq
+        .iter()
+        .copied()
+        .enumerate()
+        .filter_map(|(sym, weight)| (weight > 0).then_some((weight, sym)))
+        .collect();
+    leaves.sort_unstable(); // ascending weight, ties by symbol
+    let n = leaves.len();
+
+    // Each level merges fresh leaves and adjacent pairs from the level below.
+    // Keep only the cheapest 2*n-2 items: the final selection needs no more,
+    // and expanding any selected packages cannot need a longer prefix below.
+    const MAX_ITEMS: usize = 2 * 256 - 2;
+    let take = 2 * n - 2;
+    let mut weights = [[0; MAX_ITEMS]; 2];
+    let [mut prev, mut next] = weights.each_mut();
+    // For each prefix length, record how many items in it are leaves. The
+    // rest are packages, whose children form another prefix one level down.
+    let mut leaf_counts = [[0u16; MAX_ITEMS + 1]; MAX_CODE_LEN as usize - 1];
+    for (w, &(weight, _)) in prev.iter_mut().zip(&leaves) {
+        *w = weight;
+    }
+    let mut len = n;
+    for counts in &mut leaf_counts {
+        let packages = len / 2;
+        let (mut leaf, mut pair) = (0, 0);
+        len = (n + packages).min(take);
+        for (w, count) in next[..len].iter_mut().zip(&mut counts[1..]) {
+            let lw = leaves.get(leaf).map_or(usize::MAX, |x| x.0);
+            let pw = if pair < packages {
+                prev[2 * pair] + prev[2 * pair + 1]
+            } else {
+                usize::MAX
+            };
+            if leaf < n && lw <= pw {
+                *w = lw;
+                leaf += 1;
+            } else {
+                *w = pw;
+                pair += 1;
+            }
+            *count = leaf as u16;
+        }
+        std::mem::swap(&mut prev, &mut next);
+    }
+
+    // Select the cheapest 2*n-2 items at the top level. Count each leaf's
+    // appearances across those items and the packages they expand into.
+    debug_assert_eq!(len, take);
+    let mut table = [0; 128];
+    let mut selected = take;
+    for counts in leaf_counts.iter().rev() {
+        let leaf = usize::from(counts[selected]);
+        for &(_, sym) in &leaves[..leaf] {
+            table[sym / 2] += 1 << (4 * (sym % 2));
+        }
+        selected = 2 * (selected - leaf);
+    }
+    for &(_, sym) in &leaves[..selected] {
+        table[sym / 2] += 1 << (4 * (sym % 2));
+    }
+    table
 }
 
 impl Tree {
@@ -158,9 +224,8 @@ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) 
         budget = bytes.len();
         best = (3, Cow::Owned(bytes));
     }
-    if budget > 128
-        && let Some(table) = lengths(&freq)
-    {
+    if budget > 128 {
+        let table = lengths(&freq);
         let tree = Tree::new(&table).expect("generated a complete Huffman tree");
         if let Some(bits) = tree.emit(src, &freq, budget - 128) {
             let mut buf = table.to_vec();
