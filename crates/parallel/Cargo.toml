@@ -1,0 +1,28 @@
+[package]
+name = "zxc-parallel"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+flume = ["dep:flume"]
+kanal = ["dep:kanal"]
+crossfire = ["dep:crossfire"]
+rayon = ["dep:rayon"]
+tracy = ["dep:tracy-client", "zxc-codec/tracy"]
+
+[dependencies]
+crossbeam-channel = "0.5"
+crossfire = { version = "3.1", default-features = false, optional = true }
+flume = { version = "0.12", default-features = false, optional = true }
+kanal = { version = "0.1", default-features = false, optional = true }
+rayon = { version = "1.12", optional = true }
+tracy-client = { workspace = true, optional = true }
+zxc-codec = { path = "../codec" }
+
+[dev-dependencies]
+criterion = { version = "0.8", default-features = false }
+
+[[bench]]
+name = "transports"
+harness = false
