@@ -1,0 +1,23 @@
+name: Codec checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  codec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - run: sha256sum --quiet -c tests/conformance/v9/vectors.sha256
+      - run: cargo fmt --all --check && cargo clippy --locked --all-targets --all-features -- -D warnings
+      - run: cargo test --locked --workspace && cargo test --locked --workspace --all-features
+      - uses: actions/checkout@v4
+        with:
+          repository: hellobertrand/zxc
+          ref: 2992c28e6e1df07feec0cb39678a6d4a9665c6bb
+          path: .test-agent/oracle/zxc
+      - run: |
+          cmake -S .test-agent/oracle/zxc -B .test-agent/oracle/build -DCMAKE_BUILD_TYPE=Release -DZXC_BUILD_TESTS=OFF
+          cmake --build .test-agent/oracle/build --parallel 2
+          cargo build --locked --release -p zxc-cli
+          python3 scripts/interop.py .test-agent/oracle/build/zxc target/release/zxc

@@ -94,7 +94,10 @@ impl Encoder {
         self.sizes.clear();
         let (mut disk, mut plain, mut index, mut digest) = (16, 0, 0, 0);
         loop {
-            let n = fill(&mut r, &mut self.input)?;
+            let n = {
+                zone!("read source block");
+                fill(&mut r, &mut self.input)?
+            };
             if n == 0 {
                 break;
             }
@@ -166,19 +169,19 @@ impl Decoder {
             r.read_exact(&mut h[4..])?;
             require(h[4] == 9, "unsupported ZXC version")?;
             require(
-                h[14..] == header_sum(&h).to_le_bytes() && (12..=21).contains(&h[5]) && h[6] & 31 == 0 && h[11..14] == [0; 3],
+                h[14..] == header_sum(&h).to_le_bytes()
+                    && (12..=21).contains(&h[5])
+                    && h[6] & 31 == 0
+                    && h[11..14] == [0; 3],
                 "invalid ZXC file header",
             )?;
             let limit = 1usize << h[5];
             let checks = h[6] & 128 != 0;
             let dict = if h[6] & 64 != 0 {
                 let id = u32::from_le_bytes(h[7..11].try_into().unwrap());
-                Some(
-                    opt.dictionaries
-                        .iter()
-                        .find(|d| d.id == id)
-                        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, format!("dictionary {id:08x} required")))?,
-                )
+                Some(opt.dictionaries.iter().find(|d| d.id == id).ok_or_else(|| {
+                    io::Error::new(io::ErrorKind::InvalidData, format!("dictionary {id:08x} required"))
+                })?)
             } else {
                 require(h[7..11] == [0; 4], "reserved dictionary field")?;
                 None
@@ -194,7 +197,10 @@ impl Decoder {
                 zone!("decode block");
                 require(kind <= 2 && size as usize <= limit, "invalid data block type or size")?;
                 self.payload.resize(size as usize, 0);
-                r.read_exact(&mut self.payload)?;
+                {
+                    zone!("read payload");
+                    r.read_exact(&mut self.payload)?;
+                }
                 let bytes = if kind == 0 {
                     &self.payload[..]
                 } else {
@@ -206,11 +212,17 @@ impl Decoder {
                     digest = fold(digest, c);
                 }
                 total = add(total, bytes.len() as u64)?;
-                require(opt.max_output.is_none_or(|max| total <= max), "decoded output limit exceeded")?;
+                require(
+                    opt.max_output.is_none_or(|max| total <= max),
+                    "decoded output limit exceeded",
+                )?;
                 plain = add(plain, bytes.len() as u64)?;
                 index = add(index, 1)?;
                 disk = add(disk, u64::from(size) + if checks { 4 } else { 0 })?;
-                w.write_all(bytes)?;
+                {
+                    zone!("write plaintext");
+                    w.write_all(bytes)?;
+                }
             }
             if h[6] & 32 != 0 {
                 let t = table_len(plain.div_ceil(limit as u64))?;

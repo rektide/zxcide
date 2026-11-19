@@ -36,7 +36,13 @@ fn section<'a>(encoding: u8, mut data: &'a [u8], count: usize, dict: Option<&Dic
 }
 
 /// Reconstruct an SPL/PAK block in reusable storage, returning only source bytes.
-pub fn unpack<'a>(kind: u8, mut data: &[u8], limit: usize, dict: Option<&Dictionary>, out: &'a mut Vec<u8>) -> io::Result<&'a [u8]> {
+pub fn unpack<'a>(
+    kind: u8,
+    mut data: &[u8],
+    limit: usize,
+    dict: Option<&Dictionary>,
+    out: &'a mut Vec<u8>,
+) -> io::Result<&'a [u8]> {
     let n = word(&mut data)?;
     let nl = word(&mut data)?;
     require(nl <= limit && n <= (limit - nl) / 5, "decoded counts exceed block size")?;
@@ -77,7 +83,12 @@ pub fn unpack<'a>(kind: u8, mut data: &[u8], limit: usize, dict: Option<&Diction
     for i in 0..n {
         let (mut ll, mut ml, off, mask) = if packed {
             let w = &sequences[4 * i..4 * i + 4];
-            (usize::from(w[3]), usize::from(w[2]), u16::from_le_bytes([w[0], w[1]]) as usize + 1, 255)
+            (
+                usize::from(w[3]),
+                usize::from(w[2]),
+                u16::from_le_bytes([w[0], w[1]]) as usize + 1,
+                255,
+            )
         } else {
             let t = sequences[i];
             let off = if width == 1 {

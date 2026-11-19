@@ -16,8 +16,15 @@ pub struct Dictionary {
 impl Dictionary {
     /// Parse and validate the content, optional shared codebook and their binding.
     pub fn from_bytes(data: &[u8]) -> io::Result<Self> {
-        let h: &[u8; 16] = data.get(..16).ok_or_else(|| bad("short dictionary"))?.try_into().unwrap();
-        require(h[..4] == 0x9cb0d1c7u32.to_le_bytes() && h[4] == 2, "unsupported dictionary")?;
+        let h: &[u8; 16] = data
+            .get(..16)
+            .ok_or_else(|| bad("short dictionary"))?
+            .try_into()
+            .unwrap();
+        require(
+            h[..4] == 0x9cb0d1c7u32.to_le_bytes() && h[4] == 2,
+            "unsupported dictionary",
+        )?;
         require(
             h[5] == 0 && h[12..14] == [0, 0] && h[14..] == header_sum(h).to_le_bytes(),
             "invalid dictionary header",
@@ -27,7 +34,11 @@ impl Dictionary {
         let (content, table) = data[16..].split_at(n);
         let id = checksum(table, u64::from(checksum(content, 0)));
         require(h[8..12] == id.to_le_bytes(), "dictionary ID mismatch")?;
-        let tree = if table.iter().all(|&b| b == 0) { None } else { Some(Tree::new(table)?) };
+        let tree = if table.iter().all(|&b| b == 0) {
+            None
+        } else {
+            Some(Tree::new(table)?)
+        };
         Ok(Self {
             content: content.to_vec(),
             tree,

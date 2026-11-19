@@ -95,7 +95,10 @@ fn output(path: &Path, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) ->
         action(&mut w)?;
         w.flush()
     } else {
-        let parent = path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new("."));
+        let parent = path
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or(Path::new("."));
         let mut tmp = NamedTempFile::new_in(parent)?;
         {
             let mut w = BufWriter::new(&mut tmp);

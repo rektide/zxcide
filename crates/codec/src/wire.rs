@@ -7,7 +7,12 @@ pub fn header_sum(h: &[u8; 16]) -> u16 {
     let a = u64::from_le_bytes(h[..8].try_into().unwrap());
     let b = u64::from_le_bytes(h[8..].try_into().unwrap()) & 0xffff_ffff_ffff;
     let c = 0xd2d84a61d2d84a61;
-    ((a ^ c).wrapping_mul(c).wrapping_add(b).wrapping_add(GOLD).wrapping_mul(GOLD) >> 48) as u16
+    ((a ^ c)
+        .wrapping_mul(c)
+        .wrapping_add(b)
+        .wrapping_add(GOLD)
+        .wrapping_mul(GOLD)
+        >> 48) as u16
 }
 pub fn block_header(kind: u8, size: u32) -> [u8; 8] {
     let mut h = [0; 8];

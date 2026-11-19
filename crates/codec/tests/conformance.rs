@@ -6,7 +6,8 @@ const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/conformance
 #[test]
 fn reference_decoding() {
     let valid = Path::new(ROOT).join("valid");
-    let dicts = ["dict_http", "dict_text", "dict_id_zero"].map(|s| Dictionary::from_bytes(&fs::read(valid.join(format!("{s}.zxd"))).unwrap()).unwrap());
+    let dicts = ["dict_http", "dict_text", "dict_id_zero"]
+        .map(|s| Dictionary::from_bytes(&fs::read(valid.join(format!("{s}.zxd"))).unwrap()).unwrap());
     let mut count = 0;
     for f in fs::read_dir(&valid).unwrap() {
         let p = f.unwrap().path();
@@ -23,7 +24,10 @@ fn reference_decoding() {
             },
         )
         .unwrap_or_else(|e| panic!("{p:?}: {e}"));
-        assert!(plain == fs::read(p.with_extension("expected")).unwrap(), "{p:?}: plaintext mismatch");
+        assert!(
+            plain == fs::read(p.with_extension("expected")).unwrap(),
+            "{p:?}: plaintext mismatch"
+        );
         count += 1;
     }
     assert_eq!(count, 18);

@@ -1,3 +1,6 @@
 /target/
 /.test-agent/
 *.tracy
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/

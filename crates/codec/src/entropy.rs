@@ -29,7 +29,10 @@ impl Tree {
                 kraft += 1 << (11 - depth);
             }
         }
-        require(kraft == 2048 || (symbols.len() == 1 && symbols[0].0 == 1), "incomplete Huffman tree")?;
+        require(
+            kraft == 2048 || (symbols.len() == 1 && symbols[0].0 == 1),
+            "incomplete Huffman tree",
+        )?;
         symbols.sort_unstable();
         let mut nodes = vec![Node::default()];
         let (mut code, mut prev) = (0u16, 0);
@@ -108,7 +111,11 @@ impl Tree {
                         (run[whole] & ((1 << (n % 8)) - 1)).count_ones() as usize
                     };
                 order.push((start, n, ones, run));
-                for (child, (base, cnt)) in node.child.into_iter().zip([(start, n - ones), (start + n - ones, ones)]) {
+                for (child, (base, cnt)) in node
+                    .child
+                    .into_iter()
+                    .zip([(start, n - ones), (start + n - ones, ones)])
+                {
                     if let Some(c) = child {
                         queue.push_back((c, base, cnt));
                     } else {
