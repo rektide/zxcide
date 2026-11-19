@@ -1,6 +1,47 @@
 use anyhow::{Context, Result, ensure};
-use std::{ffi::OsString, path::Path};
+use std::{
+    ffi::OsString,
+    path::{Path, PathBuf},
+};
 use xshell::{Shell, cmd};
+
+const REV: &str = "2992c28e6e1df07feec0cb39678a6d4a9665c6bb";
+const REPO: &str = "https://github.com/hellobertrand/zxc";
+
+/// Cache the C checkout outside the source tree. Reuse it only if it still
+/// matches the verification target; never reset a developer's edited files.
+pub fn oracle(sh: &Shell, target: &Path) -> Result<PathBuf> {
+    let root = sh.create_dir(target.join("oracle").join(REV))?;
+    let src = root.join("source");
+    let build = root.join("build");
+    if !src.exists() {
+        let tmp = tempfile::tempdir_in(&root)?;
+        let staging = tmp.path();
+        cmd!(sh, "git init -q {staging}").run()?;
+        cmd!(sh, "git -C {staging} fetch -q --depth=1 {REPO} {REV}").run()?;
+        cmd!(sh, "git -C {staging} checkout -q --detach FETCH_HEAD").run()?;
+        std::fs::rename(staging, &src)?;
+    }
+    ensure!(
+        cmd!(sh, "git -C {src} rev-parse HEAD").read()? == REV
+            && cmd!(sh, "git -C {src} status --porcelain --ignored").read()?.is_empty(),
+        "unexpected oracle checkout at {}; move it aside or supply a C executable",
+        src.display()
+    );
+    cmd!(
+        sh,
+        "cmake -S {src} -B {build} -DCMAKE_BUILD_TYPE=Release -DZXC_BUILD_TESTS=OFF"
+    )
+    .run()?;
+    cmd!(sh, "cmake --build {build} --config Release --parallel 2").run()?;
+    let exe = format!("zxc{}", std::env::consts::EXE_SUFFIX);
+    let c = [build.join(&exe), build.join("Release").join(&exe)]
+        .into_iter()
+        .find(|path| path.is_file())
+        .context("CMake did not produce the C CLI")?;
+    eprintln!("Reference {REV}: {}", c.display());
+    Ok(c)
+}
 
 pub fn check(sh: &Shell, c: &Path, rust: &Path) -> Result<()> {
     let valid = Path::new("tests/conformance/v9/valid");

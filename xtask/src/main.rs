@@ -35,7 +35,12 @@ impl Backend {
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
     /// Cross-decode every fixture with the pinned C CLI and the native Rust CLI.
-    Interop { c_cli: PathBuf, rust_cli: PathBuf },
+    Interop {
+        /// Existing C executable. By default fetch and build the pinned reference.
+        c_cli: Option<PathBuf>,
+        /// Existing Rust executable. By default build zxc-cli in release mode.
+        rust_cli: Option<PathBuf>,
+    },
     /// Build, validate, and bundle the release WebAssembly component.
     Component,
     /// Run Criterion for one backend. Pass Criterion arguments after `--`.
@@ -83,7 +88,18 @@ fn main() -> Result<()> {
     );
     match task {
         Task::Interop { c_cli, rust_cli } => {
-            interop::check(&sh, &std::path::absolute(c_cli)?, &std::path::absolute(rust_cli)?)
+            let c = match c_cli {
+                Some(path) => std::path::absolute(path)?,
+                None => interop::oracle(&sh, target)?,
+            };
+            let rust = match rust_cli {
+                Some(path) => std::path::absolute(path)?,
+                None => {
+                    cmd!(sh, "cargo build --locked --release -p zxc-cli").run()?;
+                    target.join("release").join(format!("zxc{}", env::consts::EXE_SUFFIX))
+                }
+            };
+            interop::check(&sh, &c, &rust)
         }
         Task::Component => build_component(&sh, target, false).map(drop),
         Task::Bench { backend, args } => {

@@ -36,13 +36,5 @@ jobs:
           cargo test --doc --locked --all-features
       - name: Exercise all benchmark cases once
         run: ZXC_BENCH_MODE=all cargo xtask bench native -- --test
-      - uses: actions/checkout@v4
-        with:
-          repository: hellobertrand/zxc
-          ref: 2992c28e6e1df07feec0cb39678a6d4a9665c6bb
-          path: .test-agent/oracle/zxc
-      - run: |
-          cmake -S .test-agent/oracle/zxc -B .test-agent/oracle/build -DCMAKE_BUILD_TYPE=Release -DZXC_BUILD_TESTS=OFF
-          cmake --build .test-agent/oracle/build --parallel 2
-          cargo build --locked --release -p zxc-cli
-          cargo xtask interop .test-agent/oracle/build/zxc target/release/zxc
+      - name: Cross-check with the pinned upstream C binary
+        run: cargo xtask interop
