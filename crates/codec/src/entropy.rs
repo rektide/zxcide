@@ -2,6 +2,7 @@
 //! symbol lists bottom-up. Each subtree owns a disjoint output interval.
 use crate::{require, take};
 use std::{collections::VecDeque, io};
+mod merge;
 mod pack;
 pub(crate) use pack::best;
 #[cfg(test)]
@@ -150,14 +151,7 @@ impl Tree {
                 continue;
             }
             let region = &mut output[start..start + n];
-            let mut cursor = [0, n - ones];
-            for (chunk, &bits) in scratch[..n].chunks_mut(8).zip(run) {
-                for (j, dst) in chunk.iter_mut().enumerate() {
-                    let side = usize::from((bits >> j) & 1);
-                    *dst = region[cursor[side]];
-                    cursor[side] += 1;
-                }
-            }
+            merge::gather(region, &mut scratch[..n], run, n - ones);
             region.copy_from_slice(&scratch[..n]);
             crate::probe!({
                 add("copy:Huffman gather", n);

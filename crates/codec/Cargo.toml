@@ -6,10 +6,12 @@ license.workspace = true
 
 [features]
 ledger = []
+merge-simd = ["dep:fearless_simd"]
 tracy = ["dep:tracy-client"]
 
 [dependencies]
 rapidhash = { version = "4.5", default-features = false }
+fearless_simd = { version = "=1.2.0", optional = true }
 tracy-client = { workspace = true, optional = true }
 
 [dev-dependencies]
@@ -17,4 +19,8 @@ criterion = { version = "0.8", default-features = false }
 
 [[bench]]
 name = "codec"
+harness = false
+
+[[bench]]
+name = "pivco_merge"
 harness = false
