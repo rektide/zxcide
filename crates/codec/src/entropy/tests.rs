@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn alternating_merge_banks_follow_mixed_ancestors_not_tree_depth() {
+fn mixed_merges_under_uniform_ancestor_preserve_bitmap_tails() {
     // Canonical codes A=0 B=10 C=110 D=111. All root selections go
     // right; its child and grandchild both actually merge. Each bitmap
     // has a partial byte, with deliberately set unused high bits.

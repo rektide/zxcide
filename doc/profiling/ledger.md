@@ -7,7 +7,7 @@ status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
   - { resource: 'opencode://ses_e0acf0f83ffeOu7mBN3OsQ5Dc8', title: Built and ran the diagnostic and uninstrumented benchmark pair }
-  - { resource: 'opencode://ses_e0ac424eeffe4kk65VvnMwl4oQ', title: Measured the dictionary decode preload and encoder prefix seed follow-ups }
+  - { resource: 'opencode://ses_e0ac424eeffe4kk65VvnMwl4oQ', title: Measured the dictionary decode, encoder prefix seed, and scalar PivCo scratch follow-ups }
   - { resource: '/crates/parallel/benches/ledger.rs', title: Workloads and validation }
   - { resource: '/xtask/src/ledger.rs', title: Report generation and interval selection }
 ---
@@ -17,6 +17,8 @@ sources:
 The largest **payload copy** in the full-frame cases is the 65,535-byte dictionary prefix: 16 bytes copied per plaintext byte in both encode and decode at 4 KiB. For a different access pattern, returning just 4 KiB from a checksummed 512 KiB RAW block stages 128 bytes per returned byte. Address dictionary history first for small-block streams; prioritize range scratch/borrowing separately for repeated short reads. Neither result calls for bypassing verification.
 
 These are baseline counts. The [decode follow-up](dictionary-decode.md) eliminates the prefix preload by borrowing match history. The [encode follow-up](dictionary-encode.md) keeps contiguous history but avoids repeating the more expensive prefix-indexing pass on eligible small blocks.
+
+The [PivCo scratch experiment](pivco-scratch.md) isolates the merge copy-back from the scalar gather, comparing whole native and WIT calls as well as logical traffic.
 
 ## Reproduce
 
@@ -30,7 +32,7 @@ Use the [component prerequisites](../../README.md#webassembly-component) and a q
 
 * **Diagnostic process:** feature-gated call-site probes count logical destination lengths once, not read+write pairs. A global mutex collects all workers' counts. The driver clears counts after case setup, performs one call, joins all workers, checks output, then takes the counts. This can perturb scheduling and thus buffer reuse. No counters, locks, snapshots or diagnostic allocations are compiled into ordinary builds. The code changes neither block lifetimes nor output limits.
 * **Timing process:** same fixture and driver, `ledger` disabled. 20 Criterion samples, 300 ms warmup, 600 ms measurement target; report is the 95% interval for **one entire call**, in µs (slope when available, otherwise mean). The repeated interval beside each site is not time spent at that site. Native stream calls use fresh codec contexts with preallocated destination capacity; w4 includes thread startup and joins. WIT and its native oneshot control allocate fresh output per call. Setup, archive construction, opening the range index, component instantiation and correctness comparisons are outside timers.
-* **Units:** `plaintext_B` is source/uncompressed size, or bytes **returned** for ranges. `copy` counts logical payload copies, including reading a slice into block storage. `input:positioned body` counts bytes delivered by slice copy or positioned file read. `output` is required caller destination materialization, archive including framing for encode, verified plaintext for decode/range. `reconstruct` separates literal and match writes into verified block storage. `produce` counts entropy intermediate symbols. `zero` counts explicit logical initialization; `fill` is the **nonzero** parser table reset. Compiler elision, lazy zero pages, cache effects, device I/O and memory-bus transfers are not measured.
+* **Units:** `plaintext_B` is source/uncompressed size, or bytes **returned** for ranges. `copy` counts logical payload copies, including reading a slice into block storage. `input:positioned body` counts bytes delivered by slice copy or positioned file read. `output` is required caller destination materialization, archive including framing for encode, verified plaintext for decode/range. `reconstruct` separates literal and match writes into verified block storage. `produce` counts entropy intermediate symbols. `zero` counts explicit logical initialization; `fill` is the **nonzero** parser table reset. `peak-section` is a maximum allocation capacity per entropy section, not cumulative traffic; use the absolute byte count. Compiler elision, lazy zero pages, cache effects, device I/O and memory-bus transfers are not measured.
 * **Capacity is a separate observation.** `capacity:growth delta` sums positive **actual Vec capacity changes** around input/body `resize`; `capacity:request fits` sums request lengths when old capacity already suffices, including reacquired worker buffers. Fits can still need zeroing. Neither quantity measures allocator copying or total allocation; never add them to traffic. Moves, swaps and channel handoffs transfer ownership and contribute no payload bytes. No inferred allocator relocation is included.
 
 ## Inputs and host
