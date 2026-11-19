@@ -1,0 +1,22 @@
+package zxc:codec@0.1.0;
+
+interface buffers {
+    enum mode { split, packed, dense }
+
+    record encode-options {
+        mode: mode,
+        /// log2 of block size in bytes; valid range 12..21 inclusive.
+        block-log: u8,
+        checksum: bool,
+        seekable: bool,
+    }
+
+    /// Encode one dictionary-free ZXC v9 frame.
+    encode: func(plain: list<u8>, options: encode-options) -> result<list<u8>, string>;
+    /// Decode dictionary-free frames, limiting total plaintext bytes across frames.
+    decode: func(archive: list<u8>, max-output: u64) -> result<list<u8>, string>;
+}
+
+world codec {
+    export buffers;
+}
