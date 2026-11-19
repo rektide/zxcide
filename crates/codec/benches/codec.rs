@@ -55,6 +55,33 @@ fn bench_roundtrip(c: &mut Criterion, name: &str, plain: &[u8], opt: EncodeOptio
             black_box(&output);
         })
     });
+    group.finish();
+    let mut group = c.benchmark_group(format!("oneshot/{name}/{:?}/b{}", opt.mode, opt.block_log));
+    group.throughput(Throughput::Bytes(plain.len() as u64));
+    group.bench_function("encode", |b| {
+        b.iter(|| {
+            let mut archive = Vec::new();
+            zxc_codec::encode(black_box(plain), &mut archive, opt).unwrap();
+            archive
+        })
+    });
+    group.bench_function("decode", |b| {
+        b.iter(|| decode_once(black_box(&compressed), plain.len()))
+    });
+}
+
+fn decode_once(archive: &[u8], len: usize) -> Vec<u8> {
+    let mut plain = Vec::new();
+    zxc_codec::decode(
+        archive,
+        &mut plain,
+        DecodeOptions {
+            max_output: Some(len as u64),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    plain
 }
 
 fn bench_upstream(c: &mut Criterion) {
@@ -73,6 +100,10 @@ fn bench_upstream(c: &mut Criterion) {
             black_box(&output);
         })
     });
+    group.finish();
+    let mut group = c.benchmark_group("oneshot/upstream-l7");
+    group.throughput(Throughput::Bytes(expected.len() as u64));
+    group.bench_function("decode", |b| b.iter(|| decode_once(black_box(fixture), expected.len())));
 }
 criterion_group!(benches, bench);
 criterion_main!(benches);
