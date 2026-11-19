@@ -1,0 +1,18 @@
+[package]
+name = "zxc-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "zxc"
+path = "src/main.rs"
+
+[features]
+tracy = ["zxc-codec/tracy", "dep:tracy-client"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+tempfile = "3"
+tracy-client = { workspace = true, optional = true }
+zxc-codec = { path = "../codec" }
