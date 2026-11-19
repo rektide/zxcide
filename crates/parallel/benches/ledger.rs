@@ -132,6 +132,42 @@ fn bench(c: &mut Criterion) {
             &noise,
         );
     }
+    #[cfg(not(feature = "ledger"))]
+    {
+        let mut g = c.benchmark_group("ledger/dict-first");
+        for (blocks, workers) in [(1, 1), (2, 1), (8, 1), (8, 4)] {
+            let plain = &records[..blocks * 4096];
+            let config = Config {
+                workers,
+                slots: 8,
+                ..Default::default()
+            };
+            let opt = EncodeOptions {
+                block_log: 12,
+                ..Default::default()
+            };
+            g.throughput(criterion::Throughput::Bytes(plain.len() as u64));
+            g.bench_function(format!("b{blocks}/w{workers}/encode"), |b| {
+                b.iter_batched_ref(
+                    || (Dictionary::from_bytes(&zxd).unwrap(), Vec::with_capacity(plain.len())),
+                    |(dict, dst)| {
+                        zxc_parallel::encode(
+                            plain,
+                            &mut *dst,
+                            EncodeOptions {
+                                dictionary: Some(dict),
+                                ..opt
+                            },
+                            config,
+                        )
+                        .unwrap();
+                        std::hint::black_box(dst);
+                    },
+                    criterion::BatchSize::PerIteration,
+                );
+            });
+        }
+    }
     for workers in [1, 4] {
         let config = Config {
             workers,
