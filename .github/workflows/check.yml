@@ -10,7 +10,16 @@ jobs:
       - run: rustup update stable && rustup default stable
       - run: sha256sum --quiet -c tests/conformance/v9/vectors.sha256
       - run: cargo fmt --all --check && cargo clippy --locked --all-targets --all-features -- -D warnings
-      - run: cargo test --locked --workspace && cargo test --locked --workspace --all-features
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest@0.9.122
+      - run: |
+          cargo nextest run --locked --workspace
+          cargo test --doc --locked --workspace
+          cargo nextest run --locked --workspace --all-features
+          cargo test --doc --locked --workspace --all-features
+      - name: Exercise all benchmark cases once
+        run: ZXC_BENCH_MODE=all cargo bench --locked --bench codec -- --test
       - uses: actions/checkout@v4
         with:
           repository: hellobertrand/zxc

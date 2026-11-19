@@ -43,9 +43,12 @@ See the [architecture and peer-review decisions](doc/architecture/README.md) and
 ## Compatibility checks
 
 ```sh
-cargo test --workspace --locked
+cargo nextest run --workspace --locked
+cargo test --doc --workspace --locked
 sha256sum --quiet -c tests/conformance/v9/vectors.sha256
 ```
+
+Install nextest with `cargo install --locked cargo-nextest`, or use `cargo test --workspace --locked` for both tests and doctests. For timing changes, see [comparing a named Criterion baseline](doc/profiling/README.md#compare-a-change).
 
 The [upstream corpus](https://github.com/hellobertrand/zxc/tree/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/tests/conformance) is vendored under its [BSD-3-Clause license](LICENSE). Tests compare all 18 valid archives to reference plaintext and check all 35 invalid fixtures against sequential-reader expectations. `sek_forged_entry` is expected to decode sequentially; its defect is visible to a range reader.
 

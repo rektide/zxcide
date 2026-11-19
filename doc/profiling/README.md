@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0b1ee216ffelb33FpbVf2g8SE', title: All-mode Criterion suite and named baseline comparison workflow }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Codec measurements, interoperability and capture verification }
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
@@ -24,7 +25,7 @@ ZXC_BENCH_INPUT=/path/to/silesia/dickens ZXC_BENCH_BLOCK_LOG=19 ZXC_BENCH_MODE=d
   cargo bench --locked --bench codec -- dickens
 ```
 
-The default workloads are 1 MiB of repetitive corpus text, 1 MiB of deterministic xorshift noise, and a separate upstream level‑7 PivCo decode. Inputs are in memory and verified before timing. The benchmark reuses contexts and destination capacity but includes frame setup, section scratch, checksums when present, and writing the actual output bytes. Throughput is measured in **uncompressed** bytes; source/archive byte counts are printed separately. For results worth retaining, record corpus SHA-256, CPU, toolchain, revision, options and Criterion intervals. Compare a fixed workload with Tracy disabled. Do not treat the highly repetitive fixture as typical text performance.
+The default workloads are 1 MiB of repetitive corpus text, 1 MiB of deterministic xorshift noise, the 64 KiB mixed conformance plaintext, and a separate upstream level‑7 PivCo decode. Inputs are in memory and verified before timing. The benchmark reuses contexts and destination capacity but includes frame setup, section scratch, checksums when present, and writing the actual output bytes. Throughput is measured in **uncompressed** bytes; source/archive byte counts are printed separately. For results worth retaining, record corpus SHA-256, CPU, toolchain, revision, options and Criterion intervals. Compare a fixed workload with Tracy disabled. Do not treat the highly repetitive fixture as typical text performance.
 
 A baseline on the 5800X below (30 samples, checksums on for `split`, 512 KiB blocks):
 
@@ -33,6 +34,22 @@ A baseline on the 5800X below (30 samples, checksums on for `split`, 512 KiB blo
 | Repeated text, 1 MiB | 788 | 5.61 GiB/s | 12.86 GiB/s |
 | Noise, 1 MiB | 1,048,639 | 177 MiB/s | 12.26 GiB/s |
 | Upstream wide Huffman, 16 KiB | reference fixture | — | 132 MiB/s |
+
+## Compare a change
+
+On a quiet machine, save a baseline before editing, then compare against it in the same target directory. For example, to tune dense encoding on mixed input:
+
+```sh
+cargo nextest run --locked --workspace
+export ZXC_BENCH_MODE=dense
+cargo bench --locked --bench codec -- mixed/Dense/b19/encode --save-baseline before
+# Apply the change, run the correctness tests again, then:
+cargo bench --locked --bench codec -- mixed/Dense/b19/encode --baseline before
+```
+
+Criterion reports the estimated change and its confidence interval. Repeat the comparison on unchanged code to see how much the machine varies. Keep CPU power settings, build flags, and corpus fixed; check archive size alongside throughput so a speedup from writing a larger archive is visible. For decode-only changes the fixed upstream archive also isolates decoder speed from changes in encoder output.
+
+For a full sweep, set `ZXC_BENCH_MODE=all` and omit the filter in both commands. For a block-size experiment set `ZXC_BENCH_BLOCK_LOG` (12–21); the size is part of the benchmark ID. CI uses Criterion's `--test` mode to exercise every case once. Use a quiet, consistent host for timing decisions; nextest's parallel test durations are for diagnosing slow tests.
 
 ## Capture phases
 
