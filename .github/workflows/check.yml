@@ -38,3 +38,10 @@ jobs:
         run: ZXC_BENCH_MODE=all cargo xtask bench native -- --test
       - name: Cross-check with the pinned upstream C binary
         run: cargo xtask interop
+      - name: Preserve generated-case reproducers
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-interop-failures
+          path: target/generated-interop-*/
+          if-no-files-found: ignore

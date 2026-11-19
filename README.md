@@ -81,6 +81,13 @@ The [upstream corpus](https://github.com/hellobertrand/zxc/tree/2992c28e6e1df07f
 
 Run `cargo xtask interop` for the same independent C cross-check as [CI](.github/workflows/check.yml). It uses Git, CMake and a C compiler to build the pinned upstream revision under `target/oracle/` (network needed on first use), and builds the Rust release CLI. It compares plaintext in both directions (180 combinations) and checks range reads against freshly generated C archives (72 combinations). To supply existing binaries, use `cargo xtask interop /path/to/c-zxc /path/to/rust-zxc`.
 
+The same command also runs a bounded suite of [generated valid-input cases](doc/testing/generated-interop.md). The seed varies the bytes within a schedule that covers block edges, long matches, dictionary frames and concatenation. Both full decoders must recover the original input; indexed reads from both encoders must match the original byte slice. To explore another seed or replay one case:
+
+```sh
+cargo xtask interop --seed 42 --cases 24
+cargo xtask interop --seed 42 --case 7
+```
+
 Optional `cargo-fuzz` targets exercise streaming decode, indexed decode and round trips. With nightly and `cargo-fuzz` installed:
 
 ```sh
