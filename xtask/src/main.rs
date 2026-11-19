@@ -9,6 +9,7 @@ use std::{
 };
 use xshell::{Shell, cmd};
 mod interop;
+mod smoke;
 
 #[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
 enum Backend {
@@ -34,6 +35,20 @@ impl Backend {
 #[derive(Parser)]
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
+    /// Seed each libFuzzer target from the pinned corpus and run a bounded smoke test.
+    FuzzSmoke {
+        #[arg(long, default_value = "2000")]
+        runs: NonZeroU32,
+    },
+    /// Capture phase timings for repeated upstream wide-Huffman frames.
+    Tracy {
+        #[arg(long, default_value = "tracy-capture")]
+        capture: PathBuf,
+        #[arg(long, default_value = "1000")]
+        repeats: NonZeroU32,
+        #[arg(long,default_value="18086",value_parser=clap::value_parser!(u16).range(1..))]
+        port: u16,
+    },
     /// Cross-decode every fixture with the pinned C CLI and the native Rust CLI.
     Interop {
         /// Existing C executable. By default fetch and build the pinned reference.
@@ -87,6 +102,8 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
+        Task::FuzzSmoke { runs } => smoke::fuzz(&sh, target, runs),
+        Task::Tracy { capture, repeats, port } => smoke::tracy(&sh, target, &capture, repeats, port),
         Task::Interop { c_cli, rust_cli } => {
             let c = match c_cli {
                 Some(path) => std::path::absolute(path)?,

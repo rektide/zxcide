@@ -111,6 +111,10 @@ This uses the optimized `profiling` profile with line tables and asks `perf` to 
 
 `tracy-client 0.19.0` and the locked `tracy-client-sys 0.30.1` use **Tracy 0.14.1 (protocol 82)**. Use the [matching capture tool](https://github.com/wolfpld/tracy/releases/tag/v0.14.1); 0.15.0's live protocol is incompatible. The build enables on-demand, localhost-only spans with static labels and no call stacks. Building this feature needs a C++ compiler. The profiling profile retains line tables.
 
+For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
+
+For an arbitrary archive or encoder workload, run the client and capture manually:
+
 ```sh
 cargo build --locked --profile profiling -p zxc-cli --features tracy
 # Terminal A: wait for attachment before running even a tiny job.
@@ -129,8 +133,8 @@ On a Ryzen 7 5800X, Linux x86‑64, rustc 1.101.0-nightly (`822182db4`), a captu
 To recreate the CLI comparison (release binaries, no attached profiler):
 
 ```sh
-for i in $(seq 1000); do cat tests/conformance/v9/valid/spl_pivco_wide_l7.zxc; done > repeated.zxc
-hyperfine --warmup 2 --runs 5 -N 'target/release/zxc test repeated.zxc' '/path/to/c-zxc -qt -T1 repeated.zxc'
+# Use repeated.zxc from the capture directory printed by `cargo xtask tracy`.
+hyperfine --warmup 2 --runs 5 -N 'target/release/zxc test /path/to/repeated.zxc' '/path/to/c-zxc -qt -T1 /path/to/repeated.zxc'
 ```
 
 After the merge change, the Rust CLI took **122 ± 2 ms**, versus **31 ± 1 ms** for the pinned upstream native C release build. Both read the same archive and discard output. This end-to-end gap includes frame setup and I/O; the trace points to entropy decoding as the next place to look on this workload.

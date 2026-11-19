@@ -79,16 +79,12 @@ Install nextest with `cargo install --locked cargo-nextest`, or use `cargo test 
 
 The [upstream corpus](https://github.com/hellobertrand/zxc/tree/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/tests/conformance) is vendored under its [BSD-3-Clause license](LICENSE). Tests compare all 18 valid archives to reference plaintext and check all 35 invalid fixtures against sequential-reader expectations. `sek_forged_entry` is expected to decode sequentially; its defect is visible to a range reader.
 
-For a two-way test against the C implementation, build its CLI at the pinned revision and run `cargo xtask interop /path/to/c-zxc target/release/zxc`. The [CI workflow](.github/workflows/check.yml) has the exact build commands. The task compares plaintext for every fixture input in both directions (180 combinations), and tests range reads against freshly generated C archives (72 combinations).
+Run `cargo xtask interop` for the same independent C cross-check as [CI](.github/workflows/check.yml). It uses Git, CMake and a C compiler to build the pinned upstream revision under `target/oracle/` (network needed on first use), and builds the Rust release CLI. It compares plaintext in both directions (180 combinations) and checks range reads against freshly generated C archives (72 combinations). To supply existing binaries, use `cargo xtask interop /path/to/c-zxc /path/to/rust-zxc`.
 
 Optional `cargo-fuzz` targets exercise streaming decode, indexed decode and round trips. With nightly and `cargo-fuzz` installed:
 
 ```sh
-mkdir -p fuzz/corpus/decode
-cp tests/conformance/v9/{valid,invalid}/*.zxc fuzz/corpus/decode/
-cargo +nightly fuzz run decode -- -runs=2000
-cargo +nightly fuzz run roundtrip -- -runs=2000
-mkdir -p fuzz/corpus/indexed
-cp tests/conformance/v9/valid/*seekable*.zxc tests/conformance/v9/invalid/sek*.zxc fuzz/corpus/indexed/
-cargo +nightly fuzz run indexed -- -runs=2000
+cargo xtask fuzz-smoke --runs 2000
 ```
+
+The command seeds the decoders with reference archives and the roundtrip target with plaintext, then runs each target with its own temporary writable corpus and fixed RNG seed. libFuzzer failures retain reproducers in `fuzz/artifacts/`. For longer exploration, use `cargo +nightly fuzz run TARGET` with a persistent corpus.
