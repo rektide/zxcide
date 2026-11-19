@@ -112,44 +112,72 @@ fn limited_lengths(freq: &[usize; 256]) -> [u8; 128] {
 }
 
 impl Tree {
-    fn emit(&self, data: &[u8], freq: &[usize; 256], limit: usize) -> Option<Vec<u8>> {
-        // For each symbol build its sequence of (wire run, bits, width).
-        let mut paths: [Vec<(usize, u8, u8)>; 256] = std::array::from_fn(|_| Vec::new());
-        let mut queue = VecDeque::from([(0, Vec::new())]);
+    pub(super) fn emit(&self, data: &[u8], freq: &[usize; 256], header: &[u8], limit: usize) -> Option<Vec<u8>> {
+        // Only the terminal run can pack more than one bit per occurrence.
+        // An alphabet of 256 has at most 255 internal nodes (one for the
+        // single-symbol exception), so a wire run ID fits in one byte.
+        #[derive(Clone, Copy, Default)]
+        struct Prefix {
+            runs: [u8; MAX_CODE_LEN as usize - 1],
+            bits: u16,
+            len: u8,
+        }
+        #[derive(Clone, Copy, Default)]
+        struct Route {
+            prefix: Prefix,
+            last: u8,
+            code: u8,
+            width: u8, // zero for symbols absent from this table
+        }
+        let mut paths = [Route::default(); 256];
+        let mut queue = VecDeque::from([(0, Prefix::default())]);
+        let mut bits = [0usize; 256];
         let mut nrun = 0;
-        while let Some((i, path)) = queue.pop_front() {
+        while let Some((i, prefix)) = queue.pop_front() {
             let node = &self.0[i];
-            if let Some(s) = node.symbol {
-                paths[s as usize] = path;
-                continue;
-            }
+            let run = nrun as u8;
             if node.flat > 0 {
                 for (code, &s) in node.lookup.iter().enumerate() {
-                    paths[s as usize] = path.clone();
-                    paths[s as usize].push((nrun, code as u8, node.flat));
+                    paths[s as usize] = Route {
+                        prefix,
+                        last: run,
+                        code: code as u8,
+                        width: node.flat,
+                    };
                 }
             } else {
-                for (side, child) in node.child.iter().enumerate() {
+                for (side, child) in node.child.into_iter().enumerate() {
                     if let Some(c) = child {
-                        let mut sub = path.clone();
-                        sub.push((nrun, side as u8, 1));
-                        queue.push_back((*c, sub));
+                        if let Some(s) = self.0[c].symbol {
+                            paths[s as usize] = Route {
+                                prefix,
+                                last: run,
+                                code: side as u8,
+                                width: 1,
+                            };
+                        } else {
+                            let mut sub = prefix;
+                            sub.runs[sub.len as usize] = run;
+                            sub.bits |= (side as u16) << sub.len;
+                            sub.len += 1;
+                            queue.push_back((c, sub));
+                        }
                     }
                 }
             }
             nrun += 1;
         }
-        let mut bits = vec![0; nrun];
         for (path, &count) in paths.iter().zip(freq) {
-            if count > 0 && path.is_empty() {
+            if count > 0 && path.width == 0 {
                 return None;
             }
-            for &(run, _, width) in path {
-                bits[run] += count * usize::from(width);
+            for &run in &path.prefix.runs[..usize::from(path.prefix.len)] {
+                bits[run as usize] += count;
             }
+            bits[path.last as usize] += count * usize::from(path.width);
         }
-        let mut size = 0;
-        for b in &mut bits {
+        let mut size = header.len();
+        for b in &mut bits[..nrun] {
             let length = (*b).div_ceil(8);
             *b = size * 8;
             size += length;
@@ -157,16 +185,30 @@ impl Tree {
         if size >= limit {
             return None;
         }
-        let mut packed = vec![0; size + 1];
-        crate::probe!({ add("zero:Huffman bitstream", size + 1) });
+        // Emit directly behind the inline table (empty for dictionary runs).
+        let mut packed = Vec::with_capacity(size + 1);
+        packed.extend_from_slice(header);
+        packed.resize(size + 1, 0);
+        crate::probe!({
+            add("copy:Huffman candidate", header.len());
+            add("zero:Huffman bitstream", size + 1 - header.len());
+        });
         for &s in data {
-            for &(run, code, width) in &paths[s as usize] {
-                let bit = bits[run];
-                let v = u16::from(code) << (bit % 8);
-                packed[bit / 8] |= v as u8;
-                packed[bit / 8 + 1] |= (v >> 8) as u8;
-                bits[run] += usize::from(width);
+            let path = &paths[s as usize];
+            let mut code = path.prefix.bits;
+            for &run in &path.prefix.runs[..usize::from(path.prefix.len)] {
+                let cur = &mut bits[run as usize];
+                let bit = *cur;
+                *cur += 1;
+                packed[bit / 8] |= (code as u8 & 1) << (bit % 8);
+                code >>= 1;
             }
+            let cur = &mut bits[path.last as usize];
+            let bit = *cur;
+            *cur += usize::from(path.width);
+            let v = u16::from(path.code) << (bit % 8);
+            packed[bit / 8] |= v as u8;
+            packed[bit / 8 + 1] |= (v >> 8) as u8;
         }
         packed.pop();
         Some(packed)
@@ -219,7 +261,7 @@ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) 
         freq[usize::from(b)] += 1;
     }
     if let Some(tree) = dict.and_then(|d| d.tree.as_ref())
-        && let Some(bytes) = tree.emit(src, &freq, budget)
+        && let Some(bytes) = tree.emit(src, &freq, &[], budget)
     {
         budget = bytes.len();
         best = (3, Cow::Owned(bytes));
@@ -227,11 +269,8 @@ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) 
     if budget > 128 {
         let table = lengths(&freq);
         let tree = Tree::new(&table).expect("generated a complete Huffman tree");
-        if let Some(bits) = tree.emit(src, &freq, budget - 128) {
-            let mut buf = table.to_vec();
-            crate::probe!({ add("copy:Huffman candidate", table.len() + bits.len()) });
-            buf.extend(bits);
-            best = (2, Cow::Owned(buf));
+        if let Some(bytes) = tree.emit(src, &freq, &table, budget) {
+            best = (2, Cow::Owned(bytes));
         }
     }
     best

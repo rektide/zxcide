@@ -1,6 +1,27 @@
 use super::*;
 
 #[test]
+fn emit_prices_and_packs_mixed_branch_and_flat_runs() {
+    // Symbol 0 goes left. Symbols 1..=8 share the three-bit flat run on
+    // the right. Its 3rd and 6th codes straddle a byte boundary.
+    let mut table = [0; 128];
+    table[..5].copy_from_slice(&[0x41, 0x44, 0x44, 0x44, 0x04]);
+    let tree = Tree::new(&table).unwrap();
+    let src = [0, 2, 8, 5, 0, 1, 3, 6, 4, 7];
+    let mut freq = [0; 256];
+    for &s in &src {
+        freq[s as usize] += 1;
+    }
+    for header in [&[][..], &table[..]] {
+        let expected = [header, &[0xee, 0x03, 0x7c, 0xa0, 0x7a]].concat();
+        assert_eq!(tree.emit(&src, &freq, header, expected.len()), None);
+        assert_eq!(tree.emit(&src, &freq, header, expected.len() + 1), Some(expected));
+    }
+    freq[9] = 1;
+    assert_eq!(tree.emit(&[9], &freq, &[], usize::MAX), None);
+}
+
+#[test]
 fn skewed_histogram_uses_length_limited_huffman_for_either_section() {
     // The heap tree for Fibonacci weights reaches 15 bits. Reorder the
     // 2583 bytes with a coprime stride so RLE does not hide the regression.
