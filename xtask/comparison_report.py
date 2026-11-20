@@ -112,12 +112,17 @@ def prepare(raw, run, corpus, log):
     for key, (record, names) in verification_plan(raw).items():
         argv = record['argv']
         print(f'Exact decode: {shlex.join(argv)}', file=log, flush=True)
+        log_size = os.fstat(log.fileno()).st_size
         try:
             exact_decode(argv, run, names, log)
         except (OSError, ValueError, sp.CalledProcessError) as err:
             # A saved binary may predate the requested option or concatenated-frame support.
             raise ValueError(f'Exact decode failed for {argv[0]} ({run / argv[0]}) with argv {argv}: {err}. '
                              'If this CLI does not support the workload, try --decode-workers 1 or omit --concat.') from err
+        # Only the awaited child writes to the flushed log during verification.
+        # Correct plaintext from an instrumented build is not a timing baseline.
+        check(os.fstat(log.fileno()).st_size == log_size,
+              f'unexpected decoder stderr from {shlex.join(argv)}; see run.log and rebuild a quiet release binary')
         raw['verification'][key] = record
 
 

@@ -256,6 +256,11 @@ class Publication(unittest.TestCase):
             out.write('if [ "$1" = decode ]; then exit 17; fi\n')
         self.fails('non-zero exit status 17')
 
+    def test_instrumented_decoder_not_timed(self):
+        with self.exe.open('a') as out:
+            out.write('if [ "$1" = decode ]; then echo "block counters" >&2; fi\n')
+        self.fails('unexpected decoder stderr')
+
     def concat(self):
         self.args.quick = False
         self.args.files = tables.files_arg('sao,mozilla')
