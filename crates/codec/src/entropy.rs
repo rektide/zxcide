@@ -99,11 +99,24 @@ impl Tree {
         Ok(Self(nodes))
     }
 
-    pub fn decode(&self, mut src: &[u8], count: usize) -> io::Result<Vec<u8>> {
+    #[cfg(test)]
+    fn decode(&self, src: &[u8], count: usize) -> io::Result<Vec<u8>> {
+        let mut out = Vec::new();
+        self.decode_into(src, count, &mut out, &mut Vec::new())?;
+        Ok(out)
+    }
+
+    pub fn decode_into<'a>(
+        &self,
+        mut src: &[u8],
+        count: usize,
+        output: &'a mut Vec<u8>,
+        scratch: &mut Vec<u8>,
+    ) -> io::Result<&'a [u8]> {
         zone!("PivCo decode");
         let mut order = Vec::with_capacity(self.0.len());
         let mut queue = VecDeque::from([(0, 0, count)]);
-        let mut output = vec![0; count];
+        init_prefix(output, count);
         while let Some((i, start, n)) = queue.pop_front() {
             if n == 0 {
                 continue;
@@ -144,9 +157,8 @@ impl Tree {
             }
         }
         require(src.is_empty(), "trailing Huffman data")?;
-        let mut scratch = vec![0; count];
+        init_prefix(scratch, count);
         crate::probe!({
-            add("zero:Huffman vectors", 2 * count);
             add("produce:Huffman symbols", count);
             crate::ledger::max(
                 "peak-section:Huffman auxiliary",
@@ -181,8 +193,20 @@ impl Tree {
                 add("copy:Huffman return", n);
             });
         }
-        Ok(output)
+        Ok(&output[..count])
     }
+}
+
+fn init_prefix(buffer: &mut Vec<u8>, count: usize) {
+    if count > buffer.len() {
+        // Counts are already bounded by the frame's block size. Reserve
+        // exactly so Vec's amortized growth cannot exceed that bound.
+        crate::probe!({ add("zero:Huffman vectors", count - buffer.len()) });
+        buffer.reserve_exact(count - buffer.len());
+        buffer.resize(count, 0);
+    }
+    // Leave the initialized tail in place. Every logical byte is overwritten
+    // by a leaf, flat unpack, or gather before it is used.
 }
 
 pub fn rle(mut data: &[u8], count: usize) -> io::Result<Vec<u8>> {

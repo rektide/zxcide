@@ -1,6 +1,87 @@
 use super::*;
 use crate::{DecodeOptions, EncodeOptions, EncodedBlock, decode, frame::EncodeFrame};
 
+fn unpack<'a>(
+    kind: u8,
+    data: &[u8],
+    limit: usize,
+    dict: Option<&Dictionary>,
+    out: &'a mut Vec<u8>,
+) -> io::Result<&'a [u8]> {
+    unpack_with_sections(kind, data, limit, dict, out, &mut Sections::default())
+}
+
+#[test]
+fn section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block() {
+    use crate::wire::{FrameHeader, MAGIC, block_header, header_sum};
+    let frame = |log, dict| {
+        let mut header = [0; 16];
+        header[..4].copy_from_slice(&MAGIC);
+        header[4] = 9;
+        header[5] = log;
+        header[6] = if dict { 64 } else { 0 };
+        let sum = header_sum(&header);
+        header[14..].copy_from_slice(&sum.to_le_bytes());
+        FrameHeader::parse(header).unwrap()
+    };
+    let mut table = [0; 128];
+    table[32] = 0x10; // A: canonical code 0
+    table[33] = 1; // B: canonical code 1
+    let mut dict = dictionary(vec![b'D']);
+    dict.tree = Some(Tree::new(&table).unwrap());
+    let mut worker = BlockDecoder::default();
+    // Dictionary Huffman literals and inline Huffman tokens; every zero
+    // token copies five bytes starting at the last dictionary/history byte.
+    let make = |nl: u32, n: u32| {
+        let mut body = n.to_le_bytes().to_vec();
+        body.extend_from_slice(&nl.to_le_bytes());
+        body.extend_from_slice(&[3, 2, 0, 1]);
+        body.extend_from_slice(&nl.div_ceil(8).to_le_bytes());
+        body.extend_from_slice(&(128 + n.div_ceil(8)).to_le_bytes());
+        body.resize(body.len() + nl.div_ceil(8) as usize, 0xaa);
+        body.push(1); // the inline token table has only symbol zero
+        body.resize(body.len() + 127, 0);
+        let bitmap = body.len();
+        body.resize(bitmap + n.div_ceil(8) as usize + n as usize + 32, 0);
+        let plain = vec![b'D'; 5 * n as usize];
+        let plain = plain
+            .into_iter()
+            .chain(b"AB".iter().copied().cycle().take(nl as usize))
+            .collect::<Vec<_>>();
+        (body, bitmap, plain)
+    };
+    let large = frame(16, true);
+    let (mut body, bitmap, plain) = make(16_385, 4096);
+    let h = DataBlockHeader::parse(block_header(1, body.len() as u32), large).unwrap();
+    assert_eq!(worker.decode(h, &body, Some(&dict), 0, None).unwrap().bytes, plain);
+    assert!(worker.decode(h, &body[..body.len() - 1], Some(&dict), 0, None).is_err());
+    body[bitmap] = 1; // missing child after dictionary literals have been written
+    assert!(worker.decode(h, &body, Some(&dict), 0, None).is_err());
+    let (body, _, plain) = make(11, 7);
+    let h = DataBlockHeader::parse(block_header(1, body.len() as u32), large).unwrap();
+    assert!(worker.decode(h, &body, None, 0, None).is_err());
+    assert_eq!(worker.decode(h, &body, Some(&dict), 0, None).unwrap().bytes, plain);
+    assert!(worker.sections.literals.capacity() > 4096);
+    assert!(worker.sections.tokens.capacity() > 4096 / 5);
+    assert!(worker.sections.merge.capacity() > 4096);
+
+    let raw = DataBlockHeader::parse(block_header(0, 3), frame(12, false)).unwrap();
+    assert_eq!(worker.decode(raw, b"raw", None, 0, None).unwrap().bytes, b"raw");
+    assert_eq!(
+        worker.sections.literals.capacity() + worker.sections.tokens.capacity() + worker.sections.merge.capacity(),
+        0
+    );
+    let h = DataBlockHeader::parse(block_header(1, body.len() as u32), frame(12, true)).unwrap();
+    assert_eq!(
+        worker
+            .decode_owned(h, body, Some(&dict), 0)
+            .unwrap()
+            .as_verified()
+            .bytes,
+        plain
+    );
+}
+
 fn dictionary(content: Vec<u8>) -> Dictionary {
     Dictionary {
         content,
@@ -272,7 +353,10 @@ fn owned_block_does_not_transfer_stale_scratch_bytes() {
     file_header[14..].copy_from_slice(&sum.to_le_bytes());
     let frame = crate::wire::FrameHeader::parse(file_header).unwrap();
     for kind in [1, 2] {
-        let mut decoder = BlockDecoder { out: vec![0xA5; 512] };
+        let mut decoder = BlockDecoder {
+            out: vec![0xA5; 512],
+            ..Default::default()
+        };
         let body = single_match(kind, b"Q", 8, 0);
         let header = DataBlockHeader::parse(crate::wire::block_header(kind, body.len() as u32), frame).unwrap();
         let block = decoder.decode_owned(header, body, None, 0).unwrap();

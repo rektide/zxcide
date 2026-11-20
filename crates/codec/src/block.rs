@@ -7,12 +7,36 @@ use crate::{
 };
 use std::{borrow::Cow, io};
 
-/// Reusable reconstruction scratch for decoding independent data blocks.
+/// Reusable section and reconstruction scratch for decoding independent data blocks.
 #[derive(Default)]
 pub struct BlockDecoder {
     // Keep initialized scratch between blocks. Only the reconstructed prefix
     // is plaintext; the rest is never used as history or published.
     out: Vec<u8>,
+    sections: Sections,
+}
+
+#[derive(Default)]
+struct Sections {
+    literals: Vec<u8>,
+    tokens: Vec<u8>,
+    merge: Vec<u8>,
+}
+
+impl Sections {
+    fn fit_block(&mut self, limit: usize) {
+        // A smaller frame must not inherit larger entropy allocations, even
+        // if its first block is RAW. Token count is at most limit / 5.
+        for (buffer, bound) in [
+            (&mut self.literals, limit),
+            (&mut self.tokens, limit / 5),
+            (&mut self.merge, limit),
+        ] {
+            if buffer.capacity() > bound {
+                *buffer = Vec::new();
+            }
+        }
+    }
 }
 
 /// Plaintext and the verified checksum (if any) of one block.
@@ -60,16 +84,19 @@ impl BlockDecoder {
             dictionary.map(Dictionary::id) == header.frame.dictionary_id(),
             "data block dictionary does not match frame",
         )?;
+        let limit = header.frame.block_size();
+        self.sections.fit_block(limit);
         let (payload, trailer) = body.split_at(header.payload_size);
         let bytes = if header.kind == 0 {
             payload
         } else {
-            unpack(
+            unpack_with_sections(
                 header.kind,
                 payload,
-                header.frame.block_size(),
+                limit,
                 dictionary,
                 &mut self.out,
+                &mut self.sections,
             )?
         };
         require(
@@ -122,30 +149,38 @@ fn extra(src: &mut &[u8]) -> io::Result<usize> {
     })
 }
 
-fn section<'a>(encoding: u8, mut data: &'a [u8], count: usize, dict: Option<&Dictionary>) -> io::Result<Cow<'a, [u8]>> {
+fn section<'a>(
+    encoding: u8,
+    mut data: &'a [u8],
+    count: usize,
+    dict: Option<&Dictionary>,
+    out: &'a mut Vec<u8>,
+    merge: &mut Vec<u8>,
+) -> io::Result<Cow<'a, [u8]>> {
     Ok(match encoding {
         0 => Cow::Borrowed(data),
         1 => Cow::Owned(entropy::rle(data, count)?),
         2 => {
             let tree = Tree::new(take(&mut data, 128)?)?;
-            Cow::Owned(tree.decode(data, count)?)
+            Cow::Borrowed(tree.decode_into(data, count, out, merge)?)
         }
-        3 => Cow::Owned(
+        3 => Cow::Borrowed(
             dict.and_then(|d| d.tree.as_ref())
                 .ok_or_else(|| bad("missing dictionary Huffman table"))?
-                .decode(data, count)?,
+                .decode_into(data, count, out, merge)?,
         ),
         _ => return Err(bad("unknown section encoding")),
     })
 }
 
 /// Reconstruct an SPL/PAK block in reusable storage, returning only source bytes.
-fn unpack<'a>(
+fn unpack_with_sections<'a>(
     kind: u8,
     mut data: &[u8],
     limit: usize,
     dict: Option<&Dictionary>,
     out: &'a mut Vec<u8>,
+    sections: &mut Sections,
 ) -> io::Result<&'a [u8]> {
     let n = word(&mut data)?;
     let nl = word(&mut data)?;
@@ -173,8 +208,8 @@ fn unpack<'a>(
     let seq_data = take(&mut data, seq_size)?;
     let width = if enc[3] == 1 { 1 } else { 2 };
     let offsets = take(&mut data, if packed { 0 } else { n * width })?;
-    let literals = section(enc[0], lit_data, nl, dict)?;
-    let sequences = section(enc[1], seq_data, n, None)?;
+    let literals = section(enc[0], lit_data, nl, dict, &mut sections.literals, &mut sections.merge)?;
+    let sequences = section(enc[1], seq_data, n, None, &mut sections.tokens, &mut sections.merge)?;
 
     zone!("LZ reconstruct");
     let history = dict.map_or(&[][..], |d| d.content.as_slice());
