@@ -238,8 +238,8 @@ trait Sequences {
     const SPL16: bool = false;
     fn next(&mut self) -> Option<(u8, u8, u16)>;
 
-    // Return the number of literals consumed and total bytes produced, or
-    // leave the token cursor and logical output prefix untouched on a miss.
+    // Consume up to two inline tokens and report the literal and output counts.
+    // On a miss, leave the token cursor and logical output prefix untouched.
     #[inline(always)]
     fn batch(
         &mut self,
@@ -289,37 +289,37 @@ impl Sequences for Spl16<'_> {
         if end + (BATCH - 1) * 19 + 24 > out.len().min(limit) || lit.len() < (BATCH - 1) * 14 + 16 {
             return None;
         }
-        // Adding 1 to each isolated nibble sets bit 4 exactly for 0xF
-        // (a length extension). The lanes are independent bytes.
-        let nibble = 0x0f0f_0f0f;
-        if ((((t & nibble) + 0x0101_0101) | (((t >> 4) & nibble) + 0x0101_0101)) & 0x1010_1010) != 0 {
+        let (&[off0, off1], tail) = self.offsets.split_first_chunk::<BATCH>().unwrap();
+        let off0 = usize::from(u16::from_le_bytes(off0)) + 1;
+        let ll0 = (t >> 4 & 15) as usize;
+        let ml0 = (t & 15) as usize + 5;
+        let m0 = pos + ll0;
+        if (ll0 == 15) | (ml0 == 20) | (off0 > m0) | (off0 < ml0) {
             return None;
         }
-        let (offs, tail) = self.offsets.split_first_chunk::<BATCH>().unwrap();
-        let mut l = 0;
-        let mut d = pos;
-        for (i, &off) in offs.iter().enumerate() {
-            let t = (t >> (8 * i)) as u8;
-            let ll = usize::from(t >> 4);
-            let ml = usize::from(t & 15) + 5;
-            let off = usize::from(u16::from_le_bytes(off)) + 1;
-            let m = d + ll;
-            if off > m || off < ml {
-                // Earlier stores only touched the uncommitted suffix. Resume
-                // at the original token with the checked decoder.
-                return None;
-            }
-            out[d..][..16].copy_from_slice(&lit[l..][..16]);
-            // The needed source ends at or before `m`. Snapshot the wider
-            // range before writing so even the padding may safely overlap.
-            let src = *out[m - off..].first_chunk::<24>().unwrap();
-            out[m..][..24].copy_from_slice(&src);
-            l += ll;
-            d = m + ml;
+        out[pos..][..16].copy_from_slice(&lit[..16]);
+        // Snapshot the match before writing: its padding may overlap even
+        // when the logical source ends at or before the match position.
+        let src = *out[m0 - off0..].first_chunk::<24>().unwrap();
+        out[m0..][..24].copy_from_slice(&src);
+        let d1 = m0 + ml0;
+        let off1 = usize::from(u16::from_le_bytes(off1)) + 1;
+        let ll1 = (t >> 12) as usize;
+        let ml1 = (t >> 8 & 15) as usize + 5;
+        let m1 = d1 + ll1;
+        if (ll1 == 15) | (ml1 == 20) | (off1 > m1) | (off1 < ml1) {
+            // Commit the first token. The next iteration handles the second
+            // with the checked loop without replaying the inline prefix.
+            self.tokens = &self.tokens[1..];
+            self.offsets = &self.offsets[1..];
+            return Some((ll0, d1 - pos));
         }
+        out[d1..][..16].copy_from_slice(&lit[ll0..][..16]);
+        let src = *out[m1 - off1..].first_chunk::<24>().unwrap();
+        out[m1..][..24].copy_from_slice(&src);
         self.tokens = &self.tokens[BATCH..];
         self.offsets = tail;
-        Some((l, d - pos))
+        Some((ll0 + ll1, m1 + ml1 - pos))
     }
 }
 

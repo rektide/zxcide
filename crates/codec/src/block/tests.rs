@@ -111,6 +111,29 @@ fn spl16_short_runs_and_fallbacks_match_bytewise_history() {
 }
 
 #[test]
+fn spl16_batch_keeps_inline_prefix_when_second_token_needs_fallback() {
+    // A literal escape, match escape, overlap, and source before the block.
+    for (token, offset) in [(0xf0, 3), (0x0f, 10), (0x01, 0), (0x00, 99)] {
+        let tokens = [0x40, token];
+        let offsets = [[4, 0], [offset, 0]];
+        let mut sequences = Spl16 {
+            tokens: &tokens,
+            offsets: &offsets,
+        };
+        let mut scratch = [0xa5; 128];
+        let mut lit = [0; 32];
+        lit[..4].copy_from_slice(b"abcd");
+        // The first match is five bytes and must not overlap, so back it
+        // with one byte of already produced output plus four literals.
+        scratch[0] = b'Z';
+        assert_eq!(sequences.batch(&lit, &mut scratch, 1, 33, 128), Some((4, 9)));
+        assert_eq!(&scratch[..10], b"ZabcdZabcd");
+        assert_eq!(sequences.next(), Some((token >> 4, token & 15, u16::from(offset))));
+        assert_eq!(sequences.next(), None);
+    }
+}
+
+#[test]
 fn spl16_rejects_malformed_runs_after_inline_prefix() {
     let lit = [b'Q'; 120];
     let mut runs = vec![(12, 8, 7)];
@@ -124,8 +147,7 @@ fn spl16_rejects_malformed_runs_after_inline_prefix() {
         ((4, 19, 20), 333, false, "match exceeds block size"),
         ((15, 150, 20), 4096, true, "short section"),
     ] {
-        // Put the invalid distance in the second lane, after an inline
-        // sequence that can be copied before that lane declines batching.
+        // Put the invalid run in the second lane, after a valid inline run.
         runs.push(last);
         runs.push((1, 17, 19));
         let mut payload = spl16_payload(&lit, &runs);
