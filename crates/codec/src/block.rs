@@ -341,6 +341,35 @@ fn reconstruct<const MASK: u8, S: Sequences>(
             continue;
         }
         let Some((ll, ml, off)) = sequences.next() else { break };
+        // A common SPL16 miss is an inline literal count followed by an
+        // extended match. A match of 20..=64 needs just one extension byte.
+        // Commit both cursors only after checking distance, logical block
+        // budget, and physical room for the bounded copies.
+        if S::SPL16
+            && ll != MASK
+            && ml == MASK
+            && let Some((&x, rest)) = data.split_first()
+        {
+            let len = 20 + usize::from(x);
+            let ll = usize::from(ll);
+            let m = pos + ll;
+            let off = usize::from(off) + 1;
+            if len <= 64
+                && off <= m
+                && off >= len
+                && len <= match_budget
+                && m + 64 <= out.len()
+                && let Some(src) = lit.first_chunk::<16>()
+            {
+                out[pos..][..16].copy_from_slice(src);
+                out.copy_within(m - off..m - off + 64, m);
+                pos = m + len;
+                lit = &lit[ll..];
+                data = rest;
+                match_budget -= len;
+                continue;
+            }
+        }
         let mut ll = usize::from(ll);
         if ll == usize::from(MASK) {
             ll += extra(&mut data)?;

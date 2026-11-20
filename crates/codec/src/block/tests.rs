@@ -134,6 +134,46 @@ fn spl16_batch_keeps_inline_prefix_when_second_token_needs_fallback() {
 }
 
 #[test]
+fn spl16_short_match_extensions_preserve_following_extensions_and_limits() {
+    // A nonuniform prefix distinguishes the correct match distance from one
+    // into uncommitted slack. Alternate the 64-byte cutoff with a two-byte
+    // extension and an overlap; each must consume exactly its own extension.
+    let lit: Vec<u8> = (0..200).map(|n| (n * 31) as u8).collect();
+    let runs = [
+        (80, 5, 32),
+        (0, 20, 64),
+        (14, 64, 64),
+        (2, 65, 65),
+        (1, 148, 19),
+        (3, 63, 64),
+        (1, 5, 32), // keep the post-literal stream >=32 bytes even in the truncation cases
+        (1, 5, 32),
+        (1, 5, 32),
+        (1, 5, 32),
+    ];
+    let payload = spl16_payload(&lit, &runs);
+    let mut expected = Vec::new();
+    let mut l = 0;
+    for (ll, ml, off) in runs {
+        expected.extend_from_slice(&lit[l..l + ll]);
+        l += ll;
+        for _ in 0..ml {
+            expected.push(expected[expected.len() - usize::from(off)]);
+        }
+    }
+    expected.extend_from_slice(&lit[l..]);
+    let mut scratch = vec![0xa5; 4096];
+    for bad in [&payload[..payload.len() - 1], &payload[..payload.len() - 2]] {
+        assert!(unpack(1, bad, 4096, None, &mut scratch).is_err());
+    }
+    assert!(unpack(1, &payload, expected.len() - 1, None, &mut scratch).is_err());
+    assert_eq!(
+        unpack(1, &payload, expected.len(), None, &mut scratch).unwrap(),
+        expected
+    );
+}
+
+#[test]
 fn spl16_rejects_malformed_runs_after_inline_prefix() {
     let lit = [b'Q'; 120];
     let mut runs = vec![(12, 8, 7)];
