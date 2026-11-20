@@ -5,11 +5,13 @@ use crate::{
     wire::{DataBlockHeader, checksum},
     word,
 };
-use std::{borrow::Cow, io, ops::Range};
+use std::{borrow::Cow, io};
 
 /// Reusable reconstruction scratch for decoding independent data blocks.
 #[derive(Default)]
 pub struct BlockDecoder {
+    // Keep initialized scratch between blocks. Only the reconstructed prefix
+    // is plaintext; the rest is never used as history or published.
     out: Vec<u8>,
 }
 
@@ -23,14 +25,14 @@ pub struct VerifiedBlock<'a> {
 /// A verified block whose backing buffer can move between threads.
 pub struct OwnedVerifiedBlock {
     buffer: Vec<u8>,
-    plain: Range<usize>,
+    plain_len: usize,
     checksum: Option<u32>,
 }
 
 impl OwnedVerifiedBlock {
     pub fn as_verified(&self) -> VerifiedBlock<'_> {
         VerifiedBlock {
-            bytes: &self.buffer[self.plain.clone()],
+            bytes: &self.buffer[..self.plain_len],
             checksum: self.checksum,
         }
     }
@@ -95,16 +97,13 @@ impl BlockDecoder {
     ) -> io::Result<OwnedVerifiedBlock> {
         let block = self.decode(header, &body, dictionary, index, None)?;
         let (len, checksum) = (block.bytes.len(), block.checksum);
-        let start = if header.kind == 0 {
-            0
-        } else {
-            let start = self.out.len() - len;
+        if header.kind != 0 {
+            self.out.truncate(len);
             std::mem::swap(&mut self.out, &mut body);
-            start
-        };
+        }
         Ok(OwnedVerifiedBlock {
             buffer: body,
-            plain: start..start + len,
+            plain_len: len,
             checksum,
         })
     }
@@ -178,67 +177,144 @@ fn unpack<'a>(
     let sequences = section(enc[1], seq_data, n, None)?;
 
     zone!("LZ reconstruct");
-    let mut lit = &literals[..];
-    out.clear();
     let history = dict.map_or(&[][..], |d| d.content.as_slice());
-    let mut match_budget = limit - nl;
-    for i in 0..n {
-        let (mut ll, mut ml, off, mask) = if packed {
-            let w = &sequences[4 * i..4 * i + 4];
-            (
-                usize::from(w[3]),
-                usize::from(w[2]),
-                u16::from_le_bytes([w[0], w[1]]) as usize + 1,
-                255,
-            )
-        } else {
-            let t = sequences[i];
-            let off = if width == 1 {
-                u16::from(offsets[i])
-            } else {
-                u16::from_le_bytes([offsets[2 * i], offsets[2 * i + 1]])
-            };
-            (usize::from(t >> 4), usize::from(t & 15), usize::from(off) + 1, 15)
-        };
-        if ll == mask {
+    // Every token adds at least five bytes beyond the already bounded literals.
+    let min_output = nl + n * 5;
+    if out.len() < min_output {
+        out.resize(min_output, 0);
+    }
+    // Select the token representation once. The sliced sections and exact
+    // entropy counts give one offset per token, or n complete packed words.
+    let len = if packed {
+        let words = sequences.as_chunks::<4>().0;
+        reconstruct::<255>(
+            words
+                .iter()
+                .map(|&[lo, hi, ml, ll]| (ll, ml, u16::from_le_bytes([lo, hi]))),
+            &literals,
+            data,
+            limit,
+            history,
+            out,
+        )?
+    } else if width == 1 {
+        reconstruct::<15>(
+            sequences
+                .iter()
+                .zip(offsets)
+                .map(|(&t, &off)| (t >> 4, t & 15, u16::from(off))),
+            &literals,
+            data,
+            limit,
+            history,
+            out,
+        )?
+    } else {
+        let words = offsets.as_chunks::<2>().0;
+        reconstruct::<15>(
+            sequences
+                .iter()
+                .zip(words)
+                .map(|(&t, &off)| (t >> 4, t & 15, u16::from_le_bytes(off))),
+            &literals,
+            data,
+            limit,
+            history,
+            out,
+        )?
+    };
+    crate::probe!({
+        add("reconstruct:literals", nl);
+        add("reconstruct:matches", len - nl);
+    });
+    Ok(&out[..len])
+}
+
+fn reconstruct<const MASK: u8>(
+    sequences: impl Iterator<Item = (u8, u8, u16)>,
+    mut lit: &[u8],
+    mut data: &[u8],
+    limit: usize,
+    history: &[u8],
+    out: &mut Vec<u8>,
+) -> io::Result<usize> {
+    let mut match_budget = limit - lit.len();
+    let mut pos = 0;
+    for (ll, ml, off) in sequences {
+        let mut ll = usize::from(ll);
+        if ll == usize::from(MASK) {
             ll += extra(&mut data)?;
         }
-        if ml == mask {
+        let mut ml = usize::from(ml) + 5;
+        if ml == usize::from(MASK) + 5 {
             ml += extra(&mut data)?;
         }
-        ml += 5;
+        let off = usize::from(off) + 1;
         require(ml <= match_budget, "match exceeds block size")?;
         match_budget -= ml;
-        out.extend_from_slice(take(&mut lit, ll)?);
-        if off > out.len() {
+        // The bound includes all literals, even those not yet written. Grow
+        // geometrically only when needed, not to the frame limit on entry.
+        let need = limit - match_budget;
+        if need > out.len() {
+            out.resize(need.max(out.len() * 2).min(limit), 0);
+        }
+        let match_at = pos + ll;
+        // Fixed-width copies avoid a variable-size copy for short runs. Extra
+        // bytes are outside the logical prefix and will be overwritten before
+        // they can be used as history or returned as plaintext.
+        if ll <= 8
+            && pos + 8 <= out.len()
+            && let Some(bytes) = lit.first_chunk::<8>()
+        {
+            out[pos..pos + 8].copy_from_slice(bytes);
+            lit = &lit[ll..];
+        } else if ll != 0 {
+            let src = take(&mut lit, ll)?;
+            out[pos..match_at].copy_from_slice(src);
+        }
+        pos = match_at;
+        if off <= pos && ml <= off {
+            let start = pos - off;
+            // The logical source is all in previously written output. The
+            // wider copy may overlap only in its unneeded bytes; copy_within
+            // preserves the original source bytes in that case too.
+            if ml <= 8 && pos + 8 <= out.len() {
+                out.copy_within(start..start + 8, pos);
+            } else if ml <= 16 && pos + 16 <= out.len() {
+                out.copy_within(start..start + 16, pos);
+            } else {
+                out.copy_within(start..start + ml, pos);
+            }
+            pos += ml;
+            continue;
+        }
+        if off > pos {
             // The dictionary precedes the output in the logical history. Copy
             // at most its suffix, then continue at output[0] if the match crosses.
-            let missing = off - out.len();
+            let missing = off - pos;
             let start = history
                 .len()
                 .checked_sub(missing)
                 .ok_or_else(|| bad("match before start of history"))?;
             let amount = ml.min(missing);
-            out.extend_from_slice(&history[start..start + amount]);
+            out[pos..pos + amount].copy_from_slice(&history[start..start + amount]);
+            pos += amount;
             ml -= amount;
             if ml == 0 {
                 continue;
             }
         }
-        let start = out.len() - off;
+        let start = pos - off;
         // Copy the already available pattern, doubling it on each overlap.
         while ml != 0 {
-            let amount = ml.min(out.len() - start);
-            out.extend_from_within(start..start + amount);
+            let amount = ml.min(pos - start);
+            out.copy_within(start..start + amount, pos);
+            pos += amount;
             ml -= amount;
         }
     }
-    out.extend_from_slice(lit);
-    crate::probe!({
-        add("reconstruct:literals", nl);
-        add("reconstruct:matches", out.len() - nl);
-    });
-    Ok(out)
+    out[pos..pos + lit.len()].copy_from_slice(lit);
+    Ok(pos + lit.len())
 }
 
 #[cfg(test)]
