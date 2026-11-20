@@ -6,6 +6,7 @@ resource: /doc/profiling/dense-decode.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-20 }
 sources:
+  - { resource: 'opencode://ses_e084e54dbffeln5bePhwUUQIqM', title: Two-token reconstruction, fallback controls and targeted tests }
   - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Huffman decode, oracle checks, corpus benchmark and final profiles }
   - { resource: 'opencode://ses_e085d94a5ffe9b48Y0zz9CuFdu', title: SPL and PAK reconstruction and differential tests }
   - { resource: /doc/profiling/dense-parser.md, title: Frozen Dense archives and upstream build }
@@ -48,3 +49,9 @@ The combined CLI passed the frozen oracle (180 cross-decodes and 72 indexed read
 
 1. **Existing archives:** optimize the two-byte-offset SPL sequence loop first. On final `webster`, it accounts for 64% of sampled user cycles, versus 11% in the SIMD merge. On `sao` the corresponding shares are 43% and 18%. Compare a batched common-token loop with the current checked loop, keeping overflow, dictionary and short-tail handling in the slow path. Measure both against these frozen archives.
 2. **New archives:** price decode work when Huffman barely beats raw. In a scratch experiment, requiring 2% literal savings left six `sao` literal sections raw. This cost 35,538 bytes (+0.64% of the archive); on the isolated Huffman-improved decoder it cut decode time from 16.7 to 14.0 ms, and on C from 6.9 to 5.9 ms. `dickens` stayed byte-identical. This is a promising encoder policy to test across the corpus; it is not enabled in Dense.
+
+## Follow-up: batch two ordinary SPL sequences
+
+`58f39c8a` takes two inline tokens together when both use two-byte offsets and their matches fit entirely in already-produced plaintext. One bound covers the fixed-width stores; either token can cause the pair to fall back to the checked loop. In 15 shuffled passes using the same Dense archives, median elapsed time per corpus pass fell from **218.8 to 188.1 ms** (14%). `webster` benefited most in absolute time (45.61 → 34.94 ms). `sao` was effectively flat; extended literal lengths make fewer pairs eligible. In a 31-pass control repeat, synthetic `same-prefix` was 6% slower and 4 KiB-block `sao` was 8% slower. These regressions matter for small-block use despite the improvement at the default block size.
+
+An [independent seven-pass check](scorecard/spl-batch-20261120.tsv) used the frozen decode probe above with `--encoder rust_dense`, `c3` and `c7`, each on its corresponding archives. Rust before → after, in milliseconds per full pass: Dense **224.3 → 196.3**, C3 **138.6 → 104.1**, C7 **206.0 → 178.4**. All 36 archive hashes and decoded plaintext hashes passed; the pinned C interop suite passed 252 cross-decodes and 228 indexed reads. The aggregate improvement was large enough to keep the pair path despite the small-block tradeoff.
