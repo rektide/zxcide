@@ -6,7 +6,7 @@ pub enum Mode {
     #[default]
     Split,
     Packed,
-    /// SPL with size-priced RLE and PivCo literal/token sections.
+    /// SPL with a deeper match search and size-priced RLE and PivCo sections.
     Dense,
 }
 

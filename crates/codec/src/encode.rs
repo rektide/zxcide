@@ -1,5 +1,7 @@
-//! Greedy 64 KiB-window parser. The same parse can be priced in either layout.
+//! Independent block encoding with a 64 KiB match window.
 use crate::{Dictionary, EncodeOptions, Mode, wire::checksum};
+
+mod dense_match;
 
 const MATCH_SLOTS: usize = 65536;
 const MIN_SEED_DICTIONARY: usize = 16 * 1024;
@@ -20,6 +22,7 @@ struct Match {
 #[derive(Default)]
 pub struct BlockEncoder {
     table: Vec<u32>,
+    dense_match: dense_match::Parser,
     matches: Vec<Match>,
     history: Vec<u8>,
     payload: Vec<u8>,
@@ -177,14 +180,18 @@ impl BlockEncoder {
         } else {
             (plain, 0)
         };
-        // Do not allocate a seed for decoding, small dictionaries, or short
-        // streams. Once warmed, share the sole template across workers.
-        let seed = dict.filter(|d| {
-            block_log <= MAX_SEEDED_BLOCK_LOG
-                && prefix >= MIN_SEED_DICTIONARY
-                && (index >= FIRST_SEEDED_INDEX || d.match_seed.get().is_some())
-        });
-        parse(input, prefix, seed, &mut self.table, &mut self.matches);
+        if matches!(mode, Mode::Dense) {
+            self.dense_match.parse(input, prefix, &mut self.matches);
+        } else {
+            // Keep the single-slot parser and its shared dictionary snapshot
+            // for the cheaper modes. Dense builds its own chain per block.
+            let seed = dict.filter(|d| {
+                block_log <= MAX_SEEDED_BLOCK_LOG
+                    && prefix >= MIN_SEED_DICTIONARY
+                    && (index >= FIRST_SEEDED_INDEX || d.match_seed.get().is_some())
+            });
+            parse(input, prefix, seed, &mut self.table, &mut self.matches);
+        }
         if self.matches.is_empty() && !matches!(mode, Mode::Dense) {
             return (0, plain);
         }
