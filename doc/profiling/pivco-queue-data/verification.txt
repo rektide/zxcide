@@ -25,3 +25,7 @@ Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed rang
 
 cargo xtask interop <pinned-C> <trial-Rust> --cases 36 --parallel-backend crossbeam
 Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed range checks passed (generator revision 1, seed 99335130674745)
+
+Serial Decoder stream recovery example (both post-buffer baseline and trial):
+cumulative limit and late checksum rejected block two only; each recovered through EOF on the same Decoder
+cumulative limit and late checksum rejected block two only; each recovered through EOF on the same Decoder
