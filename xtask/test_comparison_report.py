@@ -33,7 +33,8 @@ class Protocol(unittest.TestCase):
             with self.subTest(text=text), self.assertRaises(argparse.ArgumentTypeError):
                 tables.files_arg(text)
         self.assertEqual(tables.files_arg('sao,mozilla'), ['mozilla', 'sao'])
-        self.assertEqual(tables.matrix_size(12, 3, 1, 3, False), 276)
+        self.assertEqual(tables.matrix_size(dict(schema=3, selected_files=runner.FILES, levels=[1, 3, 7],
+                         binaries={'c': {}, 'current': {}}, decode_workers=[1, 4, 8], concat=False)), 420)
 
     def test_cpu_budget(self):
         temp_root = runner.ROOT / 'target'
@@ -165,7 +166,7 @@ class Publication(unittest.TestCase):
     def test_nondefault_points_and_singleton_paired(self):
         base = runner.publish(self.args)
         raw = json.loads((base / 'raw.json').read_text())
-        self.assertEqual(len(raw['jobs']), 22)  # 2 × (3 C + 2 Rust + 3×2 fixed decode)
+        self.assertEqual(len(raw['jobs']), 30)  # 2 files × 5 sources × (encode + 2 decoders)
         self.assertEqual(len(raw['files']['sao']['archives']), 5)
         self.assertIn((base / 'report.md').read_text(), (base / 'run.log').read_text())
         self.assertEqual(tables.render(raw)[0], (base / 'report.md').read_text())
@@ -173,7 +174,11 @@ class Publication(unittest.TestCase):
         self.args.before = base
         paired = runner.publish(self.args)
         r = json.loads((paired / 'raw.json').read_text())
-        self.assertEqual(len(r['jobs']), 16)  # 2 × (1 C + 4 Rust + 3 decoders)
+        self.assertEqual(len(r['jobs']), 40)  # 2 files × 5 sources × (encode + 3 decoders)
+        for src in ('current', 'before'):
+            for dec in ('current', 'before', 'c'):
+                self.assertEqual(r['jobs'][f'sao/decode/{src}.dense/{dec}/1']['argv'][-1],
+                                 f'scratch/sao.{src}.dense.zxc')
         self.assertEqual(len(r['verification']), 30)  # 2 files × 5 archives × 3 decoders; serial timed jobs reused
         self.assertNotIn('split (C3)', (paired / 'report.md').read_text())
 
@@ -192,9 +197,9 @@ class Publication(unittest.TestCase):
                 for p, i in tables.rows(raw, kind):
                     jid, spec = tables.job(n, kind, p, i, arcs[tables.archive_key(kind, p, i)])
                     raw['jobs'][jid] = spec
+        raw['observations'].clear()
+        self.sample(raw, base, None)
         for o in raw['observations']:
-            if '/decode/' in o['job']:
-                o['job'] = o['job'].removesuffix('/1')
             del o['user_us'], o['system_us']
         self.assertNotIn('CPU s/GB', tables.render(raw)[0])
         path.write_text(json.dumps(raw))
@@ -262,19 +267,21 @@ class Publication(unittest.TestCase):
         self.concat()
         base = runner.publish(self.args)
         raw = json.loads((base / 'raw.json').read_text())
-        self.assertEqual(len(raw['jobs']), 44)
-        self.assertEqual(len(raw['verification']), 44)
-        for n in raw['levels']:
-            point = f'C{n}'
+        self.assertEqual(len(raw['jobs']), 80)
+        self.assertEqual(len(raw['verification']), 72)
+        for point, key in [('C1', 'c.C1'), ('C7', 'c.C7'), ('current.split', 'current.split'),
+                           ('current.dense', 'current.dense')]:
             bundle = raw['bundles'][point]
             self.assertEqual([m['file'] for m in bundle['members']], ['mozilla', 'sao'])
             self.assertEqual(bundle['sha256'], hashlib.sha256(b'mozilla\x00\xffsao\x00\xff').hexdigest())
             for layout, name, expected in [('concat', None, bundle['sha256']), *[
-                    ('separate', f, raw['files'][f]['archives'][f'c.{point}']['sha256']) for f in raw['selected_files']]]:
+                     ('separate', f, raw['files'][f]['archives'][key]['sha256']) for f in raw['selected_files']]]:
                 jobs = [j for j in raw['jobs'].values() if j['kind'] == 'decode' and j['point'] == point
                         and j['layout'] == layout and j['file'] == name]
                 self.assertEqual(len(jobs), 6)
                 self.assertEqual({j['archive_sha256'] for j in jobs}, {expected})
+                path = f'scratch/bundle.{point}.zxc' if name is None else f'scratch/{name}.{key}.zxc'
+                self.assertEqual({j['argv'][-1] for j in jobs}, {path})
 
         faults = [('worker job', lambda r: r['jobs'].pop('sao/decode/C7/current/8'), 'wrong jobs'),
                   ('worker exact check', lambda r: r['verification'].pop(next(k for k in r['verification'] if

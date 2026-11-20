@@ -44,17 +44,23 @@ def check(ok, message):
         raise ValueError(message)
 
 
+def decode_points(raw):
+    """A point names the *producer*, independent of which binary decodes it."""
+    yield from (f'C{n}' for n in raw['levels'])
+    if raw.get('schema', 2) >= 3:
+        yield from (f'{i}.{mode}' for i in raw['binaries'] if i != 'c' for mode in MODES)
+
+
 def rows(raw, kind):
+    if kind == 'decode':
+        yield from ((point, impl) for point in decode_points(raw) for impl in raw['binaries'])
+        return
     points = [f'C{n}' for n in raw['levels']]
     for point in points:
-        if kind == 'decode':
-            for impl in raw['binaries']:
-                yield point, impl
-        else:
-            yield point, 'c'
-            for mode, pair in MODES.items():
-                if pair == point:
-                    yield from ((mode, i) for i in raw['binaries'] if i != 'c')
+        yield point, 'c'
+        for mode, pair in MODES.items():
+            if pair == point:
+                yield from ((mode, i) for i in raw['binaries'] if i != 'c')
     if kind == 'encode':
         for mode, pair in MODES.items():
             if pair not in points:
@@ -62,7 +68,11 @@ def rows(raw, kind):
 
 
 def archive_key(kind, point, impl):
-    return f'{impl if kind == "encode" else "c"}.{point}'
+    return f'{impl}.{point}' if kind == 'encode' else source_key(point)
+
+
+def source_key(point):
+    return f'c.{point}' if point.startswith('C') else point
 
 
 def decode_argv(impl, path, workers=1):
@@ -125,7 +135,7 @@ def observations(raw, expected):
         for pos, o in enumerate(block):
             check(o['pass'] == p and o['order'] == pos and o['phase'] == ('sample' if p else 'warmup')
                   and type(o['elapsed_ns']) is int and o['elapsed_ns'] > 0, f'invalid observation: {o}')
-            cpu = raw['schema'] == 2
+            cpu = raw['schema'] >= 2
             if cpu:
                 check(all(type(o.get(k)) is int and o[k] >= 0 for k in CPU_FIELDS), f'invalid CPU observation: {o}')
             if p:
@@ -180,12 +190,14 @@ def bundle_path(point):
 
 
 def bundle_members(raw, point):
-    return [dict(file=n, **{k: raw['files'][n]['archives'][f'c.{point}'][k] for k in ('bytes', 'sha256')})
+    return [dict(file=n, **{k: raw['files'][n]['archives'][source_key(point)][k] for k in ('bytes', 'sha256')})
             for n in raw['selected_files']]
 
 
-def matrix_size(files, levels, rust, workers, concat):
-    return files * (levels + 2*rust) + (files + int(concat)) * levels * (1 + rust) * workers
+def matrix_size(raw):
+    files = len(raw['selected_files'])
+    return (files * sum(1 for _ in rows(raw, 'encode')) +
+            (files + int(raw['concat'])) * sum(1 for _ in rows(raw, 'decode')) * len(raw['decode_workers']))
 
 
 def job_id(name, kind, point, impl, workers=1):
@@ -259,7 +271,7 @@ def validate_v2(raw):
             check(valid_identity(arc), f'invalid archive identity: {name}/{key}')
             if key.startswith('c.'):
                 check(arc['sha256'] == arc['frozen_sha256'], f'fixed archive mismatch: {name}/{key}')
-    points = {f'C{n}' for n in raw['levels']} if raw['concat'] else set()
+    points = set(decode_points(raw)) if raw['concat'] else set()
     check(set(raw['bundles']) == points, 'wrong concat levels')
     for point, bundle in raw['bundles'].items():
         members = bundle_members(raw, point)
@@ -275,7 +287,7 @@ def validate_v2(raw):
 
 def validate(raw):
     version = raw.get('schema')
-    check(type(version) is int and version in (1, 2) and raw['warmups'] == 1
+    check(type(version) is int and version in (1, 2, 3) and raw['warmups'] == 1
           and raw['samples'] == SAMPLES and raw['seed'] == SEED, 'unknown evidence protocol')
     check(levels_arg(','.join(map(str, raw['levels']))) == raw['levels'], 'invalid levels')
     check(set(raw['binaries']) in ({'c', 'current'}, {'c', 'current', 'before'}), 'wrong binary set')
@@ -384,7 +396,7 @@ def table_v2(raw, times, scopes, kind):
     paired = 'before' in raw['binaries']
     headers = ['Scope'] if enc else ['Scope', 'Layout']
     headers += (['Point (reference)', 'Encoder', 'Plain B', 'Archive B', 'Archive/plain %', 'Size Δ vs C %'] if enc else
-                ['Level', 'Plain B', 'Fixed archive B', 'Decoder', 'Workers'])
+                 ['Archive source' if raw.get('schema', 2) >= 3 else 'Level', 'Plain B', 'Fixed archive B', 'Decoder', 'Workers'])
     headers += ['Median ms', 'Min–max ms', 'MB/s', 'CPU s/GB']
     headers += ['Speed × vs C'] if enc else ['× vs own 1 worker', '× vs C at same N']
     if paired:
@@ -420,7 +432,7 @@ def table_v2(raw, times, scopes, kind):
 
 def matrix_lines(raw):
     files, levels, workers = raw['selected_files'], raw['levels'], raw['decode_workers']
-    count = matrix_size(len(files), len(levels), len(raw['binaries']) - 1, len(workers), raw['concat'])
+    count = matrix_size(raw)
     layout = 'separate + concat' if raw['concat'] else 'separate'
     return [f'Silesia comparison: {scope_label(raw)}; C levels {",".join(map(str, levels))}; '
             f'decode workers {",".join(map(str, workers))}; {layout}.',
@@ -475,7 +487,9 @@ def render_v2(raw, times):
                  'Wall and child user+system CPU totals are summed within each pass, then medianed independently. '
                  'Min–max is observed wall spread, not confidence bounds. MB/s and CPU s/GB use decimal plaintext bytes. '
                  'CPU includes all CLI threads, excludes the Python runner, and can exceed wall time. '
-                 'All decoders read identical pinned C bytes within each fixed-archive row group.']
+                 + ('All decoders read identical bytes within each archive-source group. C levels are pinned upstream; '
+                    'current.split and current.dense are produced by this Rust build (before.* by the saved build).'
+                    if raw['schema'] >= 3 else 'All decoders read identical pinned C bytes within each fixed-archive row group.')]
     if raw['concat']:
         sections += ['Concat appends the same fixed frames in manifest order. One concatenated launch and separate-file '
                      'launches cover the same bytes. Their difference includes process/pool startup, input opens, cache state, '

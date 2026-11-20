@@ -18,7 +18,7 @@ import zipfile
 
 from comparison_build import PERF_REV, ROOT, build_current, build_reference, host, snapshot
 from comparison_tables import (QUICK, SAMPLES, SEED, archive_key, archive_path, bundle_members, bundle_path,
-                                check, encode_argv, files_arg, jobs_v2, levels_arg, matrix_lines, render, rows,
+                                check, decode_points, encode_argv, files_arg, jobs_v2, levels_arg, matrix_lines, render, rows, source_key,
                                 validate, verification_plan, worker_policy, workers_arg)
 from scorecard import FILES, URL, ZIP_SHA, sha, verified_zip
 
@@ -99,13 +99,12 @@ def prepare(raw, run, corpus, log):
                     arc['frozen_sha256'] = pin
 
     if raw['concat']:
-        for n in raw['levels']:
-            point = f'C{n}'
+        for point in decode_points(raw):
             bundle = run / bundle_path(point)
             members = bundle_members(raw, point)
             with bundle.open('wb') as out:
                 for member in members:
-                    with (run / archive_path(member['file'], f'c.{point}')).open('rb') as src:
+                    with (run / archive_path(member['file'], source_key(point))).open('rb') as src:
                         shutil.copyfileobj(src, out, CHUNK)
             raw['bundles'][point] = dict(identity(bundle), members=members)
 
@@ -150,7 +149,7 @@ def measure(args, run, log):
     machine = host()
     scope = 'quick' if args.quick else 'subset' if args.files else 'full'
     files = list(QUICK if args.quick else args.files or FILES)
-    raw = dict(schema=2, argv=sys.argv, timestamp_utc=datetime.now(timezone.utc).isoformat(),
+    raw = dict(schema=3, argv=sys.argv, timestamp_utc=datetime.now(timezone.utc).isoformat(),
                scope=scope, selected_files=files, levels=args.levels, decode_workers=args.decode_workers,
                concat=args.concat, seed=SEED, warmups=1, samples=SAMPLES, host=machine, python=sys.version,
                binaries={k: None for k in (('c', 'current', 'before') if args.before else ('c', 'current'))},
