@@ -29,3 +29,8 @@ Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed rang
 Serial Decoder stream recovery example (both post-buffer baseline and trial):
 cumulative limit and late checksum rejected block two only; each recovered through EOF on the same Decoder
 cumulative limit and late checksum rejected block two only; each recovered through EOF on the same Decoder
+
+Clean native pre-timing gate (both decoders at all 26 fixture/worker cases):
+verified exact SHA-256, EOF and quiet stderr for 52 decodes
+
+Typed default scalar WIT harness: status 0 and empty stderr. Verified exact bytes, truncated input and output-limit rejection, then valid input again on the same instance for seven fixtures.
