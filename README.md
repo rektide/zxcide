@@ -15,7 +15,7 @@ For streaming commands, omit a path or use `-` for standard I/O. Named outputs m
 | --- | --- |
 | `split` (default) | Greedy LZ matches, split token/offset streams, raw literals |
 | `packed` | The same match finder with fixed-width packed sequence words |
-| `dense` | Split streams with size-based selection of raw, RLE, inline or dictionary PivCo literals, and raw or PivCo tokens |
+| `dense` | Deeper match search for smaller archives; split streams with size-priced raw, RLE or PivCo sections |
 
 All modes fall back to RAW when compression would expand the block. `--block-log 12..21` controls the block size; the default is 19 (512 KiB). Checksums are on by default. `--seekable` writes a grouped index for readers that support range access. Use `-D dictionary.zxd` on encode and decode; decode accepts repeated `-D` for concatenated frames. `decode` and `test` optionally take `--max-output BYTES` across the entire stream.
 

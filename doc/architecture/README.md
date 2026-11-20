@@ -6,6 +6,7 @@ resource: /doc/architecture/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Dense match selection and entropy cost comparison }
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Port design and implementation }
   - { resource: 'https://github.com/hellobertrand/zxc/blob/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/docs/FORMAT.md', title: Frozen version 9 specification }
   - { resource: 'opencode://ses_e0b4c34d7ffeCyFJu5o1f0HqJK', title: Sol wire compatibility research }
@@ -31,7 +32,7 @@ Use nagisa's `tracy-client` directly behind a non-default Cargo feature. Put sta
 
 The pinned upstream conformance corpus is the decode oracle; check Rust output with the upstream C CLI as a separate encode oracle. Corpus checks, boundary/error tests, streaming tests and interop matter more than self-roundtrips. Benchmarks should distinguish stream setup costs from steady-state codec work before motivating optimizations.
 
-The shipped `dense` policy adds size-priced entropy coding on top of the same match parse; it can use shared dictionary or inline tables and Huffman-coded tokens. [Profiling results and reproduction](../profiling/README.md) document why the initial symbol-by-symbol PivCo decoder was replaced by bottom-up merges.
+`dense` searches up to 24 prior positions per hash chain and chooses matches by estimated bit cost over 32 KiB spans. It then prices actual serialized literal and token sections, including inline Huffman tables or a shared dictionary table for literals. The [Dense parser comparison](../profiling/dense-parser.md) measures the ratio, CPU and workspace tradeoff. Split and Packed use the cheaper greedy parser. [Profiling results and reproduction](../profiling/README.md) document why the initial symbol-by-symbol PivCo decoder was replaced by bottom-up merges.
 
 ## Decisions after peer review
 

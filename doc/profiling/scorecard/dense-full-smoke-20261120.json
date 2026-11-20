@@ -1,0 +1,2041 @@
+{
+  "schema": 1,
+  "timestamp_utc": "2026-11-20T06:22:44.223131+00:00",
+  "argv": [
+    "xtask/scorecard.py",
+    "--full",
+    "--samples",
+    "1",
+    "--warmups",
+    "0",
+    "--c-cli",
+    "target/upstream-comparison/build/zxc",
+    "--rust-cli",
+    ".test-agent/dense-comparison/final",
+    "--rust-build",
+    "02e59646; rustc 1.101.0-nightly 822182db4; portable cargo release; default features",
+    "--c-build",
+    "5719a96f; GCC 16.2.0; CMake Release native",
+    "--output",
+    ".test-agent/dense-comparison/full.json"
+  ],
+  "platform": "Linux-7.1.0-debplus.1-x86_64-with-glibc2.43",
+  "cpu": "AMD Ryzen 7 5800X 8-Core Processor",
+  "affinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "corpus_url": "https://raw.githubusercontent.com/DataCompression/corpus-collection/d59143a41cc7d65063a70e86063a3c39aeae6d9f/Silesia-Corpus/silesia.zip",
+  "corpus_zip_sha256": "1b39576418fa3ebb09cf0ceab59bf1cb9fa262c19d9dc6d3cda1e4fae7910a09",
+  "samples": 1,
+  "warmups": 0,
+  "seed": 42,
+  "binaries": {
+    "c": {
+      "path": "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+      "sha256": "21f4e94add22d98dae206e1c4d9ec003a6bc2bdcda16a8a7c8e70cdb03787589",
+      "build": "5719a96f; GCC 16.2.0; CMake Release native"
+    },
+    "rust": {
+      "path": "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+      "sha256": "218617ccce5a4d80875d9ac3fa26759062df712c4b4d800007ae9a5527635240",
+      "build": "02e59646; rustc 1.101.0-nightly 822182db4; portable cargo release; default features"
+    }
+  },
+  "files": {
+    "dickens": {
+      "bytes": 10192446,
+      "sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a",
+      "archives": {
+        "c3": {
+          "bytes": 5831415,
+          "ratio_archive_over_plain": 0.5721310664780564,
+          "sha256": "1b929bdd9523d2ea9989dcb2572074ae15f01905828f8dd91692dba2904a6a57",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens"
+          ],
+          "encode_ms": [
+            87.313653
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.708932
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                21.936805
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3745574,
+          "ratio_archive_over_plain": 0.3674852925392001,
+          "sha256": "faf9f08e78358d6e6128c9e750f60d24e35b9881f8f8aed415b984940c345e72",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens"
+          ],
+          "encode_ms": [
+            860.588644
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                8.828574
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                32.498419
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 6103312,
+          "ratio_archive_over_plain": 0.598807391277815,
+          "sha256": "2e608d6e38928ae4954f4aef7e180fd42372600503465aeca07734fa7ebce6a2",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens"
+          ],
+          "encode_ms": [
+            71.365456
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.774487
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.055485
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 3729868,
+          "ratio_archive_over_plain": 0.3659443474117989,
+          "sha256": "bfbb054ceb26a96fc484a18fc49f4fe0bdb5a716fac4d4fc60050d534fabb60c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens"
+          ],
+          "encode_ms": [
+            713.650208
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.783696
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/dickens.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                33.947733
+              ]
+            }
+          }
+        }
+      }
+    },
+    "mozilla": {
+      "bytes": 51220480,
+      "sha256": "657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b",
+      "archives": {
+        "c3": {
+          "bytes": 27218454,
+          "ratio_archive_over_plain": 0.5313978705392843,
+          "sha256": "6d10c6e4715c80975130cecd368bc5ae6e59415462968c0fe07ac90bff73c1ff",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla"
+          ],
+          "encode_ms": [
+            268.487882
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                18.984718
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                57.817622
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 21073891,
+          "ratio_archive_over_plain": 0.41143485964989,
+          "sha256": "54c6cd65f688d06391697c4e9d6127821c7a4fa654b4b425f2ea029f9a774c95",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla"
+          ],
+          "encode_ms": [
+            4955.165275
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.192748
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                113.866694
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 25876713,
+          "ratio_archive_over_plain": 0.5052024697933327,
+          "sha256": "ee9c856e2f35875eefe1ea5759847511336031f1a8a64ead924675f9277a25aa",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla"
+          ],
+          "encode_ms": [
+            229.423285
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                21.164557
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                62.772486
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 21203827,
+          "ratio_archive_over_plain": 0.4139716574307777,
+          "sha256": "b20914624d23c50b8cb386a3219beb175f5c8d42fae4d509083b446f264e6d9b",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla"
+          ],
+          "encode_ms": [
+            2924.904597
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                26.906089
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mozilla.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                126.80748
+              ]
+            }
+          }
+        }
+      }
+    },
+    "mr": {
+      "bytes": 9970564,
+      "sha256": "68637ed52e3e4860174ed2dc0840ac77d5f1a60abbcb13770d5754e3774d53e6",
+      "archives": {
+        "c3": {
+          "bytes": 4923400,
+          "ratio_archive_over_plain": 0.49379353063678244,
+          "sha256": "f1317fd22f0813eb730a354e3d05d72b78e27348a86a19c93344c131b93fa14c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr"
+          ],
+          "encode_ms": [
+            60.78774
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.714943
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                13.940931
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3514794,
+          "ratio_archive_over_plain": 0.3525170692450297,
+          "sha256": "2f473c173e631ac87bb13a9a50dc5d33a83e6745a95ff15ffe16bff789441411",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr"
+          ],
+          "encode_ms": [
+            768.191096
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.758195
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.416853
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 5242692,
+          "ratio_archive_over_plain": 0.5258169949062059,
+          "sha256": "5276ac4c1381d2911bdf62cf5106c6b47bd01a29431c01da11836effef125f0e",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr"
+          ],
+          "encode_ms": [
+            38.618058
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.735911
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                15.013966
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 3519447,
+          "ratio_archive_over_plain": 0.3529837429457351,
+          "sha256": "7de9292b8c709a53ade44b4037a782666034b29d5916e228fbef82b485dc35ba",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr"
+          ],
+          "encode_ms": [
+            500.382071
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.797146
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/mr.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                25.435545
+              ]
+            }
+          }
+        }
+      }
+    },
+    "nci": {
+      "bytes": 33553445,
+      "sha256": "fc63a31770947b8c2062d3b19ca94c00485a232bb91b502021948fee983e1635",
+      "archives": {
+        "c3": {
+          "bytes": 4835880,
+          "ratio_archive_over_plain": 0.1441246942005508,
+          "sha256": "76e5c2c59682abf7c96522f5443192f2d4496b1abda06b398860b3bb644b8681",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci"
+          ],
+          "encode_ms": [
+            68.196268
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.380277
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                21.071675
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3058522,
+          "ratio_archive_over_plain": 0.09115373995129263,
+          "sha256": "0f8ddba75b130d39c70f25ebb8b2b90204f3d01da0eb8e3ab1bc318db4aab69b",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci"
+          ],
+          "encode_ms": [
+            7559.375143
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.126042
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.514573
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 5563247,
+          "ratio_archive_over_plain": 0.1658025576807389,
+          "sha256": "e3b7042d4494a337396bf3f5dc9c36574b9e2bc04d8200a14af4d7d6bd0c95d3",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci"
+          ],
+          "encode_ms": [
+            69.814376
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.247356
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.722319
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 3163506,
+          "ratio_archive_over_plain": 0.09428259899989405,
+          "sha256": "685edb822d48ffb4e4aee12ed1cabc0a5c1112058ac8991fffdd9e68b03d7459",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci"
+          ],
+          "encode_ms": [
+            3217.264173
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                12.119859
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/nci.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                27.763668
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ooffice": {
+      "bytes": 6152192,
+      "sha256": "e7ee013880d34dd5208283d0d3d91b07f442e067454276095ded14f322a656eb",
+      "archives": {
+        "c3": {
+          "bytes": 4905756,
+          "ratio_archive_over_plain": 0.7973996910369507,
+          "sha256": "c02cf48d6b2f839271c44a9dd81b7724cb61e3eaf2b8d085fa86960ff0758b88",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice"
+          ],
+          "encode_ms": [
+            38.536784
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.047895
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.293608
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3399525,
+          "ratio_archive_over_plain": 0.5525713436771804,
+          "sha256": "b223d21cbd036c9efb936046a74f883e42b7bc1063f2b836b1cb897fe572bd25",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice"
+          ],
+          "encode_ms": [
+            332.855999
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.892955
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                21.438492
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 4181129,
+          "ratio_archive_over_plain": 0.6796161433193242,
+          "sha256": "2330d89d789868fe0d8ac1fea5d9325bda8e1c090ea61dd88b9a20d70eb26607",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice"
+          ],
+          "encode_ms": [
+            37.938332
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                4.554335
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.020352
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 3386452,
+          "ratio_archive_over_plain": 0.5504464099950066,
+          "sha256": "fe042979df276a36ba6264d574154395b8c7545f58a7e2d06f452ce45decec85",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice"
+          ],
+          "encode_ms": [
+            274.687363
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.935407
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/ooffice.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                23.774237
+              ]
+            }
+          }
+        }
+      }
+    },
+    "osdb": {
+      "bytes": 10085684,
+      "sha256": "60f027179302ca3ad87c58ac90b6be72ec23588aaa7a3b7fe8ecc0f11def3fa3",
+      "archives": {
+        "c3": {
+          "bytes": 6905951,
+          "ratio_archive_over_plain": 0.6847280759539958,
+          "sha256": "ec2919cee5b7a56c5748f13742207377a55e70c72664ae64ea38042c63645e3a",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb"
+          ],
+          "encode_ms": [
+            35.604247
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.368324
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.368469
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 3572729,
+          "ratio_archive_over_plain": 0.3542376501187227,
+          "sha256": "715ba0bf82e8bf550db11becfff5972ef303eb2c743e6eced5d1008d69e4134e",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb"
+          ],
+          "encode_ms": [
+            595.792121
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.369116
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                22.739683
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 4455108,
+          "ratio_archive_over_plain": 0.4417259156642227,
+          "sha256": "4aa701aba8637d8fb9cbe24da6f436ada2cb51a9875d1c70f82fc20315419f2e",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb"
+          ],
+          "encode_ms": [
+            42.944877
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.649439
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.731837
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 3560951,
+          "ratio_archive_over_plain": 0.35306985624376097,
+          "sha256": "478aa9d26ef4f08ec76d68c60408b58da2a0008e058ae66c95fac0619aa216bc",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb"
+          ],
+          "encode_ms": [
+            614.883829
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.323654
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/osdb.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                23.51024
+              ]
+            }
+          }
+        }
+      }
+    },
+    "reymont": {
+      "bytes": 6627202,
+      "sha256": "0eac0114a3dfe6e2ee1f345a0f79d653cb26c3bc9f0ed79238af4933422b7578",
+      "archives": {
+        "c3": {
+          "bytes": 2761942,
+          "ratio_archive_over_plain": 0.4167583846093721,
+          "sha256": "4e3c0f569b54b9f36dc3b331165f32c4271d6bf944fe1f74cc9a2c97dfc428b2",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont"
+          ],
+          "encode_ms": [
+            45.257901
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.270622
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                14.86937
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 1837882,
+          "ratio_archive_over_plain": 0.2773239747332283,
+          "sha256": "2e585b0c3d01167f2bf3558c0b2497b178e93e82626ae8545ade4578bd170b33",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont"
+          ],
+          "encode_ms": [
+            1040.000891
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.276941
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                17.339679
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 3302816,
+          "ratio_archive_over_plain": 0.4983726163771679,
+          "sha256": "a8eb76b63b147abe8ce124c383d582a3b312d37dcc074ea88e55a51327aaee9b",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont"
+          ],
+          "encode_ms": [
+            38.121665
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.604168
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                15.929775
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 1876568,
+          "ratio_archive_over_plain": 0.28316143072144173,
+          "sha256": "73b993c193592933235f1c3baaa1f496b058f7edb7f1110654a580b83699db93",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont"
+          ],
+          "encode_ms": [
+            607.582917
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.098489
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/reymont.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                17.222767
+              ]
+            }
+          }
+        }
+      }
+    },
+    "samba": {
+      "bytes": 21606400,
+      "sha256": "93ba07bc44d8267789c1d911992f40b089ffa2140b4a160fac11ccae9a40e7b2",
+      "archives": {
+        "c3": {
+          "bytes": 7578923,
+          "ratio_archive_over_plain": 0.3507721323311611,
+          "sha256": "81fd06e6574ffc818fc15a923e2341a4cbc5cd1e53ba99388be7baa5fbd1dd91",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba"
+          ],
+          "encode_ms": [
+            83.6145
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                8.439566
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                24.694807
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 5616856,
+          "ratio_archive_over_plain": 0.2599626036729858,
+          "sha256": "cefe62753fe2b4e2fba9e263a400e3242c249d6f1d0d9b7f3c762d2a3d84d85e",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba"
+          ],
+          "encode_ms": [
+            2273.514069
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.817684
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                32.974407
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 7751708,
+          "ratio_archive_over_plain": 0.3587690684241706,
+          "sha256": "f1b4587f4446aefdb033f0400955fc22c145c4fdfc7dc63231f9ea73142d767b",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba"
+          ],
+          "encode_ms": [
+            85.110793
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.860275
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                27.363438
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 5588569,
+          "ratio_archive_over_plain": 0.2586534082494076,
+          "sha256": "2acb4d7137d1997fc2b0bca18ee824756a60c99f0138b9880a88c70b54d7b3cc",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba"
+          ],
+          "encode_ms": [
+            1336.355567
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.49438
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/samba.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                39.986408
+              ]
+            }
+          }
+        }
+      }
+    },
+    "sao": {
+      "bytes": 7251944,
+      "sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc",
+      "archives": {
+        "c3": {
+          "bytes": 7247411,
+          "ratio_archive_over_plain": 0.999374926226678,
+          "sha256": "569e1038211f41ff25be0f06305f352fcec6aeb944ece57d54a625774da6784f",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao"
+          ],
+          "encode_ms": [
+            5.777853
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.575693
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                2.794104
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 5587854,
+          "ratio_archive_over_plain": 0.7705318739361473,
+          "sha256": "158c5860be145687202be26441998ef926f8e35e939728793c8a4701df4d39be",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao"
+          ],
+          "encode_ms": [
+            308.193924
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.52398
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                20.572101
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 6527281,
+          "ratio_archive_over_plain": 0.9000732769034069,
+          "sha256": "b1d800211933c566219bb41234ca8407c59f5a80a5ca4cb036e40e4de25a235c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao"
+          ],
+          "encode_ms": [
+            50.320337
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                11.161305
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.907419
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 5531098,
+          "ratio_archive_over_plain": 0.7627055586750257,
+          "sha256": "10da9c8f9f86509aeee7ec6d478d89067e5c620ebd8de48a13ac242bcb0b7545",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao"
+          ],
+          "encode_ms": [
+            334.383156
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.515962
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/sao.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                30.650764
+              ]
+            }
+          }
+        }
+      }
+    },
+    "webster": {
+      "bytes": 41458703,
+      "sha256": "6a68f69b26daf09f9dd84f7470368553194a0b294fcfa80f1604efb11143a383",
+      "archives": {
+        "c3": {
+          "bytes": 17776513,
+          "ratio_archive_over_plain": 0.42877638984509475,
+          "sha256": "51fe1501bba5f62ea782f8772cc5f7d7393070a28b79d7617a87399d91df5012",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster"
+          ],
+          "encode_ms": [
+            293.104705
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                14.710717
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                73.64651
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 11906496,
+          "ratio_archive_over_plain": 0.2871893025693544,
+          "sha256": "6653e6221776fa3eb772993d1c83f5c0180cca2af4f743e46adf9f02dfefa76b",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster"
+          ],
+          "encode_ms": [
+            5358.823052
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                17.823448
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                100.259839
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 19483538,
+          "ratio_archive_over_plain": 0.4699504950745806,
+          "sha256": "66138f9ac95cc14e7d646c86d4291b3b19d7800101c1ede943b4ad5aecd7af7f",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster"
+          ],
+          "encode_ms": [
+            228.665323
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                15.473254
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                73.622038
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 12057866,
+          "ratio_archive_over_plain": 0.2908404056923826,
+          "sha256": "1123cc4518d264b79ff004bde8cd6c3057a2bb229f2501e04b8c3d7dea9ae994",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster"
+          ],
+          "encode_ms": [
+            3281.473646
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                18.861222
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/webster.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                101.369855
+              ]
+            }
+          }
+        }
+      }
+    },
+    "xml": {
+      "bytes": 5345280,
+      "sha256": "0e82e54e695c1938e4193448022543845b33020c8be6bf3bf3ead2224903e08c",
+      "archives": {
+        "c3": {
+          "bytes": 1034492,
+          "ratio_archive_over_plain": 0.1935337344348659,
+          "sha256": "adc025c468ce6340e2dbf89d407138c5a44375360b8cee835ad670a71b4662bf",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml"
+          ],
+          "encode_ms": [
+            19.951327
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.780849
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.643309
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 668876,
+          "ratio_archive_over_plain": 0.12513394995210728,
+          "sha256": "087c41d4ea4c9fb4497fd5eb190c287b850f831b2d860b927fa286c56bdd76d9",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml"
+          ],
+          "encode_ms": [
+            791.168574
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                4.024433
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.850827
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 1225523,
+          "ratio_archive_over_plain": 0.22927199323515327,
+          "sha256": "ad5e70621220a84c838eae213eb843511de1adc08da194ef09e2d2f76924a4ee",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml"
+          ],
+          "encode_ms": [
+            17.698247
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                4.647616
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.44579
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 686065,
+          "ratio_archive_over_plain": 0.12834968420737547,
+          "sha256": "0d34ec6654daab9e4fcfd03dd4c97bb294d8b05b9429bd338ff4217b34977b34",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml"
+          ],
+          "encode_ms": [
+            402.197808
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                4.600615
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/xml.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.802488
+              ]
+            }
+          }
+        }
+      }
+    },
+    "x-ray": {
+      "bytes": 8474240,
+      "sha256": "7de9fce1405dc44ae5e6813ed21cd5751e761bd4265655a005d39b9685d1c9ad",
+      "archives": {
+        "c3": {
+          "bytes": 8474483,
+          "ratio_archive_over_plain": 1.0000286751378296,
+          "sha256": "2fcee94df91c90607479f061ce3dabf283bede6f7ea248a411d9f5c2a0d30b81",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-3",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray"
+          ],
+          "encode_ms": [
+            6.07313
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                6.275694
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.c3.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                2.593029
+              ]
+            }
+          }
+        },
+        "c7": {
+          "bytes": 6130424,
+          "ratio_archive_over_plain": 0.7234187372554943,
+          "sha256": "da9372884a8f902084301d25ccab8d441b40fd722edc3b93ac51ee3163af919c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+            "-qzc",
+            "-T1",
+            "-7",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray"
+          ],
+          "encode_ms": [
+            315.281435
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                7.85617
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.c7.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                36.771092
+              ]
+            }
+          }
+        },
+        "rust_split": {
+          "bytes": 7699253,
+          "ratio_archive_over_plain": 0.9085479051808776,
+          "sha256": "0c4e31b0a292a297eec8515f3fe717ec6624ac8cad6e0ebae22eed7c39ed9f7c",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "split",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray"
+          ],
+          "encode_ms": [
+            55.991363
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                5.961246
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.rust_split.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                10.030779
+              ]
+            }
+          }
+        },
+        "rust_dense": {
+          "bytes": 6155668,
+          "ratio_archive_over_plain": 0.7263976474586512,
+          "sha256": "8e73374b82e38bbfbd9670e859f8431618ee5b16284f579bf4f5e06741584aa0",
+          "encode_command": [
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+            "encode",
+            "--mode",
+            "dense",
+            "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray"
+          ],
+          "encode_ms": [
+            272.231929
+          ],
+          "decode": {
+            "c": {
+              "command": [
+                "/home/rektide/src/zxc-rs/target/upstream-comparison/build/zxc",
+                "-qdc",
+                "-T1",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                9.466057
+              ]
+            },
+            "rust": {
+              "command": [
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/final",
+                "decode",
+                "/home/rektide/src/zxc-rs/.test-agent/dense-comparison/scorecard-wwcgtnjf/x-ray.rust_dense.zxc"
+              ],
+              "verified_exact": true,
+              "ms": [
+                35.172508
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

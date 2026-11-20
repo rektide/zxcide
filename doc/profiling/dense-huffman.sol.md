@@ -6,6 +6,7 @@ resource: /doc/profiling/dense-huffman.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol#medium', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Follow-on parser and Huffman writer measurement }
   - { resource: 'opencode://ses_e0a84f44dffeloHT4F1IaQIiih', title: Candidate traces, implementation, cross-decoding, and timings }
   - { resource: /doc/profiling/upstream-silesia.md, title: Original same-input upstream comparison and corpus hashes }
   - { resource: 'https://github.com/hellobertrand/zxc/blob/5719a96f778226868b29dba621a8c4e302b74d7c/src/lib/zxc_huffman.c#L75-L302', title: Pinned C package-merge construction }
@@ -13,6 +14,8 @@ sources:
 ---
 
 # Why Dense matched Split on `dickens`
+
+For the subsequent change to match selection and the cost of writing these Huffman streams, see [Closing the Dense archive-size gap against C7](dense-parser.md). The measurements below isolate the earlier change to Huffman code lengths.
 
 The frozen Rust CLI reproduced the [original comparison](upstream-silesia.md) byte for byte, including two identical 6,103,312-byte `dickens` archives. Dense and Split share match parsing; the difference is the entropy pass over the resulting SPL literals and tokens. A scratch build instrumented Dense's section inputs, budgets, RLE sizes, and maximum unconstrained Huffman depths. Its archives matched the frozen binary. This was a candidate-construction rejection, not a pricing loss or a benchmark selecting the wrong mode:
 
