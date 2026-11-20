@@ -47,11 +47,20 @@ enum Task {
     /// Compare the current Rust CLI to pinned C on verified Silesia inputs.
     ComparisonReport {
         /// Measure only dickens and sao (otherwise all twelve files).
-        #[arg(long)]
+        #[arg(long, conflicts_with = "files")]
         quick: bool,
+        /// Comma-separated Silesia member names (otherwise all twelve files).
+        #[arg(long)]
+        files: Option<String>,
         /// Comma-separated upstream compression levels (distinct, 1..7).
-        #[arg(long, default_value = "3,7")]
+        #[arg(long, default_value = "1,3,7")]
         levels: String,
+        /// Comma-separated decode worker counts (distinct, 1..256).
+        #[arg(long, default_value = "1,4,8")]
+        decode_workers: String,
+        /// Also decode the selected fixed frames in a single launch per level.
+        #[arg(long)]
+        concat: bool,
         /// Also measure the saved Rust executable from this completed run directory.
         #[arg(long, value_name = "RUN_DIR")]
         before: Option<PathBuf>,
@@ -155,13 +164,26 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
-        Task::ComparisonReport { quick, before, levels } => {
+        Task::ComparisonReport {
+            quick,
+            files,
+            before,
+            levels,
+            decode_workers,
+            concat,
+        } => {
             let mut run = cmd!(
                 sh,
-                "python3 -B xtask/comparison_report.py --target {target} --levels {levels}"
+                "python3 -B xtask/comparison_report.py --target {target} --levels {levels} --decode-workers {decode_workers}"
             );
             if quick {
                 run = run.arg("--quick");
+            }
+            if let Some(files) = files {
+                run = run.arg("--files").arg(files);
+            }
+            if concat {
+                run = run.arg("--concat");
             }
             if let Some(before) = before {
                 run = run.arg("--before").arg(std::path::absolute(before)?);
