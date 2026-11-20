@@ -1,0 +1,242 @@
+--- a/crates/codec/src/block.rs
++++ b/crates/codec/src/block.rs
+@@ -1,6 +1,6 @@
+ use crate::{
+     Dictionary, bad,
+-    entropy::{self, Tree},
++    entropy::{self, DecodeQueue, Tree},
+     require, take,
+     wire::{DataBlockHeader, checksum},
+     word,
+@@ -21,6 +21,7 @@
+     literals: Vec<u8>,
+     tokens: Vec<u8>,
+     merge: Vec<u8>,
++    queue: DecodeQueue,
+ }
+ 
+ impl Sections {
+@@ -156,18 +157,19 @@
+     dict: Option<&Dictionary>,
+     out: &'a mut Vec<u8>,
+     merge: &mut Vec<u8>,
++    queue: &mut DecodeQueue,
+ ) -> io::Result<Cow<'a, [u8]>> {
+     Ok(match encoding {
+         0 => Cow::Borrowed(data),
+         1 => Cow::Owned(entropy::rle(data, count)?),
+         2 => {
+             let tree = Tree::new(take(&mut data, 128)?)?;
+-            Cow::Borrowed(tree.decode_into(data, count, out, merge)?)
++            Cow::Borrowed(tree.decode_into(data, count, out, merge, queue)?)
+         }
+         3 => Cow::Borrowed(
+             dict.and_then(|d| d.tree.as_ref())
+                 .ok_or_else(|| bad("missing dictionary Huffman table"))?
+-                .decode_into(data, count, out, merge)?,
++                .decode_into(data, count, out, merge, queue)?,
+         ),
+         _ => return Err(bad("unknown section encoding")),
+     })
+@@ -208,8 +210,12 @@
+     let seq_data = take(&mut data, seq_size)?;
+     let width = if enc[3] == 1 { 1 } else { 2 };
+     let offsets = take(&mut data, if packed { 0 } else { n * width })?;
+-    let literals = section(enc[0], lit_data, nl, dict, &mut sections.literals, &mut sections.merge)?;
+-    let sequences = section(enc[1], seq_data, n, None, &mut sections.tokens, &mut sections.merge)?;
++    let literals = section(
++        enc[0], lit_data, nl, dict, &mut sections.literals, &mut sections.merge, &mut sections.queue,
++    )?;
++    let sequences = section(
++        enc[1], seq_data, n, None, &mut sections.tokens, &mut sections.merge, &mut sections.queue,
++    )?;
+ 
+     zone!("LZ reconstruct");
+     let history = dict.map_or(&[][..], |d| d.content.as_slice());
+--- a/crates/codec/src/block/tests.rs
++++ b/crates/codec/src/block/tests.rs
+@@ -14,12 +14,15 @@
+ #[test]
+ fn section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block() {
+     use crate::wire::{FrameHeader, MAGIC, block_header, header_sum};
+-    let frame = |log, dict| {
++    let frame = |log, dict: Option<u32>| {
+         let mut header = [0; 16];
+         header[..4].copy_from_slice(&MAGIC);
+         header[4] = 9;
+         header[5] = log;
+-        header[6] = if dict { 64 } else { 0 };
++        if let Some(id) = dict {
++            header[6] = 64;
++            header[7..11].copy_from_slice(&id.to_le_bytes());
++        }
+         let sum = header_sum(&header);
+         header[14..].copy_from_slice(&sum.to_le_bytes());
+         FrameHeader::parse(header).unwrap()
+@@ -50,28 +53,44 @@
+             .collect::<Vec<_>>();
+         (body, bitmap, plain)
+     };
+-    let large = frame(16, true);
++    let large = frame(16, Some(dict.id()));
+     let (mut body, bitmap, plain) = make(16_385, 4096);
+     let h = DataBlockHeader::parse(block_header(1, body.len() as u32), large).unwrap();
+     assert_eq!(worker.decode(h, &body, Some(&dict), 0, None).unwrap().bytes, plain);
++    assert!(worker.sections.queue.is_empty());
++    assert!(worker.sections.queue.capacity() > 0);
+     assert!(worker.decode(h, &body[..body.len() - 1], Some(&dict), 0, None).is_err());
+     body[bitmap] = 1; // missing child after dictionary literals have been written
+     assert!(worker.decode(h, &body, Some(&dict), 0, None).is_err());
++    assert_eq!(worker.sections.queue.capacity(), 0);
+     let (body, _, plain) = make(11, 7);
+     let h = DataBlockHeader::parse(block_header(1, body.len() as u32), large).unwrap();
+     assert!(worker.decode(h, &body, None, 0, None).is_err());
+     assert_eq!(worker.decode(h, &body, Some(&dict), 0, None).unwrap().bytes, plain);
++    let mut other = dictionary(b"DE".to_vec());
++    other.id = 1;
++    table[32..34].fill(0);
++    table[44] = 0x11; // X and Y, one-bit codes
++    other.tree = Some(Tree::new(&table).unwrap());
++    assert_eq!(worker.decode(h, &body, Some(&other), 0, None).unwrap_err().to_string(),
++        "data block dictionary does not match frame");
++    let h_other = DataBlockHeader::parse(block_header(1, body.len() as u32), frame(16, Some(other.id()))).unwrap();
++    let mut expected = vec![b'E'; 35];
++    expected.extend_from_slice(b"XYXYXYXYXYX");
++    assert_eq!(worker.decode(h_other, &body, Some(&other), 0, None).unwrap().bytes, expected);
+     assert!(worker.sections.literals.capacity() > 4096);
+     assert!(worker.sections.tokens.capacity() > 4096 / 5);
+     assert!(worker.sections.merge.capacity() > 4096);
+ 
+-    let raw = DataBlockHeader::parse(block_header(0, 3), frame(12, false)).unwrap();
++    let raw = DataBlockHeader::parse(block_header(0, 3), frame(12, None)).unwrap();
++    let retained = worker.sections.queue.capacity();
+     assert_eq!(worker.decode(raw, b"raw", None, 0, None).unwrap().bytes, b"raw");
++    assert_eq!(worker.sections.queue.capacity(), retained);
+     assert_eq!(
+         worker.sections.literals.capacity() + worker.sections.tokens.capacity() + worker.sections.merge.capacity(),
+         0
+     );
+-    let h = DataBlockHeader::parse(block_header(1, body.len() as u32), frame(12, true)).unwrap();
++    let h = DataBlockHeader::parse(block_header(1, body.len() as u32), frame(12, Some(dict.id()))).unwrap();
+     assert_eq!(
+         worker
+             .decode_owned(h, body, Some(&dict), 0)
+@@ -82,6 +101,68 @@
+     );
+ }
+ 
++#[test]
++fn queue_reuse_recovers_from_partial_runs_and_late_validation() {
++    use crate::wire::{FrameHeader, MAGIC, block_header, header_sum};
++    let mut frame = [0; 16];
++    frame[..4].copy_from_slice(&MAGIC);
++    frame[4..7].copy_from_slice(&[9, 12, 128]); // checksummed
++    let sum = header_sum(&frame);
++    frame[14..].copy_from_slice(&sum.to_le_bytes());
++    let frame = FrameHeader::parse(frame).unwrap();
++    let make = |table: &[u8; 128], run: &[u8], plain: &[u8]| {
++        let mut body = vec![0; 4];
++        body.extend_from_slice(&(plain.len() as u32).to_le_bytes());
++        body.extend_from_slice(&[2, 0, 0, 0]);
++        body.extend_from_slice(&((table.len() + run.len()) as u32).to_le_bytes());
++        body.extend_from_slice(table);
++        body.extend_from_slice(run);
++        body.resize(body.len() + 32, 0);
++        let header = DataBlockHeader::parse(block_header(1, body.len() as u32), frame).unwrap();
++        body.extend_from_slice(&checksum(plain, 0).to_le_bytes());
++        (header, body)
++    };
++    let mut mixed = [0; 128];
++    mixed[32..35].copy_from_slice(&[0x20, 0x22, 0x33]); // A/B/C: 2, D/E: 3
++    let mut shorter = [0; 128];
++    shorter[44] = 0x11; // X/Y: 1
++    let mut unary = [0; 128];
++    unary[44] = 1; // X only
++    let sample = b"ACBDACBEACBDACBE";
++    let mut worker = BlockDecoder::default();
++    let (h, b) = make(&mixed, &[0xaa, 0xaa, 0xaa, 0xaa, 0x0a], sample);
++    assert_eq!(worker.decode(h, &b, None, 0, None).unwrap().bytes, sample);
++    assert!(worker.sections.queue.capacity() > 0);
++    for (table, run, plain, error) in [
++        // Root consumes the two bytes; left is a short flat run and right is still queued.
++        (&mixed, &[0xaa, 0xaa][..], &sample[..], "short section"),
++        (&mixed, &[0xaa, 0xaa, 0xaa, 0xaa, 0x0a, 0][..], &sample[..], "trailing Huffman data"),
++        (&unary, &[1][..], &b"X"[..], "Huffman run selects missing child"),
++        (&shorter, &[0][..], &b""[..], "trailing Huffman data"),
++    ] {
++        let (h, b) = make(table, run, plain);
++        let e = worker.decode(h, &b, None, 0, None).unwrap_err();
++        assert_eq!(e.kind(), io::ErrorKind::InvalidData);
++        assert_eq!(e.to_string(), error);
++        assert_eq!(worker.sections.queue.capacity(), 0);
++        let (h, b) = make(&shorter, &[2], b"XYX");
++        assert_eq!(worker.decode(h, &b, None, 0, None).unwrap().bytes, b"XYX");
++    }
++    let (h, b) = make(&shorter, &[], b"");
++    assert_eq!(worker.decode(h, &b, None, 0, None).unwrap().bytes, b"");
++    let (h, mut b) = make(&shorter, &[2], b"XYX");
++    assert_eq!(worker.decode(h, &b, None, 0, Some(2)).unwrap_err().to_string(), "unexpected decoded block size");
++    assert!(worker.sections.queue.is_empty() && worker.sections.queue.capacity() > 0);
++    *b.last_mut().unwrap() ^= 1;
++    assert_eq!(worker.decode(h, &b, None, 0, None).unwrap_err().to_string(), "block checksum mismatch");
++    assert!(worker.sections.queue.is_empty() && worker.sections.queue.capacity() > 0);
++    let (h, b) = make(&shorter, &[1], b"YX");
++    worker.sections.queue.reserve_exact(32);
++    let plain = worker.decode_owned(h, b, None, 0).unwrap().into_buffer();
++    assert_eq!(plain, b"YX");
++    assert_eq!(worker.sections.queue.capacity(), 0);
++}
++
+ fn dictionary(content: Vec<u8>) -> Dictionary {
+     Dictionary {
+         content,
+--- a/crates/codec/src/entropy.rs
++++ b/crates/codec/src/entropy.rs
+@@ -15,6 +15,9 @@
+ mod tests;
+ 
+ const MAX_CODE_LEN: u8 = 11;
++const MAX_RETAINED_QUEUE: usize = 16;
++
++pub(crate) type DecodeQueue = VecDeque<(usize, usize, usize)>;
+ 
+ #[derive(Default, Debug)]
+ struct Node {
+@@ -102,7 +105,7 @@
+     #[cfg(test)]
+     fn decode(&self, src: &[u8], count: usize) -> io::Result<Vec<u8>> {
+         let mut out = Vec::new();
+-        self.decode_into(src, count, &mut out, &mut Vec::new())?;
++        self.decode_into(src, count, &mut out, &mut Vec::new(), &mut DecodeQueue::new())?;
+         Ok(out)
+     }
+ 
+@@ -112,10 +115,17 @@
+         count: usize,
+         output: &'a mut Vec<u8>,
+         scratch: &mut Vec<u8>,
++        cache: &mut DecodeQueue,
+     ) -> io::Result<&'a [u8]> {
+         zone!("PivCo decode");
+         let mut order = Vec::with_capacity(self.0.len());
+-        let mut queue = VecDeque::from([(0, 0, count)]);
++        // Early errors drop local work, so the cache can only hold an empty queue.
++        let mut queue = std::mem::take(cache);
++        if queue.capacity() == 0 {
++            queue = VecDeque::from([(0, 0, count)]);
++        } else {
++            queue.push_back((0, 0, count));
++        }
+         init_prefix(output, count);
+         while let Some((i, start, n)) = queue.pop_front() {
+             if n == 0 {
+@@ -193,6 +203,9 @@
+                 add("copy:Huffman return", n);
+             });
+         }
++        if queue.capacity() <= MAX_RETAINED_QUEUE {
++            *cache = queue;
++        }
+         Ok(&output[..count])
+     }
+ }

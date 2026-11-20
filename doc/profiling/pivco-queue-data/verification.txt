@@ -1,0 +1,27 @@
+All verification uses the private post-buffer baseline and queue trial, not the shared working copy.
+
+Candidate workspace nextest (locked, --workspace --features zxc-cli/transports):
+        PASS [   0.032s] ( 6/58) zxc-codec block::tests::queue_reuse_recovers_from_partial_runs_and_late_validation
+        PASS [   0.060s] (18/58) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+     Summary [  17.124s] 58 tests run: 58 passed, 0 skipped
+
+Candidate release scalar nextest (locked, -p zxc-codec --release):
+        PASS [   0.015s] ( 8/33) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+        PASS [   0.040s] (27/33) zxc-codec block::tests::queue_reuse_recovers_from_partial_runs_and_late_validation
+     Summary [   0.059s] 33 tests run: 33 passed, 0 skipped
+
+Candidate: cargo clippy --locked -p zxc-codec --all-targets --features merge-simd,ledger -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 37.35s
+
+Baseline and candidate: default wasm32-unknown-unknown components passed wasm-tools validate --features component-model.
+Separate compile-time assertions checked BlockDecoder size: wasm32 baseline 48 B, trial 64 B.
+
+Shared malformed-run, checksum, expected-size and dictionary-switch assertions passed against post-buffer Rust and the trial; baseline omits the queue-only assertions.
+Candidate pending sibling trace: E ThreadId(2) 1 4 1 short section; X shows zero retained queue slots. See error-traces.txt.
+
+cargo xtask interop <pinned-C> <trial-Rust> --cases 36
+Frozen: 180 byte-for-byte cross-decoding checks and 72 indexed range checks passed
+Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed range checks passed (generator revision 1, seed 99335130674745)
+
+cargo xtask interop <pinned-C> <trial-Rust> --cases 36 --parallel-backend crossbeam
+Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed range checks passed (generator revision 1, seed 99335130674745)

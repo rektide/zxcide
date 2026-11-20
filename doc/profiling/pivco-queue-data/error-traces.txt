@@ -1,0 +1,198 @@
+baseline malformed
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 16 1 1 0 4 0 2 4 2 9 2 32 12 24 24 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+E ThreadId(2) 1 4 1 short section
+X ThreadId(2) 16 0 16 0 short section
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+E ThreadId(2) 0 4 2 trailing Huffman data
+X ThreadId(2) 16 0 16 0 trailing Huffman data
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+E ThreadId(2) 1 1 1 Huffman run selects missing child
+X ThreadId(2) 16 0 16 0 Huffman run selects missing child
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+E ThreadId(2) 0 1 0 trailing Huffman data
+X ThreadId(2) 16 0 16 0 trailing Huffman data
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 0 1 0 0 1 0 1 1 0 3 0 0 0 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 1 0 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 2
+S ThreadId(2) 2 1 0 0 1 0 1 1 0 3 0 0 2 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+test block::tests::queue_reuse_recovers_from_partial_runs_and_late_validation ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.01s
+candidate malformed
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 16 1 1 0 0 4 2 4 2 9 2 32 12 24 24 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 4
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+E ThreadId(2) 1 4 1 short section
+X ThreadId(2) 16 0 16 0 short section
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+E ThreadId(2) 0 4 2 trailing Huffman data
+X ThreadId(2) 16 0 16 0 trailing Huffman data
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+E ThreadId(2) 1 1 1 Huffman run selects missing child
+X ThreadId(2) 16 0 16 0 Huffman run selects missing child
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+E ThreadId(2) 0 1 0 trailing Huffman data
+X ThreadId(2) 16 0 16 0 trailing Huffman data
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 1 0 0 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 0 0 0 1 0 1 1 1 0 3 0 0 0 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 0 0 1 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 3 0 0 1 0 1 1 1 0 3 0 0 3 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 2
+S ThreadId(2) 2 0 0 1 32 0 1 32 0 3 0 0 2 0 0 16 16
+T ThreadId(2) 0
+B ThreadId(2) 0 4096 1 16 0 16 0
+test block::tests::queue_reuse_recovers_from_partial_runs_and_late_validation ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 26 filtered out; finished in 0.01s
+baseline dictionary-test
+I ThreadId(2) 0 65536 1 96
+L ThreadId(2) 3
+S ThreadId(2) 16385 1 0 0 1 0 1 1 0 3 2 32770 16385 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 4096 1 0 0 1 0 1 1 1 2 1 4096 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 0
+I ThreadId(2) 0 65536 1 96
+L ThreadId(2) 3
+S ThreadId(2) 16385 1 0 0 1 0 1 1 0 3 0 0 16385 0 0 16385 16385
+T ThreadId(2) 2
+E ThreadId(2) 1 1 1 Huffman run selects missing child
+X ThreadId(2) 16385 4096 16385 0 Huffman run selects missing child
+I ThreadId(2) 0 65536 1 96
+L ThreadId(2) 3
+S ThreadId(2) 11 1 0 0 1 0 1 1 0 3 0 0 11 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 7 1 0 0 1 0 1 1 1 2 0 0 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 0
+I ThreadId(2) 0 65536 1 96
+L ThreadId(2) 3
+S ThreadId(2) 11 1 0 0 1 0 1 1 0 3 0 0 11 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 7 1 0 0 1 0 1 1 1 2 0 0 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 0
+I ThreadId(2) 0 4096 0 96
+B ThreadId(2) 0 4096 0 0 0 0 0
+I ThreadId(2) 0 4096 1 96
+L ThreadId(2) 3
+S ThreadId(2) 11 1 0 0 1 0 1 1 0 3 2 22 11 0 0 11 11
+T ThreadId(2) 2
+S ThreadId(2) 7 1 0 0 1 0 1 1 1 2 1 7 0 0 0 7 11
+B ThreadId(2) 0 4096 1 11 7 11 0
+test block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 0.00s
+candidate dictionary-test
+I ThreadId(2) 0 65536 1 128
+L ThreadId(2) 3
+S ThreadId(2) 16385 1 0 0 0 1 1 1 0 3 2 32770 16385 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 4096 0 0 1 0 1 1 1 1 2 1 4096 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 1
+I ThreadId(2) 0 65536 1 128
+L ThreadId(2) 3
+S ThreadId(2) 16385 0 0 1 0 1 1 1 0 3 0 0 16385 0 0 16385 16385
+T ThreadId(2) 2
+E ThreadId(2) 1 1 1 Huffman run selects missing child
+X ThreadId(2) 16385 4096 16385 0 Huffman run selects missing child
+I ThreadId(2) 0 65536 1 128
+L ThreadId(2) 3
+S ThreadId(2) 11 1 0 0 0 1 1 1 0 3 0 0 11 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 7 0 0 1 0 1 1 1 1 2 0 0 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 1
+I ThreadId(2) 0 65536 1 128
+L ThreadId(2) 3
+S ThreadId(2) 11 0 0 1 0 1 1 1 0 3 0 0 11 0 0 16385 16385
+T ThreadId(2) 2
+S ThreadId(2) 7 0 0 1 0 1 1 1 1 2 0 0 0 0 0 4096 16385
+B ThreadId(2) 0 65536 1 16385 4096 16385 1
+I ThreadId(2) 0 4096 0 128
+B ThreadId(2) 0 4096 0 0 0 0 1
+I ThreadId(2) 0 4096 1 128
+L ThreadId(2) 3
+S ThreadId(2) 11 0 0 1 0 1 1 1 0 3 2 22 11 0 0 11 11
+T ThreadId(2) 2
+S ThreadId(2) 7 0 0 1 0 1 1 1 1 2 1 7 0 0 0 7 11
+B ThreadId(2) 0 4096 1 11 7 11 1
+test block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 26 filtered out; finished in 0.01s
