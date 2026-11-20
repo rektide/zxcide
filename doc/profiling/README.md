@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e04f22460ffeiMpWBTvOxfQzAN', title: Dense literal policy sweep using the same two decoders on candidate archives }
   - { resource: 'opencode://ses_e055e0d34ffe9jui9j3JSrIqMx', title: Fixed-archive timing and retention study for the retained Huffman buffers }
   - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Extended default decoder timing matrix to Rust-produced archives }
   - { resource: 'opencode://ses_e0814f934ffe3jycgQ8eN3iHoB', title: Fixed-archive worker scaling implementation and acceptance }
@@ -18,6 +19,7 @@ sources:
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Codec measurements, interoperability and capture verification }
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
+  - { resource: 'opencode://ses_e04ef8b0cffeJahvs500cwmoBM', title: Checked four-worker ordered-head and credit exposure on fixed archives }
 ---
 
 # Profile a codec change
@@ -26,7 +28,7 @@ For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledge
 
 ## Compare compression and fixed-archive CLI decode
 
-The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings.
+The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings. The [Dense literal savings sweep](dense-literal-savings.sol.md) instead varies the encoder's archives while holding both decoders fixed.
 
 ```sh
 cargo xtask comparison-report                           # all 12 files; C levels 1,3,7; decode workers 1,4,8
@@ -64,6 +66,8 @@ ZXC_BENCH_THREADS=4 ZXC_BENCH_SLOTS=8 cargo bench --locked -p zxc-parallel \
 Each backend processes the same 4 MiB input alternating repetitive and noisy 4 KiB spans, at 4 KiB and 512 KiB block sizes. The harness checks encoded archive identity and decoded bytes before starting timers. Timings include stream and worker setup, input reads and output copies into reused destination capacity. Compare encode and decode separately. For longer-lived workloads include larger files before selecting a default backend. `--features` here deliberately omits Tracy; enable `tracy` on the CLI to inspect where workers or ordered commits wait.
 
 Initial Criterion quick run on the Ryzen 7 5800X: at 4 KiB blocks, crossbeam with four workers and eight slots encoded the input in 2.08 ms versus 6.59 ms serial. Decode took 605 µs versus 358 µs serial. At 512 KiB blocks, encode took 3.82 ms versus 13.34 ms serial, and decode took 257 µs versus 390 µs serial. All five backends passed the generated C oracle. These small synthetic runs support keeping serial as the default and exposing parallelism as a workload choice; rank transports only after measuring real corpora, wait times and peak memory.
+
+The [four-worker wait study](decode-waits.md) holds the Rust decoder and four real archives fixed. Its scratch-only probe distinguishes a coordinator waiting for an ordered result from workers actually running out of jobs while unread input remains.
 
 Use Criterion for speed and ratio comparisons; use Tracy to find which phase is worth changing. Production builds omit Tracy, including the dependency. [Architecture](../architecture/README.md) explains the instrumentation boundaries.
 

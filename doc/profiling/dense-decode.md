@@ -6,6 +6,7 @@ resource: /doc/profiling/dense-decode.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-20 }
 sources:
+  - { resource: 'opencode://ses_e04f22460ffeiMpWBTvOxfQzAN', title: Follow-up whole-corpus Dense literal savings sweep }
   - { resource: 'opencode://ses_e084e54dbffeln5bePhwUUQIqM', title: Two-token reconstruction, fallback controls and targeted tests }
   - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Huffman decode, oracle checks, corpus benchmark and final profiles }
   - { resource: 'opencode://ses_e085d94a5ffe9b48Y0zz9CuFdu', title: SPL and PAK reconstruction and differential tests }
@@ -48,7 +49,7 @@ The combined CLI passed the frozen oracle (180 cross-decodes and 72 indexed read
 ## Next targets
 
 1. **Existing archives:** optimize the two-byte-offset SPL sequence loop first. On final `webster`, it accounts for 64% of sampled user cycles, versus 11% in the SIMD merge. On `sao` the corresponding shares are 43% and 18%. Compare a batched common-token loop with the current checked loop, keeping overflow, dictionary and short-tail handling in the slow path. Measure both against these frozen archives.
-2. **New archives:** price decode work when Huffman barely beats raw. In a scratch experiment, requiring 2% literal savings left six `sao` literal sections raw. This cost 35,538 bytes (+0.64% of the archive); on the isolated Huffman-improved decoder it cut decode time from 16.7 to 14.0 ms, and on C from 6.9 to 5.9 ms. `dickens` stayed byte-identical. This is a promising encoder policy to test across the corpus; it is not enabled in Dense.
+2. **New archives:** price decode work when Huffman barely beats raw. In a scratch experiment, requiring 2% literal savings left six `sao` literal sections raw. This cost 35,538 bytes (+0.64% of the archive); on the isolated Huffman-improved decoder it cut decode time from 16.7 to 14.0 ms, and on C from 6.9 to 5.9 ms. `dickens` stayed byte-identical. The [follow-up whole-corpus sweep](dense-literal-savings.sol.md) reproduced that size delta but did not find a robust serial decode win beyond `sao`; Dense retains its existing policy.
 
 ## Follow-up: batch two ordinary SPL sequences
 
