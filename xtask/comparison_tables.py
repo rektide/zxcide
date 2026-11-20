@@ -81,8 +81,9 @@ def validate(raw):
               f'incomplete archive matrix: {name}')
         for key, arc in archives.items():
             verifies = arc['verification']
-            check(set(verifies) == bins and all(v['verified_exact'] is True for v in verifies.values()),
-                  f'incomplete verification: {name}/{key}')
+            archive_path = f'scratch/{name}.{key}.zxc'
+            check(set(verifies) == bins and all(v['verified_exact'] is True and v['argv'] == decode_argv(i, archive_path)
+                                               for i, v in verifies.items()), f'invalid verification: {name}/{key}')
             if key.startswith('c.'):
                 check(arc['sha256'] == arc['frozen_sha256'], f'fixed archive mismatch: {name}/{key}')
         for kind in ('encode', 'decode'):

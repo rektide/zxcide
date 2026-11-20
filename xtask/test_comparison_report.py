@@ -131,6 +131,18 @@ class Publication(unittest.TestCase):
         self.args.before = base
         self.fails('baseline executable checksum mismatch')
 
+    def test_misdirected_verifier_or_timed_decoder(self):
+        base = runner.publish(self.args)
+        for label in ('verified', 'timed'):
+            raw = json.loads((base / 'raw.json').read_text())
+            if label == 'verified':
+                record = raw['files']['sao']['archives']['c.C4']['verification']['current']
+            else:
+                record = raw['jobs']['sao/decode/C4/current']
+            record['argv'][-1] = 'scratch/sao.current.split.zxc'
+            with self.subTest(label=label), self.assertRaises(ValueError):
+                tables.render(raw)
+
     def test_decoder_trailing_bytes(self):
         with self.exe.open('a') as out:
             out.write('if [ "$1" = decode ]; then echo extra; fi\n')
