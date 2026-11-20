@@ -44,6 +44,18 @@ impl Backend {
 #[derive(Parser)]
 #[command(name = "cargo xtask", about = "ZXC development tasks")]
 enum Task {
+    /// Compare the current Rust CLI to pinned C on verified Silesia inputs.
+    ComparisonReport {
+        /// Measure only dickens and sao (otherwise all twelve files).
+        #[arg(long)]
+        quick: bool,
+        /// Comma-separated upstream compression levels (distinct, 1..7).
+        #[arg(long, default_value = "3,7")]
+        levels: String,
+        /// Also measure the saved Rust executable from this completed run directory.
+        #[arg(long, value_name = "RUN_DIR")]
+        before: Option<PathBuf>,
+    },
     /// Run the pinned Silesia CLI scorecard (pass options after --).
     Scorecard {
         #[arg(last = true)]
@@ -143,6 +155,17 @@ fn main() -> Result<()> {
             .context("missing Cargo target directory")?,
     );
     match task {
+        Task::ComparisonReport { quick, before, levels } => {
+            let mut run = cmd!(sh, "python3 -B xtask/comparison_report.py --target {target} --levels {levels}");
+            if quick {
+                run = run.arg("--quick");
+            }
+            if let Some(before) = before {
+                run = run.arg("--before").arg(std::path::absolute(before)?);
+            }
+            run.quiet().run()?;
+            Ok(())
+        }
         Task::Scorecard { args } => scorecard::run(&args),
         Task::Ledger { component } => ledger::run(&sh, target, component),
         Task::FuzzSmoke { runs } => smoke::fuzz(&sh, target, runs),

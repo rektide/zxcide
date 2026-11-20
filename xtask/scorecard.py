@@ -33,6 +33,25 @@ def invoke(command, output):
         subprocess.run(command, stdout=out, check=True)
 
 
+def verified_zip(path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        # Stage beside the destination for an atomic, same-FS rename.
+        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as tmp:
+            name = Path(tmp.name)
+        try:
+            with urllib.request.urlopen(URL, timeout=120) as response, name.open('wb') as out:
+                while block := response.read(1024 * 1024):
+                    out.write(block)
+            if sha(name) != ZIP_SHA:
+                raise ValueError(f'downloaded corpus ZIP checksum mismatch: {path}')
+            os.replace(name, path)
+        finally:
+            name.unlink(missing_ok=True)
+    if sha(path) != ZIP_SHA:
+        raise ValueError(f'corpus ZIP checksum mismatch; refusing cached file: {path}')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--c-cli', type=Path, required=True)
@@ -49,24 +68,7 @@ def main():
     if a.samples < 1 or a.warmups < 0:
         p.error('samples must be positive and warmups nonnegative')
     c, rust = str(a.c_cli.resolve(strict=True)), str(a.rust_cli.resolve(strict=True))
-    a.corpus.parent.mkdir(parents=True, exist_ok=True)
-    if not a.corpus.exists():
-        # Do not publish an interrupted or invalid download to the cache.
-        with tempfile.NamedTemporaryFile(dir=a.corpus.parent, delete=False) as tmp:
-            name = Path(tmp.name)
-            try:
-                with urllib.request.urlopen(URL, timeout=120) as response:
-                    while block := response.read(1024 * 1024):
-                        tmp.write(block)
-            except BaseException:
-                name.unlink(missing_ok=True)
-                raise
-        if sha(name) != ZIP_SHA:
-            name.unlink()
-            raise ValueError('downloaded corpus ZIP checksum mismatch')
-        os.replace(name, a.corpus)
-    if sha(a.corpus) != ZIP_SHA:
-        raise ValueError('corpus ZIP checksum mismatch; refusing cached file')
+    verified_zip(a.corpus)
     cpu = platform.processor()
     if Path('/proc/cpuinfo').exists():
         cpu = next((line.split(':', 1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), cpu)
