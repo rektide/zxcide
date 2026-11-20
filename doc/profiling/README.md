@@ -20,6 +20,7 @@ sources:
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
   - { resource: 'opencode://ses_e04ef8b0cffeJahvs500cwmoBM', title: Checked four-worker ordered-head and credit exposure on fixed archives }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Added a full-corpus status report and expanded decode-worker sweep }
 ---
 
 # Profile a codec change
@@ -27,6 +28,8 @@ sources:
 For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledger](ledger.md) ranks individual sites and pairs each workload with its uninstrumented timing interval.
 
 ## Compare compression and fixed-archive CLI decode
+
+The [2026-11-20 status report](silesia-status-20261120.md) compares all 12 Silesia files against pinned C and the saved Rust baseline at `1,2,3,4,6,8,12,16` decode workers, and summarizes which profiling experiments shipped.
 
 The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings. The [Dense literal savings sweep](dense-literal-savings.sol.md) instead varies the encoder's archives while holding both decoders fixed.
 
@@ -40,7 +43,7 @@ cargo xtask comparison-report --files sao,mozilla --levels 1,7 --decode-workers 
 
 Parallel decode uses C `-TN` (which may use an additional driver thread) and Rust `decode --threads N` (current CLI defaults to Crossbeam with `min(2*N, 256)` slots). One worker uses the original CLI arguments and Rust's serial path. With `--before`, supply a trusted **completed** run directory (schema 1–3). The runner checks `COMPLETE`, validates `raw.json`, and imports only the hash-checked `bin/current` and its build identity. All three decoders also read the saved build's Split and Dense archives, generated in this run. If the saved CLI rejects the worker flags or fails to decode all concatenated frames, try `--decode-workers 1` or omit `--concat` as appropriate.
 
-First use on native Linux needs Cargo/Rust, Python 3.11+ (stdlib), Git, CMake 3.21+, Make, a native C compiler and network. The runner downloads the pinned Silesia ZIP, checks the digest and member set, fetches the exact [performance reference](https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c), and builds it in native Release mode. This pin is separate from `cargo xtask interop`. Warm runs recheck source, ZIP, plaintext and [archive identities](scorecard/upstream-level-hashes.json). Rust uses release, default features and empty rustflags; both builds keep default block size and checksums. Before timing, every CLI cross-decodes each staged archive at one worker. Every timed decoder/worker/input combination must also produce exact plaintext through EOF and exit successfully.
+First use on native Linux needs Cargo/Rust, Python 3.11+ (stdlib), Git, CMake 3.21+, Make, a native C compiler and network. The runner downloads the pinned Silesia ZIP, checks the digest and member set, fetches the exact [performance reference](https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c), and builds it in native Release mode. This pin is separate from `cargo xtask interop`. Warm runs recheck source, ZIP, plaintext and [archive identities](scorecard/upstream-level-hashes.json). Rust uses release, default features and empty rustflags; both builds keep default block size and checksums. Before timing, every CLI cross-decodes each staged archive at one worker, and every scheduled decoder/worker/input combination must produce exact plaintext through EOF and exit successfully. Timed launches discard stdout and require successful exit; they do not compare plaintext again.
 
 `--concat` adds one decode launch per archive source, decoder and worker count by appending that source's frames in manifest order (at least two files). It does not combine plaintext for encoding, nor replace separate-file jobs. Comparing *N file launches* with *1 concatenated launch* uses the same byte totals, but the difference includes process/pool setup, input opens, cache state, frame boundaries and scheduler effects. It does not isolate startup cost or demonstrate an ordering bottleneck. The runner shuffles jobs, not frame order.
 
