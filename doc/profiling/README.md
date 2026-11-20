@@ -25,6 +25,8 @@ For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledge
 
 ## Compare compression and fixed-archive CLI decode
 
+The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine.
+
 ```sh
 cargo xtask comparison-report                           # all 12 files; C levels 1,3,7; decode workers 1,4,8
 cargo xtask comparison-report --quick --decode-workers 1 --before PATH/TO/RUN
