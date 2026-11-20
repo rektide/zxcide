@@ -1,0 +1,24 @@
+fixture	mozilla	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b
+fixture	mozilla.c7.zxc	21073891	54c6cd65f688d06391697c4e9d6127821c7a4fa654b4b425f2ea029f9a774c95
+fixture	mozilla.dense.zxc	21203827	b20914624d23c50b8cb386a3219beb175f5c8d42fae4d509083b446f264e6d9b
+fixture	sao	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc
+fixture	sao.c7.zxc	5587854	158c5860be145687202be26441998ef926f8e35e939728793c8a4701df4d39be
+fixture	sao.dense.zxc	5531098	10da9c8f9f86509aeee7ec6d478d89067e5c620ebd8de48a13ac242bcb0b7545
+binary	clean	1642112	14d4a3a375da9cbb7e3f176a94fc455d3f516b1b81b40f0472cc92d5ed955d2f
+binary	probe-io	1684680	f8145e7a8c82d7279f10e52b9b7c701fb166001f4e8dbdda241729eb44671443
+sink-checked-to-eof	mozilla.c7	clean-sink	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	exit=0	stderr=0
+decoded-to-eof	mozilla.c7	clean4	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+decoded-to-eof	mozilla.c7	dump-file	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+decoded-to-eof	mozilla.c7	dump-memory	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+sink-checked-to-eof	mozilla.dense	clean-sink	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	exit=0	stderr=0
+decoded-to-eof	mozilla.dense	clean4	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+decoded-to-eof	mozilla.dense	dump-file	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+decoded-to-eof	mozilla.dense	dump-memory	51220480	657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b	exit=0	stderr=0
+sink-checked-to-eof	sao.c7	clean-sink	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	exit=0	stderr=0
+decoded-to-eof	sao.c7	clean4	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0
+decoded-to-eof	sao.c7	dump-file	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0
+decoded-to-eof	sao.c7	dump-memory	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0
+sink-checked-to-eof	sao.dense	clean-sink	0	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855	exit=0	stderr=0
+decoded-to-eof	sao.dense	clean4	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0
+decoded-to-eof	sao.dense	dump-file	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0
+decoded-to-eof	sao.dense	dump-memory	7251944	c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc	exit=0	stderr=0

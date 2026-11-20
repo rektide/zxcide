@@ -48,8 +48,11 @@ def timing(path):
 
 def trace(run):
     grouped = defaultdict(list)
+    sources = defaultdict(lambda: defaultdict(dict))
     for r in read(run / 'budgets.tsv'):
         grouped[r['case'], r.get('mode', r['test']), r['series']].append(r)
+        if r['test'] == 'source':
+            sources[r['case'], r['series']][r['pair']][r['mode']] = r
     print('TRACE medians; ns converted to ms, or fraction / denominator stated in column')
     keys = (
         'pool', 'startup_wall', 'interior_wall', 'drain_wall', 'frame', 'prologue', 'post_pool', 'footer',
@@ -84,6 +87,13 @@ def trace(run):
     for label, rows in sorted(grouped.items()):
         print(*label, *(f'{min(xs):.4f}..{max(xs):.4f} ({xs.count(0)} zeros)' for xs in (
             [get(r, key) for r in rows] for key in ('interior_exposed', 'interior_exposed_pending'))), sep='\t')
+    if sources:
+        fields = ('pool', 'next', 'interior_supply_next', 'commit')
+        print('SOURCE paired diagnostic deltas (memory minus file, ms), 95% sign intervals')
+        print('case', 'series', *fields, sep='\t')
+        for label, pairs in sorted(sources.items()):
+            changes = (ci([get(p['dump-memory'], k) - get(p['dump-file'], k) for p in pairs.values()]) for k in fields)
+            print(*label, *(f'{m:+.3f}[{lo:+.3f},{hi:+.3f}]' for m, lo, hi in changes), sep='\t')
 
     grouped = defaultdict(lambda: defaultdict(list))
     per_index = defaultdict(lambda: defaultdict(list))

@@ -1,0 +1,1201 @@
+series	seed	run_order	case	test	pair	member	mode	wall_ns	user_us	sys_us	maxrss_kib	trace
+1	7201	1	mozilla.c7	sink	0	1	clean-sink	18123419	35077	15944	24268	
+1	7201	1	mozilla.c7	sink	0	0	clean4	16091753	40097	8910	24268	
+1	7201	2	sao.dense	sink	0	0	clean4	7682108	17778	0	24268	
+1	7201	2	sao.dense	sink	0	1	clean-sink	6731565	8311	8311	24268	
+1	7201	3	mozilla.dense	aa	0	1	clean4	18579500	42407	11565	24268	
+1	7201	3	mozilla.dense	aa	0	0	clean4	17700810	42321	12696	24268	
+1	7201	4	sao.dense	source	0	1	dump-memory	12370646	7267	14535	24268	warm.bin
+1	7201	4	sao.dense	source	0	0	dump-file	7404051	14428	4809	24268	warm.bin
+1	7201	5	sao.c7	aa	0	0	clean4	6637053	14230	0	24268	
+1	7201	5	sao.c7	aa	0	1	clean4	5428036	9877	3292	24268	
+1	7201	6	sao.c7	sink	0	0	clean4	5718462	8964	4482	24268	
+1	7201	6	sao.c7	sink	0	1	clean-sink	5733993	12944	0	24268	
+1	7201	7	mozilla.c7	aa	0	0	clean4	17037575	32618	18121	24268	
+1	7201	7	mozilla.c7	aa	0	1	clean4	31853887	51947	8657	24268	
+1	7201	8	mozilla.dense	source	0	0	dump-file	23910753	49242	14069	24268	warm.bin
+1	7201	8	mozilla.dense	source	0	1	dump-memory	31636253	51856	15955	32216	warm.bin
+1	7201	9	mozilla.dense	sink	0	1	clean-sink	18486567	47365	7894	24268	
+1	7201	9	mozilla.dense	sink	0	0	clean4	17987926	51619	4692	24268	
+1	7201	10	sao.c7	source	0	0	dump-file	7375691	10176	5088	24268	warm.bin
+1	7201	10	sao.c7	source	0	1	dump-memory	21395975	4862	19448	24268	warm.bin
+1	7201	11	sao.dense	aa	0	0	clean4	24129839	18542	4635	24268	
+1	7201	11	sao.dense	aa	0	1	clean4	8065157	15655	2609	24268	
+1	7201	12	mozilla.c7	source	0	1	dump-memory	29392510	37573	23483	32108	warm.bin
+1	7201	12	mozilla.c7	source	0	0	dump-file	15490369	45950	3829	24268	warm.bin
+1	7201	13	sao.c7	source	12	1	dump-memory	10064213	6901	10351	24268	1-sao.c7-source-012-dump-memory.bin
+1	7201	13	sao.c7	source	12	0	dump-file	5789413	9688	4844	24268	1-sao.c7-source-012-dump-file.bin
+1	7201	14	mozilla.dense	aa	24	0	clean4	15365907	44724	3727	24268	
+1	7201	14	mozilla.dense	aa	24	1	clean4	16572933	36248	12082	24268	
+1	7201	15	mozilla.c7	source	10	1	dump-memory	30053465	39559	19779	32100	1-mozilla.c7-source-010-dump-memory.bin
+1	7201	15	mozilla.c7	source	10	0	dump-file	15896077	34190	11396	24268	1-mozilla.c7-source-010-dump-file.bin
+1	7201	16	mozilla.c7	source	6	0	dump-file	14956076	32496	12998	24268	1-mozilla.c7-source-006-dump-file.bin
+1	7201	16	mozilla.c7	source	6	1	dump-memory	31004758	33215	28470	32316	1-mozilla.c7-source-006-dump-memory.bin
+1	7201	17	sao.dense	sink	2	1	clean-sink	7411282	6956	10434	24268	
+1	7201	17	sao.dense	sink	2	0	clean4	6517711	12971	4323	24268	
+1	7201	18	mozilla.dense	aa	17	1	clean4	16247546	33226	16613	24268	
+1	7201	18	mozilla.dense	aa	17	0	clean4	17042514	47614	4328	24268	
+1	7201	19	mozilla.dense	sink	16	1	clean-sink	15253703	33778	15012	24268	
+1	7201	19	mozilla.dense	sink	16	0	clean4	16388789	45746	3812	24268	
+1	7201	20	sao.dense	sink	10	0	clean4	6206553	10608	5304	24268	
+1	7201	20	sao.dense	sink	10	1	clean-sink	5959188	12559	3139	24268	
+1	7201	21	sao.dense	aa	5	1	clean4	6497701	8543	5695	24268	
+1	7201	21	sao.dense	aa	5	0	clean4	6459660	15400	0	24268	
+1	7201	22	sao.dense	source	4	1	dump-memory	9021189	3053	15268	24268	1-sao.dense-source-004-dump-memory.bin
+1	7201	22	sao.dense	source	4	0	dump-file	6354877	16006	0	24268	1-sao.dense-source-004-dump-file.bin
+1	7201	23	mozilla.c7	source	18	0	dump-file	15311945	38628	7725	24268	1-mozilla.c7-source-018-dump-file.bin
+1	7201	23	mozilla.c7	source	18	1	dump-memory	26505583	33288	22192	32144	1-mozilla.c7-source-018-dump-memory.bin
+1	7201	24	mozilla.c7	sink	22	1	clean-sink	14635768	36462	9115	24268	
+1	7201	24	mozilla.c7	sink	22	0	clean4	14602078	36231	7246	24268	
+1	7201	25	sao.dense	source	19	1	dump-memory	10690958	11855	7113	24268	1-sao.dense-source-019-dump-memory.bin
+1	7201	25	sao.dense	source	19	0	dump-file	6863819	0	15730	24268	1-sao.dense-source-019-dump-file.bin
+1	7201	26	sao.dense	aa	4	1	clean4	5808465	11731	3910	24268	
+1	7201	26	sao.dense	aa	4	0	clean4	6921141	0	15529	24268	
+1	7201	27	sao.c7	sink	15	0	clean4	5498827	6483	6483	24268	
+1	7201	27	sao.c7	sink	15	1	clean-sink	6210943	12535	0	24268	
+1	7201	28	mozilla.c7	source	1	0	dump-file	15857068	33923	11307	24268	1-mozilla.c7-source-001-dump-file.bin
+1	7201	28	mozilla.c7	source	1	1	dump-memory	25637243	37132	18566	32044	1-mozilla.c7-source-001-dump-memory.bin
+1	7201	29	sao.c7	source	10	1	dump-memory	8987729	12049	4016	24268	1-sao.c7-source-010-dump-memory.bin
+1	7201	29	sao.c7	source	10	0	dump-file	5545959	12172	0	24268	1-sao.c7-source-010-dump-file.bin
+1	7201	30	sao.dense	aa	16	1	clean4	5738884	14901	0	24268	
+1	7201	30	sao.dense	aa	16	0	clean4	6736486	15029	0	24268	
+1	7201	31	mozilla.c7	sink	5	0	clean4	15865167	38126	7625	24268	
+1	7201	31	mozilla.c7	sink	5	1	clean-sink	16572294	39371	4921	24268	
+1	7201	32	sao.c7	aa	15	0	clean4	5447716	9857	3285	24268	
+1	7201	32	sao.c7	aa	15	1	clean4	4295879	2858	8576	24268	
+1	7201	33	sao.dense	source	13	1	dump-memory	8671400	7219	10828	24268	1-sao.dense-source-013-dump-memory.bin
+1	7201	33	sao.dense	source	13	0	dump-file	6209853	12637	3159	24268	1-sao.dense-source-013-dump-file.bin
+1	7201	34	sao.c7	sink	4	0	clean4	4831101	8321	4160	24268	
+1	7201	34	sao.c7	sink	4	1	clean-sink	4539975	0	11654	24268	
+1	7201	35	mozilla.dense	sink	12	0	clean4	17356531	40489	7361	24268	
+1	7201	35	mozilla.dense	sink	12	1	clean-sink	14905365	37243	10157	24268	
+1	7201	36	mozilla.dense	aa	7	0	clean4	18288662	45856	4585	24268	
+1	7201	36	mozilla.dense	aa	7	1	clean4	16732929	38035	10867	24268	
+1	7201	37	sao.c7	aa	8	1	clean4	5264872	7531	5020	24268	
+1	7201	37	sao.c7	aa	8	0	clean4	5129109	8123	4061	24268	
+1	7201	38	sao.dense	sink	15	0	clean4	6028920	12666	3166	24268	
+1	7201	38	sao.dense	sink	15	1	clean-sink	6938510	8127	8127	24268	
+1	7201	39	sao.dense	aa	12	1	clean4	6087161	9233	6155	24268	
+1	7201	39	sao.dense	aa	12	0	clean4	6327686	0	14555	24268	
+1	7201	40	sao.c7	aa	6	0	clean4	5340884	12429	0	24268	
+1	7201	40	sao.c7	aa	6	1	clean4	4691879	6094	6094	24268	
+1	7201	41	mozilla.dense	source	20	0	dump-file	15530279	32739	16369	24268	1-mozilla.dense-source-020-dump-file.bin
+1	7201	41	mozilla.dense	source	20	1	dump-memory	27102487	35501	24850	32272	1-mozilla.dense-source-020-dump-memory.bin
+1	7201	42	mozilla.c7	source	12	1	dump-memory	26915303	28447	28447	32312	1-mozilla.c7-source-012-dump-memory.bin
+1	7201	42	mozilla.c7	source	12	0	dump-file	15489709	37101	7420	24268	1-mozilla.c7-source-012-dump-file.bin
+1	7201	43	mozilla.dense	aa	20	1	clean4	18828305	42817	9514	24268	
+1	7201	43	mozilla.dense	aa	20	0	clean4	18873558	48091	3435	24268	
+1	7201	44	mozilla.dense	sink	24	1	clean-sink	19663155	51871	4322	24268	
+1	7201	44	mozilla.dense	sink	24	0	clean4	19509751	47727	11014	24268	
+1	7201	45	sao.c7	sink	24	1	clean-sink	6371758	7355	7355	24268	
+1	7201	45	sao.c7	sink	24	0	clean4	6859289	8499	8499	24268	
+1	7201	46	sao.dense	sink	18	0	clean4	6977721	8634	8634	24268	
+1	7201	46	sao.dense	sink	18	1	clean-sink	8540007	4084	12252	24268	
+1	7201	47	mozilla.c7	aa	4	1	clean4	15938999	42516	4251	24268	
+1	7201	47	mozilla.c7	aa	4	0	clean4	17028734	42683	4268	24268	
+1	7201	48	sao.c7	sink	23	0	clean4	5459876	4372	8744	24268	
+1	7201	48	sao.c7	sink	23	1	clean-sink	4685269	0	11670	24268	
+1	7201	49	mozilla.c7	aa	1	1	clean4	16544522	41019	9115	24268	
+1	7201	49	mozilla.c7	aa	1	0	clean4	15074489	41044	4560	24268	
+1	7201	50	mozilla.c7	aa	5	0	clean4	16850310	41842	6973	24268	
+1	7201	50	mozilla.c7	aa	5	1	clean4	16697947	44567	4051	24268	
+1	7201	51	sao.c7	sink	3	1	clean-sink	5787313	7879	5252	24268	
+1	7201	51	sao.c7	sink	3	0	clean4	7264658	5053	10107	24268	
+1	7201	52	sao.c7	aa	11	1	clean4	6834759	8443	5628	24268	
+1	7201	52	sao.c7	aa	11	0	clean4	9351667	4286	10716	24268	
+1	7201	53	sao.c7	sink	12	1	clean-sink	7973074	0	17039	24268	
+1	7201	53	sao.c7	sink	12	0	clean4	6389948	5380	10761	24396	
+1	7201	54	sao.c7	source	16	0	dump-file	6408418	7957	7957	24396	1-sao.c7-source-016-dump-file.bin
+1	7201	54	sao.c7	source	16	1	dump-memory	9397617	14516	3629	24396	1-sao.c7-source-016-dump-memory.bin
+1	7201	55	sao.dense	aa	13	1	clean4	8797784	8149	10865	24396	
+1	7201	55	sao.dense	aa	13	0	clean4	8303613	18639	0	24396	
+1	7201	56	sao.dense	sink	17	1	clean-sink	7147045	9442	9442	24396	
+1	7201	56	sao.dense	sink	17	0	clean4	7341410	0	17298	24396	
+1	7201	57	sao.dense	source	12	0	dump-file	7542655	13745	4581	24396	1-sao.dense-source-012-dump-file.bin
+1	7201	57	sao.dense	source	12	1	dump-memory	12698463	11224	11224	24396	1-sao.dense-source-012-dump-memory.bin
+1	7201	58	sao.dense	aa	7	1	clean4	7511963	11184	7456	24396	
+1	7201	58	sao.dense	aa	7	0	clean4	6505241	17529	0	24396	
+1	7201	59	sao.c7	aa	4	0	clean4	6010969	6945	6945	24396	
+1	7201	59	sao.c7	aa	4	1	clean4	5208161	13872	0	24396	
+1	7201	60	sao.c7	source	21	1	dump-memory	9270005	7317	9756	24396	1-sao.c7-source-021-dump-memory.bin
+1	7201	60	sao.c7	source	21	0	dump-file	6016309	14876	0	24396	1-sao.c7-source-021-dump-file.bin
+1	7201	61	mozilla.dense	source	11	0	dump-file	19542393	53194	4432	24396	1-mozilla.dense-source-011-dump-file.bin
+1	7201	61	mozilla.dense	source	11	1	dump-memory	32611745	52025	18580	32300	1-mozilla.dense-source-011-dump-memory.bin
+1	7201	62	sao.dense	sink	5	0	clean4	8437285	11744	7829	24396	
+1	7201	62	sao.dense	sink	5	1	clean-sink	8729902	18583	0	24396	
+1	7201	63	sao.c7	source	11	1	dump-memory	11269211	3936	15746	24396	1-sao.c7-source-011-dump-memory.bin
+1	7201	63	sao.c7	source	11	0	dump-file	6973673	0	15152	24396	1-sao.c7-source-011-dump-file.bin
+1	7201	64	sao.c7	sink	17	1	clean-sink	5667221	14168	0	24396	
+1	7201	64	sao.c7	sink	17	0	clean4	5471966	9985	3328	24396	
+1	7201	65	sao.c7	sink	5	1	clean-sink	6166523	7008	7008	24396	
+1	7201	65	sao.c7	sink	5	0	clean4	6888570	7190	7190	24396	
+1	7201	66	mozilla.dense	aa	15	0	clean4	17525526	51600	5160	24396	
+1	7201	66	mozilla.dense	aa	15	1	clean4	20333621	45140	10417	24396	
+1	7201	67	sao.dense	aa	19	1	clean4	6285635	12569	3142	24396	
+1	7201	67	sao.dense	aa	19	0	clean4	5583149	7430	7430	24396	
+1	7201	68	sao.dense	source	21	0	dump-file	6868560	15670	0	24396	1-sao.dense-source-021-dump-file.bin
+1	7201	68	sao.dense	source	21	1	dump-memory	12214222	10280	10280	24396	1-sao.dense-source-021-dump-memory.bin
+1	7201	69	mozilla.dense	aa	13	0	clean4	18224002	45909	7062	24396	
+1	7201	69	mozilla.dense	aa	13	1	clean4	15852527	35616	14246	24396	
+1	7201	70	mozilla.c7	sink	16	0	clean4	14711000	30730	15365	24396	
+1	7201	70	mozilla.c7	sink	16	1	clean-sink	15240262	37312	9328	24396	
+1	7201	71	mozilla.c7	source	15	0	dump-file	16415942	38485	7697	24396	1-mozilla.c7-source-015-dump-file.bin
+1	7201	71	mozilla.c7	source	15	1	dump-memory	31662973	43521	21760	32028	1-mozilla.c7-source-015-dump-memory.bin
+1	7201	72	sao.c7	aa	13	0	clean4	6346737	14687	0	24396	
+1	7201	72	sao.c7	aa	13	1	clean4	5841384	5406	8109	24396	
+1	7201	73	sao.c7	aa	19	0	clean4	6248415	0	12884	24396	
+1	7201	73	sao.c7	aa	19	1	clean4	5845236	8779	5853	24396	
+1	7201	74	sao.dense	sink	6	1	clean-sink	7289020	13344	5337	24396	
+1	7201	74	sao.dense	sink	6	0	clean4	8200040	15997	2666	24396	
+1	7201	75	mozilla.c7	source	20	0	dump-file	17092176	38424	15369	24396	1-mozilla.c7-source-020-dump-file.bin
+1	7201	75	mozilla.c7	source	20	1	dump-memory	32636705	46838	19516	32128	1-mozilla.c7-source-020-dump-memory.bin
+1	7201	76	sao.dense	source	24	1	dump-memory	12341404	4494	17977	24396	1-sao.dense-source-024-dump-memory.bin
+1	7201	76	sao.dense	source	24	0	dump-file	6553381	13070	4356	24396	1-sao.dense-source-024-dump-file.bin
+1	7201	77	sao.dense	source	20	1	dump-memory	11920737	8728	13092	24396	1-sao.dense-source-020-dump-memory.bin
+1	7201	77	sao.dense	source	20	0	dump-file	7860472	13600	4533	24396	1-sao.dense-source-020-dump-file.bin
+1	7201	78	sao.dense	sink	4	0	clean4	7614756	14213	4737	24396	
+1	7201	78	sao.dense	sink	4	1	clean-sink	7571545	13626	3406	24396	
+1	7201	79	sao.dense	source	9	0	dump-file	7609376	8744	8744	24396	1-sao.dense-source-009-dump-file.bin
+1	7201	79	sao.dense	source	9	1	dump-memory	12047759	15311	7655	24396	1-sao.dense-source-009-dump-memory.bin
+1	7201	80	mozilla.dense	sink	11	1	clean-sink	19865888	49211	7570	24396	
+1	7201	80	mozilla.dense	sink	11	0	clean4	18238654	42040	12935	24396	
+1	7201	81	sao.c7	source	4	0	dump-file	5064058	6805	6805	24396	1-sao.c7-source-004-dump-file.bin
+1	7201	81	sao.c7	source	4	1	dump-memory	10035982	9048	9048	24396	1-sao.c7-source-004-dump-memory.bin
+1	7201	82	sao.c7	aa	22	1	clean4	5685162	10080	3360	24396	
+1	7201	82	sao.c7	aa	22	0	clean4	5694791	6527	6527	24396	
+1	7201	83	mozilla.dense	aa	12	1	clean4	19410609	40167	13389	24396	
+1	7201	83	mozilla.dense	aa	12	0	clean4	18476937	52030	4335	24396	
+1	7201	84	sao.c7	aa	20	0	clean4	6568593	10799	3599	24396	
+1	7201	84	sao.c7	aa	20	1	clean4	6290716	8551	5701	24396	
+1	7201	85	mozilla.dense	sink	2	0	clean4	18389236	48490	4408	24396	
+1	7201	85	mozilla.dense	sink	2	1	clean-sink	16243826	45369	4124	24396	
+1	7201	86	mozilla.c7	aa	23	0	clean4	19292356	37701	10282	24396	
+1	7201	86	mozilla.c7	aa	23	1	clean4	19292297	41074	8214	24396	
+1	7201	87	sao.c7	source	24	1	dump-memory	9937680	11614	5807	24396	1-sao.c7-source-024-dump-memory.bin
+1	7201	87	sao.c7	source	24	0	dump-file	7969395	7342	7342	24396	1-sao.c7-source-024-dump-file.bin
+1	7201	88	mozilla.dense	aa	16	1	clean4	19914911	41073	10268	24396	
+1	7201	88	mozilla.dense	aa	16	0	clean4	22307257	43361	10840	24396	
+1	7201	89	sao.c7	sink	7	1	clean-sink	7447812	13389	0	24396	
+1	7201	89	sao.c7	sink	7	0	clean4	10199836	7024	7024	24396	
+1	7201	90	sao.dense	aa	22	0	clean4	9132971	16737	3347	24396	
+1	7201	90	sao.dense	aa	22	1	clean4	10568366	11876	7917	24396	
+1	7201	91	mozilla.dense	sink	8	1	clean-sink	34321404	50048	15399	24396	
+1	7201	91	mozilla.dense	sink	8	0	clean4	24397264	61052	4360	24396	
+1	7201	92	sao.c7	source	2	1	dump-memory	16039113	8764	13146	24396	1-sao.c7-source-002-dump-memory.bin
+1	7201	92	sao.c7	source	2	0	dump-file	7733789	8488	8488	24396	1-sao.c7-source-002-dump-file.bin
+1	7201	93	sao.c7	aa	12	1	clean4	12432358	4345	13037	24396	
+1	7201	93	sao.c7	aa	12	0	clean4	17022884	3368	13475	24396	
+1	7201	94	mozilla.c7	sink	14	0	clean4	34105569	55545	4272	24396	
+1	7201	94	mozilla.c7	sink	14	1	clean-sink	35392870	47108	11777	24396	
+1	7201	95	mozilla.dense	source	7	1	dump-memory	56766205	63690	25476	32304	1-mozilla.dense-source-007-dump-memory.bin
+1	7201	95	mozilla.dense	source	7	0	dump-file	77186587	59790	11210	24396	1-mozilla.dense-source-007-dump-file.bin
+1	7201	96	mozilla.c7	source	16	1	dump-memory	40852435	38335	34501	32232	1-mozilla.c7-source-016-dump-memory.bin
+1	7201	96	mozilla.c7	source	16	0	dump-file	19922681	49346	8224	24396	1-mozilla.c7-source-016-dump-file.bin
+1	7201	97	sao.c7	aa	23	1	clean4	7821952	6182	9274	24396	
+1	7201	97	sao.c7	aa	23	0	clean4	6506921	7701	7701	24396	
+1	7201	98	mozilla.dense	source	14	0	dump-file	22100651	56408	8058	24396	1-mozilla.dense-source-014-dump-file.bin
+1	7201	98	mozilla.dense	source	14	1	dump-memory	31663182	44645	22322	32356	1-mozilla.dense-source-014-dump-memory.bin
+1	7201	99	mozilla.dense	sink	22	0	clean4	37251443	45044	20789	24396	
+1	7201	99	mozilla.dense	sink	22	1	clean-sink	33147236	42169	17570	24396	
+1	7201	100	mozilla.dense	source	15	1	dump-memory	29647526	44420	20191	32224	1-mozilla.dense-source-015-dump-memory.bin
+1	7201	100	mozilla.dense	source	15	0	dump-file	24437516	45639	7021	24396	1-mozilla.dense-source-015-dump-file.bin
+1	7201	101	sao.dense	sink	9	1	clean-sink	6046209	9685	6456	24396	
+1	7201	101	sao.dense	sink	9	0	clean4	6936800	16568	0	24396	
+1	7201	102	sao.c7	aa	18	1	clean4	6861740	5830	8745	24396	
+1	7201	102	sao.c7	aa	18	0	clean4	6590583	7179	7179	24396	
+1	7201	103	sao.c7	aa	24	0	clean4	6378398	11315	3771	24396	
+1	7201	103	sao.c7	aa	24	1	clean4	6056461	4917	9835	24396	
+1	7201	104	mozilla.c7	aa	14	0	clean4	16992263	39492	11847	24396	
+1	7201	104	mozilla.c7	aa	14	1	clean4	16478611	40526	8105	24396	
+1	7201	105	mozilla.dense	sink	1	1	clean-sink	19888751	49364	8227	24396	
+1	7201	105	mozilla.dense	sink	1	0	clean4	20004104	48854	8142	24396	
+1	7201	106	sao.dense	sink	23	1	clean-sink	6082820	16906	0	24396	
+1	7201	106	sao.dense	sink	23	0	clean4	6534681	17547	0	24396	
+1	7201	107	sao.dense	aa	2	1	clean4	6747026	7212	10818	24396	
+1	7201	107	sao.dense	aa	2	0	clean4	6556852	15188	0	24396	
+1	7201	108	sao.dense	sink	13	0	clean4	6703015	14002	3500	24396	
+1	7201	108	sao.dense	sink	13	1	clean-sink	7119694	12953	3238	24396	
+1	7201	109	mozilla.dense	sink	20	0	clean4	28228063	43890	11970	24396	
+1	7201	109	mozilla.dense	sink	20	1	clean-sink	29264568	49314	7586	24396	
+1	7201	110	mozilla.dense	sink	14	1	clean-sink	17672129	44074	7345	24396	
+1	7201	110	mozilla.dense	sink	14	0	clean4	17182987	37592	10740	24396	
+1	7201	111	sao.c7	sink	2	0	clean4	5357714	9582	3194	24396	
+1	7201	111	sao.c7	sink	2	1	clean-sink	5194960	9843	3281	24396	
+1	7201	112	sao.c7	sink	1	0	clean4	5230862	6405	6405	24396	
+1	7201	112	sao.c7	sink	1	1	clean-sink	5214880	10234	2558	24396	
+1	7201	113	mozilla.c7	aa	12	0	clean4	17045435	36680	10480	24396	
+1	7201	113	mozilla.c7	aa	12	1	clean4	31673963	36313	16139	24396	
+1	7201	114	mozilla.dense	sink	9	1	clean-sink	36395823	47167	11791	24396	
+1	7201	114	mozilla.dense	sink	9	0	clean4	15849757	43830	5478	24396	
+1	7201	115	mozilla.dense	sink	23	0	clean4	19210824	41669	9259	24396	
+1	7201	115	mozilla.dense	sink	23	1	clean-sink	14783032	38301	10445	24396	
+1	7201	116	mozilla.dense	aa	8	1	clean4	18680313	42217	12665	24396	
+1	7201	116	mozilla.dense	aa	8	0	clean4	15803466	40976	9105	24396	
+1	7201	117	mozilla.dense	source	5	1	dump-memory	29541833	51969	11136	32012	1-mozilla.dense-source-005-dump-memory.bin
+1	7201	117	mozilla.dense	source	5	0	dump-file	17421453	41933	6988	24396	1-mozilla.dense-source-005-dump-file.bin
+1	7201	118	sao.dense	sink	21	1	clean-sink	6555052	12476	4158	24396	
+1	7201	118	sao.dense	sink	21	0	clean4	5251682	4751	9503	24396	
+1	7201	119	sao.dense	aa	15	0	clean4	5573438	13716	0	24396	
+1	7201	119	sao.dense	aa	15	1	clean4	7017792	12419	2483	24396	
+1	7201	120	mozilla.dense	aa	5	0	clean4	18441137	42413	5301	24396	
+1	7201	120	mozilla.dense	aa	5	1	clean4	16184455	35191	13196	24396	
+1	7201	121	mozilla.dense	aa	18	1	clean4	16364798	42322	4702	24396	
+1	7201	121	mozilla.dense	aa	18	0	clean4	16685926	43998	3999	24396	
+1	7201	122	mozilla.dense	source	4	0	dump-file	17166988	34651	12994	24396	1-mozilla.dense-source-004-dump-file.bin
+1	7201	122	mozilla.dense	source	4	1	dump-memory	28622962	43049	16143	31956	1-mozilla.dense-source-004-dump-memory.bin
+1	7201	123	sao.dense	source	2	1	dump-memory	10445822	13776	4592	24396	1-sao.dense-source-002-dump-memory.bin
+1	7201	123	sao.dense	source	2	0	dump-file	5884957	0	15383	24396	1-sao.dense-source-002-dump-file.bin
+1	7201	124	mozilla.dense	sink	15	0	clean4	16788548	31732	15866	24396	
+1	7201	124	mozilla.dense	sink	15	1	clean-sink	16774198	38245	7649	24396	
+1	7201	125	sao.dense	sink	14	1	clean-sink	6490111	6009	9014	24396	
+1	7201	125	sao.dense	sink	14	0	clean4	7442893	7557	7557	24396	
+1	7201	126	mozilla.dense	sink	3	1	clean-sink	15192632	38501	7700	24396	
+1	7201	126	mozilla.dense	sink	3	0	clean4	17983527	49508	0	24396	
+1	7201	127	sao.c7	source	17	1	dump-memory	8600829	6392	9589	24396	1-sao.c7-source-017-dump-memory.bin
+1	7201	127	sao.c7	source	17	0	dump-file	4917243	8048	4024	24396	1-sao.c7-source-017-dump-file.bin
+1	7201	128	sao.c7	source	1	0	dump-file	4311600	11055	0	24396	1-sao.c7-source-001-dump-file.bin
+1	7201	128	sao.c7	source	1	1	dump-memory	9203723	7893	7893	24396	1-sao.c7-source-001-dump-memory.bin
+1	7201	129	mozilla.c7	sink	8	1	clean-sink	14309052	31752	10584	24396	
+1	7201	129	mozilla.c7	sink	8	0	clean4	16277508	34225	9778	24396	
+1	7201	130	sao.c7	sink	11	0	clean4	4822261	9574	3191	24396	
+1	7201	130	sao.c7	sink	11	1	clean-sink	5296053	0	12025	24396	
+1	7201	131	sao.dense	aa	10	1	clean4	6241685	14806	0	24396	
+1	7201	131	sao.dense	aa	10	0	clean4	5809804	7292	7292	24396	
+1	7201	132	sao.dense	source	10	0	dump-file	5306973	14288	0	24396	1-sao.dense-source-010-dump-file.bin
+1	7201	132	sao.dense	source	10	1	dump-memory	9196432	12764	4254	24396	1-sao.dense-source-010-dump-memory.bin
+1	7201	133	sao.c7	aa	21	1	clean4	5283363	8721	4360	24396	
+1	7201	133	sao.c7	aa	21	0	clean4	5134939	9159	3053	24396	
+1	7201	134	sao.c7	source	18	0	dump-file	4834401	9244	3081	24396	1-sao.c7-source-018-dump-file.bin
+1	7201	134	sao.c7	source	18	1	dump-memory	8018446	11397	3799	24396	1-sao.c7-source-018-dump-memory.bin
+1	7201	135	mozilla.dense	aa	14	0	clean4	16910413	34194	14654	24396	
+1	7201	135	mozilla.dense	aa	14	1	clean4	16309428	46950	0	24396	
+1	7201	136	sao.c7	aa	7	0	clean4	4727830	11853	0	24396	
+1	7201	136	sao.c7	aa	7	1	clean4	4928794	12084	0	24396	
+1	7201	137	mozilla.c7	source	9	1	dump-memory	27435885	30027	24021	32052	1-mozilla.c7-source-009-dump-memory.bin
+1	7201	137	mozilla.c7	source	9	0	dump-file	15244673	32896	10965	24396	1-mozilla.c7-source-009-dump-file.bin
+1	7201	138	sao.c7	aa	16	0	clean4	4998467	8301	4150	24396	
+1	7201	138	sao.c7	aa	16	1	clean4	4537534	0	10837	24396	
+1	7201	139	sao.c7	source	14	0	dump-file	4870553	11582	0	24396	1-sao.c7-source-014-dump-file.bin
+1	7201	139	sao.c7	source	14	1	dump-memory	8132919	12345	3086	24396	1-sao.c7-source-014-dump-memory.bin
+1	7201	140	mozilla.dense	source	8	1	dump-memory	27193649	33696	25272	32084	1-mozilla.dense-source-008-dump-memory.bin
+1	7201	140	mozilla.dense	source	8	0	dump-file	16018481	39734	7224	24396	1-mozilla.dense-source-008-dump-file.bin
+1	7201	141	mozilla.dense	sink	4	1	clean-sink	15321836	42478	3861	24396	
+1	7201	141	mozilla.dense	sink	4	0	clean4	16029251	42789	3889	24396	
+1	7201	142	sao.c7	source	19	0	dump-file	4915794	8992	2997	24396	1-sao.c7-source-019-dump-file.bin
+1	7201	142	sao.c7	source	19	1	dump-memory	8375304	3877	11632	24396	1-sao.c7-source-019-dump-memory.bin
+1	7201	143	mozilla.c7	aa	2	0	clean4	15121489	29453	13090	24396	
+1	7201	143	mozilla.c7	aa	2	1	clean4	16122753	39638	3963	24396	
+1	7201	144	sao.dense	aa	11	0	clean4	6614793	8347	8347	24396	
+1	7201	144	sao.dense	aa	11	1	clean4	6605183	9403	6269	24396	
+1	7201	145	mozilla.c7	sink	12	0	clean4	19800107	39488	4936	24396	
+1	7201	145	mozilla.c7	sink	12	1	clean-sink	15181791	45724	0	24396	
+1	7201	146	mozilla.c7	aa	19	1	clean4	14754102	30857	13714	24396	
+1	7201	146	mozilla.c7	aa	19	0	clean4	14942957	39494	6582	24396	
+1	7201	147	sao.c7	sink	19	1	clean-sink	5507977	8600	4300	24396	
+1	7201	147	sao.c7	sink	19	0	clean4	5455266	4113	8227	24396	
+1	7201	148	sao.c7	aa	2	1	clean4	5066387	6201	6201	24396	
+1	7201	148	sao.c7	aa	2	0	clean4	5403125	8858	4429	24396	
+1	7201	149	sao.c7	source	6	0	dump-file	5953418	13053	0	24396	1-sao.c7-source-006-dump-file.bin
+1	7201	149	sao.c7	source	6	1	dump-memory	9363996	5031	10062	24396	1-sao.c7-source-006-dump-memory.bin
+1	7201	150	sao.c7	sink	13	1	clean-sink	5815565	0	11295	24396	
+1	7201	150	sao.c7	sink	13	0	clean4	6130283	4031	8062	24396	
+1	7201	151	mozilla.c7	aa	8	0	clean4	15674113	41541	0	24396	
+1	7201	151	mozilla.c7	aa	8	1	clean4	16637736	41620	0	24396	
+1	7201	152	sao.dense	source	18	1	dump-memory	11406455	0	18557	24396	1-sao.dense-source-018-dump-memory.bin
+1	7201	152	sao.dense	source	18	0	dump-file	8167979	9780	4890	24396	1-sao.dense-source-018-dump-file.bin
+1	7201	153	sao.dense	aa	24	0	clean4	6666364	14144	0	24396	
+1	7201	153	sao.dense	aa	24	1	clean4	6603662	14374	0	24396	
+1	7201	154	sao.dense	sink	1	1	clean-sink	6509020	5598	8398	24396	
+1	7201	154	sao.dense	sink	1	0	clean4	5935287	4573	9147	24396	
+1	7201	155	sao.dense	source	16	1	dump-memory	11648381	5910	11820	24396	1-sao.dense-source-016-dump-memory.bin
+1	7201	155	sao.dense	source	16	0	dump-file	6742847	11071	3690	24396	1-sao.dense-source-016-dump-file.bin
+1	7201	156	mozilla.dense	sink	6	1	clean-sink	17436153	29712	18570	24396	
+1	7201	156	mozilla.dense	sink	6	0	clean4	16722607	46454	3871	24396	
+1	7201	157	sao.dense	source	8	0	dump-file	6472240	11696	3898	24396	1-sao.dense-source-008-dump-file.bin
+1	7201	157	sao.dense	source	8	1	dump-memory	9830648	12968	6484	24396	1-sao.dense-source-008-dump-memory.bin
+1	7201	158	mozilla.c7	source	17	1	dump-memory	24847685	44575	11143	32204	1-mozilla.c7-source-017-dump-memory.bin
+1	7201	158	mozilla.c7	source	17	0	dump-file	20713490	41454	4606	24396	1-mozilla.c7-source-017-dump-file.bin
+1	7201	159	mozilla.dense	source	2	0	dump-file	17303810	55538	0	24396	1-mozilla.dense-source-002-dump-file.bin
+1	7201	159	mozilla.dense	source	2	1	dump-memory	26918884	43686	15886	32324	1-mozilla.dense-source-002-dump-memory.bin
+1	7201	160	sao.dense	aa	3	0	clean4	7809191	12095	4031	24396	
+1	7201	160	sao.dense	aa	3	1	clean4	6526941	15674	0	24396	
+1	7201	161	mozilla.dense	aa	22	1	clean4	15647112	45256	3771	24396	
+1	7201	161	mozilla.dense	aa	22	0	clean4	16558973	35887	13457	24396	
+1	7201	162	sao.c7	sink	20	1	clean-sink	5814924	6590	6590	24396	
+1	7201	162	sao.c7	sink	20	0	clean4	5989740	9308	3102	24396	
+1	7201	163	mozilla.c7	sink	4	0	clean4	15106800	37056	7411	24396	
+1	7201	163	mozilla.c7	sink	4	1	clean-sink	14596487	41686	3473	24396	
+1	7201	164	sao.dense	aa	21	1	clean4	6160143	7311	7311	24396	
+1	7201	164	sao.dense	aa	21	0	clean4	6572352	15395	0	24396	
+1	7201	165	mozilla.dense	aa	10	1	clean4	15526630	38346	7669	24396	
+1	7201	165	mozilla.dense	aa	10	0	clean4	17612768	36962	14784	24396	
+1	7201	166	mozilla.c7	sink	13	1	clean-sink	19712956	48041	0	24396	
+1	7201	166	mozilla.c7	sink	13	0	clean4	17225059	38671	7031	24396	
+1	7201	167	mozilla.dense	source	22	1	dump-memory	26778110	44730	16265	32088	1-mozilla.dense-source-022-dump-memory.bin
+1	7201	167	mozilla.dense	source	22	0	dump-file	17254780	47988	3691	24396	1-mozilla.dense-source-022-dump-file.bin
+1	7201	168	mozilla.c7	sink	7	1	clean-sink	21178380	45961	3830	24396	
+1	7201	168	mozilla.c7	sink	7	0	clean4	20192088	42935	7806	24396	
+1	7201	169	mozilla.c7	sink	3	1	clean-sink	17040814	41833	7606	24396	
+1	7201	169	mozilla.c7	sink	3	0	clean4	18461207	41745	3795	24396	
+1	7201	170	sao.c7	sink	10	0	clean4	7295778	7530	3765	24396	
+1	7201	170	sao.c7	sink	10	1	clean-sink	6789827	0	10892	24396	
+1	7201	171	mozilla.c7	source	11	0	dump-file	16878751	33223	16611	24396	1-mozilla.c7-source-011-dump-file.bin
+1	7201	171	mozilla.c7	source	11	1	dump-memory	33602988	42676	23278	32392	1-mozilla.c7-source-011-dump-memory.bin
+1	7201	172	mozilla.c7	sink	21	1	clean-sink	24542168	53329	3809	24396	
+1	7201	172	mozilla.c7	sink	21	0	clean4	26804090	42404	15419	24396	
+1	7201	173	mozilla.c7	aa	21	1	clean4	16270486	39587	7197	24396	
+1	7201	173	mozilla.c7	aa	21	0	clean4	19709807	35528	15790	24396	
+1	7201	174	sao.c7	aa	10	0	clean4	6864529	11689	2922	24396	
+1	7201	174	sao.c7	aa	10	1	clean4	6756036	14114	0	24396	
+1	7201	175	sao.c7	source	5	1	dump-memory	12668704	10019	10019	24396	1-sao.c7-source-005-dump-memory.bin
+1	7201	175	sao.c7	source	5	0	dump-file	9903119	15607	0	24396	1-sao.c7-source-005-dump-file.bin
+1	7201	176	mozilla.dense	aa	6	0	clean4	26872482	48510	12127	24396	
+1	7201	176	mozilla.dense	aa	6	1	clean4	24882627	52137	8021	24396	
+1	7201	177	sao.c7	sink	21	0	clean4	7413852	11702	3900	24396	
+1	7201	177	sao.c7	sink	21	1	clean-sink	8368714	3858	11576	24396	
+1	7201	178	mozilla.dense	source	23	0	dump-file	25633713	43974	13530	24396	1-mozilla.dense-source-023-dump-file.bin
+1	7201	178	mozilla.dense	source	23	1	dump-memory	34681174	56607	16173	32280	1-mozilla.dense-source-023-dump-memory.bin
+1	7201	179	mozilla.c7	sink	19	0	clean4	33496535	52428	6990	24396	
+1	7201	179	mozilla.c7	sink	19	1	clean-sink	24119208	52339	8052	24396	
+1	7201	180	sao.c7	source	7	0	dump-file	12962101	7919	7919	24396	1-sao.c7-source-007-dump-file.bin
+1	7201	180	sao.c7	source	7	1	dump-memory	17052504	10399	10399	24396	1-sao.c7-source-007-dump-memory.bin
+1	7201	181	sao.c7	sink	9	0	clean4	12000127	3234	12936	24396	
+1	7201	181	sao.c7	sink	9	1	clean-sink	8474516	13512	0	24396	
+1	7201	182	mozilla.c7	sink	10	1	clean-sink	24226011	50333	8388	24396	
+1	7201	182	mozilla.c7	sink	10	0	clean4	27051826	51210	7878	24396	
+1	7201	183	mozilla.c7	sink	1	1	clean-sink	25784447	53014	4417	24396	
+1	7201	183	mozilla.c7	sink	1	0	clean4	31038828	51656	7379	24396	
+1	7201	184	mozilla.c7	aa	22	0	clean4	48768280	49274	12318	24396	
+1	7201	184	mozilla.c7	aa	22	1	clean4	35119782	50677	8446	24396	
+1	7201	185	mozilla.c7	aa	18	1	clean4	23973455	50699	4224	24396	
+1	7201	185	mozilla.c7	aa	18	0	clean4	36280270	42858	17143	24396	
+1	7201	186	mozilla.c7	source	4	1	dump-memory	36510646	45309	26430	31968	1-mozilla.c7-source-004-dump-memory.bin
+1	7201	186	mozilla.c7	source	4	0	dump-file	32842140	42780	15556	24396	1-mozilla.c7-source-004-dump-file.bin
+1	7201	187	mozilla.c7	source	14	1	dump-memory	35025431	47821	22071	32080	1-mozilla.c7-source-014-dump-memory.bin
+1	7201	187	mozilla.c7	source	14	0	dump-file	38234815	51469	7918	24396	1-mozilla.c7-source-014-dump-file.bin
+1	7201	188	mozilla.dense	source	13	0	dump-file	34287565	55553	8546	24396	1-mozilla.dense-source-013-dump-file.bin
+1	7201	188	mozilla.dense	source	13	1	dump-memory	35825449	50420	18007	32156	1-mozilla.dense-source-013-dump-memory.bin
+1	7201	189	sao.c7	source	13	0	dump-file	10962505	3912	11736	24396	1-sao.c7-source-013-dump-file.bin
+1	7201	189	sao.c7	source	13	1	dump-memory	13580004	13801	6900	24396	1-sao.c7-source-013-dump-memory.bin
+1	7201	190	mozilla.c7	source	21	1	dump-memory	43666601	48814	24407	32140	1-mozilla.c7-source-021-dump-memory.bin
+1	7201	190	mozilla.c7	source	21	0	dump-file	27731853	51785	7397	24396	1-mozilla.c7-source-021-dump-file.bin
+1	7201	191	mozilla.dense	aa	19	1	clean4	29981393	53550	10710	24396	
+1	7201	191	mozilla.dense	aa	19	0	clean4	28076100	61432	3613	24396	
+1	7201	192	mozilla.dense	sink	19	0	clean4	19164623	49233	4475	24396	
+1	7201	192	mozilla.dense	sink	19	1	clean-sink	17251139	44561	8912	24396	
+1	7201	193	sao.dense	sink	19	0	clean4	6515542	16720	0	24396	
+1	7201	193	sao.dense	sink	19	1	clean-sink	6786898	12332	4933	24396	
+1	7201	194	mozilla.c7	aa	3	0	clean4	16094143	35301	11767	24396	
+1	7201	194	mozilla.c7	aa	3	1	clean4	15210602	35083	13156	24396	
+1	7201	195	mozilla.c7	source	13	1	dump-memory	26069854	33870	22580	32096	1-mozilla.c7-source-013-dump-memory.bin
+1	7201	195	mozilla.c7	source	13	0	dump-file	15680614	37382	6796	24396	1-mozilla.c7-source-013-dump-file.bin
+1	7201	196	mozilla.dense	aa	3	0	clean4	16871870	46067	4606	24396	
+1	7201	196	mozilla.dense	aa	3	1	clean4	15825056	41984	7633	24396	
+1	7201	197	mozilla.c7	sink	23	0	clean4	18724134	36123	13546	24396	
+1	7201	197	mozilla.c7	sink	23	1	clean-sink	16135394	32305	13845	24396	
+1	7201	198	mozilla.c7	aa	17	1	clean4	15669693	32372	13874	24396	
+1	7201	198	mozilla.c7	aa	17	0	clean4	14378683	30341	15170	24396	
+1	7201	199	sao.dense	source	23	0	dump-file	6838988	10416	6944	24396	1-sao.dense-source-023-dump-file.bin
+1	7201	199	sao.dense	source	23	1	dump-memory	8784583	11313	7542	24396	1-sao.dense-source-023-dump-memory.bin
+1	7201	200	sao.dense	aa	20	0	clean4	7338031	9017	6763	24396	
+1	7201	200	sao.dense	aa	20	1	clean4	7485073	6806	10209	24396	
+1	7201	201	mozilla.c7	sink	15	1	clean-sink	15905638	42112	4211	24396	
+1	7201	201	mozilla.c7	sink	15	0	clean4	15704203	38566	7713	24396	
+1	7201	202	mozilla.c7	aa	15	1	clean4	15578290	46347	3862	24396	
+1	7201	202	mozilla.c7	aa	15	0	clean4	15814067	44391	3699	24396	
+1	7201	203	sao.c7	source	22	0	dump-file	5751693	12567	0	24396	1-sao.c7-source-022-dump-file.bin
+1	7201	203	sao.c7	source	22	1	dump-memory	8959238	3006	12025	24396	1-sao.c7-source-022-dump-memory.bin
+1	7201	204	mozilla.c7	source	19	0	dump-file	15650172	40557	5793	24396	1-mozilla.c7-source-019-dump-file.bin
+1	7201	204	mozilla.c7	source	19	1	dump-memory	31682514	43803	19468	32052	1-mozilla.c7-source-019-dump-memory.bin
+1	7201	205	mozilla.c7	source	2	0	dump-file	17071476	45687	3263	24396	1-mozilla.c7-source-002-dump-file.bin
+1	7201	205	mozilla.c7	source	2	1	dump-memory	27523618	41581	15120	32156	1-mozilla.c7-source-002-dump-memory.bin
+1	7201	206	mozilla.dense	source	3	1	dump-memory	32593115	42130	24576	32120	1-mozilla.dense-source-003-dump-memory.bin
+1	7201	206	mozilla.dense	source	3	0	dump-file	16515482	43432	7238	24396	1-mozilla.dense-source-003-dump-file.bin
+1	7201	207	sao.dense	source	1	0	dump-file	5904947	10478	5239	24396	1-sao.dense-source-001-dump-file.bin
+1	7201	207	sao.dense	source	1	1	dump-memory	10117635	15523	3880	24396	1-sao.dense-source-001-dump-memory.bin
+1	7201	208	sao.dense	source	17	1	dump-memory	9890119	9266	9266	24396	1-sao.dense-source-017-dump-memory.bin
+1	7201	208	sao.dense	source	17	0	dump-file	6847678	5143	10286	24396	1-sao.dense-source-017-dump-file.bin
+1	7201	209	sao.c7	sink	22	0	clean4	5626490	12282	0	24396	
+1	7201	209	sao.c7	sink	22	1	clean-sink	4314041	7905	3952	24396	
+1	7201	210	mozilla.dense	source	21	1	dump-memory	32308177	49016	16338	32052	1-mozilla.dense-source-021-dump-memory.bin
+1	7201	210	mozilla.dense	source	21	0	dump-file	17588538	49647	3819	24396	1-mozilla.dense-source-021-dump-file.bin
+1	7201	211	mozilla.dense	source	17	1	dump-memory	34932029	45258	22629	32128	1-mozilla.dense-source-017-dump-memory.bin
+1	7201	211	mozilla.dense	source	17	0	dump-file	17900293	50742	3624	24396	1-mozilla.dense-source-017-dump-file.bin
+1	7201	212	sao.dense	sink	12	0	clean4	5713263	10310	5155	24396	
+1	7201	212	sao.dense	sink	12	1	clean-sink	7417662	0	15765	24396	
+1	7201	213	mozilla.dense	aa	21	1	clean4	16925601	48064	3697	24396	
+1	7201	213	mozilla.dense	aa	21	0	clean4	17812453	46677	3889	24396	
+1	7201	214	sao.dense	source	5	1	dump-memory	11620099	12837	8558	24396	1-sao.dense-source-005-dump-memory.bin
+1	7201	214	sao.dense	source	5	0	dump-file	6325158	12038	4012	24396	1-sao.dense-source-005-dump-file.bin
+1	7201	215	mozilla.c7	sink	2	0	clean4	14849923	30295	15147	24396	
+1	7201	215	mozilla.c7	sink	2	1	clean-sink	15138010	42399	4239	24396	
+1	7201	216	mozilla.c7	source	5	0	dump-file	15878667	38306	7661	24396	1-mozilla.c7-source-005-dump-file.bin
+1	7201	216	mozilla.c7	source	5	1	dump-memory	35487172	48966	16322	31888	1-mozilla.c7-source-005-dump-memory.bin
+1	7201	217	mozilla.c7	aa	6	0	clean4	16434390	39188	9797	24396	
+1	7201	217	mozilla.c7	aa	6	1	clean4	15711423	43689	4368	24396	
+1	7201	218	mozilla.dense	aa	4	1	clean4	16662827	48006	4800	24396	
+1	7201	218	mozilla.dense	aa	4	0	clean4	17830052	45496	7582	24396	
+1	7201	219	sao.dense	source	11	0	dump-file	5772614	15113	0	24396	1-sao.dense-source-011-dump-file.bin
+1	7201	219	sao.dense	source	11	1	dump-memory	10661296	8176	12265	24396	1-sao.dense-source-011-dump-memory.bin
+1	7201	220	mozilla.c7	sink	9	1	clean-sink	15197902	46555	0	24396	
+1	7201	220	mozilla.c7	sink	9	0	clean4	17037986	36252	12084	24396	
+1	7201	221	mozilla.dense	aa	23	0	clean4	18301513	53920	0	24396	
+1	7201	221	mozilla.dense	aa	23	1	clean4	18246793	47511	7309	24396	
+1	7201	222	mozilla.dense	source	18	1	dump-memory	36603428	44860	24469	32228	1-mozilla.dense-source-018-dump-memory.bin
+1	7201	222	mozilla.dense	source	18	0	dump-file	17346842	44043	8007	24396	1-mozilla.dense-source-018-dump-file.bin
+1	7201	223	sao.dense	sink	11	0	clean4	7024002	15991	0	24396	
+1	7201	223	sao.dense	sink	11	1	clean-sink	5765063	12284	4094	24396	
+1	7201	224	sao.c7	source	9	1	dump-memory	10338020	11136	5568	24396	1-sao.c7-source-009-dump-memory.bin
+1	7201	224	sao.c7	source	9	0	dump-file	4923785	0	13056	24396	1-sao.c7-source-009-dump-file.bin
+1	7201	225	mozilla.dense	source	1	1	dump-memory	34753654	56210	14989	32308	1-mozilla.dense-source-001-dump-memory.bin
+1	7201	225	mozilla.dense	source	1	0	dump-file	17301662	49047	3772	24396	1-mozilla.dense-source-001-dump-file.bin
+1	7201	226	mozilla.c7	sink	17	1	clean-sink	14870494	36989	11096	24396	
+1	7201	226	mozilla.c7	sink	17	0	clean4	17141626	43637	3636	24396	
+1	7201	227	mozilla.dense	sink	7	0	clean4	17866033	46040	5755	24396	
+1	7201	227	mozilla.dense	sink	7	1	clean-sink	17402074	44665	6871	24396	
+1	7201	228	sao.c7	aa	9	1	clean4	6977942	4885	9771	24396	
+1	7201	228	sao.c7	aa	9	0	clean4	5081597	12427	0	24396	
+1	7201	229	sao.dense	sink	8	1	clean-sink	7639787	15985	0	24396	
+1	7201	229	sao.dense	sink	8	0	clean4	5985169	16015	0	24396	
+1	7201	230	sao.c7	sink	6	1	clean-sink	7093594	10170	3390	24396	
+1	7201	230	sao.c7	sink	6	0	clean4	5649171	0	13021	24396	
+1	7201	231	mozilla.dense	source	6	0	dump-file	18607182	49918	0	24396	1-mozilla.dense-source-006-dump-file.bin
+1	7201	231	mozilla.dense	source	6	1	dump-memory	32553953	47062	19609	32100	1-mozilla.dense-source-006-dump-memory.bin
+1	7201	232	sao.c7	source	20	1	dump-memory	9374606	13427	3356	24396	1-sao.c7-source-020-dump-memory.bin
+1	7201	232	sao.c7	source	20	0	dump-file	5976749	5846	5846	24396	1-sao.c7-source-020-dump-file.bin
+1	7201	233	sao.c7	aa	3	0	clean4	5467917	4073	8146	24396	
+1	7201	233	sao.c7	aa	3	1	clean4	6612923	3640	7280	24396	
+1	7201	234	sao.dense	source	3	0	dump-file	8833565	4579	9158	24396	1-sao.dense-source-003-dump-file.bin
+1	7201	234	sao.dense	source	3	1	dump-memory	12356455	6961	10441	24396	1-sao.dense-source-003-dump-memory.bin
+1	7201	235	sao.dense	aa	9	0	clean4	8435406	11260	3753	24396	
+1	7201	235	sao.dense	aa	9	1	clean4	7184806	8191	8191	24396	
+1	7201	236	mozilla.c7	sink	11	0	clean4	15875527	47905	0	24396	
+1	7201	236	mozilla.c7	sink	11	1	clean-sink	20578837	41357	8271	24396	
+1	7201	237	sao.c7	source	23	0	dump-file	6139412	5449	8174	24396	1-sao.c7-source-023-dump-file.bin
+1	7201	237	sao.c7	source	23	1	dump-memory	10195946	4080	12241	24396	1-sao.c7-source-023-dump-memory.bin
+1	7201	238	mozilla.c7	aa	16	1	clean4	15082859	44656	4059	24396	
+1	7201	238	mozilla.c7	aa	16	0	clean4	14303752	37987	6331	24396	
+1	7201	239	mozilla.c7	aa	20	1	clean4	16379009	39480	6580	24396	
+1	7201	239	mozilla.c7	aa	20	0	clean4	15967280	39390	8753	24396	
+1	7201	240	mozilla.c7	aa	7	0	clean4	15590170	44385	4035	24396	
+1	7201	240	mozilla.c7	aa	7	1	clean4	16393360	39224	7131	24396	
+1	7201	241	mozilla.dense	aa	2	0	clean4	16476652	43083	9574	24396	
+1	7201	241	mozilla.dense	aa	2	1	clean4	16374299	42725	8545	24396	
+1	7201	242	mozilla.c7	aa	9	1	clean4	19309318	40024	8004	24396	
+1	7201	242	mozilla.c7	aa	9	0	clean4	21248741	41382	6897	24396	
+1	7201	243	mozilla.c7	aa	13	0	clean4	20523006	39220	9805	24396	
+1	7201	243	mozilla.c7	aa	13	1	clean4	18529600	42290	8458	24396	
+1	7201	244	sao.dense	source	22	1	dump-memory	13713947	17498	4374	24396	1-sao.dense-source-022-dump-memory.bin
+1	7201	244	sao.dense	source	22	0	dump-file	8655531	9777	7332	24396	1-sao.dense-source-022-dump-file.bin
+1	7201	245	mozilla.dense	source	24	1	dump-memory	33602878	40346	22414	32300	1-mozilla.dense-source-024-dump-memory.bin
+1	7201	245	mozilla.dense	source	24	0	dump-file	23427832	47346	18210	24396	1-mozilla.dense-source-024-dump-file.bin
+1	7201	246	mozilla.c7	sink	6	0	clean4	25446849	58139	4844	24396	
+1	7201	246	mozilla.c7	sink	6	1	clean-sink	36704630	55968	7995	24396	
+1	7201	247	sao.dense	aa	6	0	clean4	27110767	13525	9016	24396	
+1	7201	247	sao.dense	aa	6	1	clean4	17786073	13108	8739	24396	
+1	7201	248	sao.dense	source	14	0	dump-file	22624864	12642	8428	24396	1-sao.dense-source-014-dump-file.bin
+1	7201	248	sao.dense	source	14	1	dump-memory	28442159	15754	5251	24396	1-sao.dense-source-014-dump-memory.bin
+1	7201	249	mozilla.dense	source	10	0	dump-file	51221176	39810	18095	24396	1-mozilla.dense-source-010-dump-file.bin
+1	7201	249	mozilla.dense	source	10	1	dump-memory	66232703	54892	21956	32784	1-mozilla.dense-source-010-dump-memory.bin
+1	7201	250	mozilla.dense	aa	11	0	clean4	35626174	57682	4437	24396	
+1	7201	250	mozilla.dense	aa	11	1	clean4	31447839	52279	13069	24396	
+1	7201	251	sao.c7	aa	5	1	clean4	10353190	6514	9771	24396	
+1	7201	251	sao.c7	aa	5	0	clean4	8501806	0	14937	24396	
+1	7201	252	sao.c7	source	3	1	dump-memory	13687888	7477	11216	24396	1-sao.c7-source-003-dump-memory.bin
+1	7201	252	sao.c7	source	3	0	dump-file	7684568	7094	7094	24396	1-sao.c7-source-003-dump-file.bin
+1	7201	253	sao.dense	aa	18	0	clean4	9281015	17778	0	24396	
+1	7201	253	sao.dense	aa	18	1	clean4	8936177	9646	7234	24396	
+1	7201	254	sao.dense	sink	22	1	clean-sink	8213660	8214	8214	24396	
+1	7201	254	sao.dense	sink	22	0	clean4	9304865	10858	7239	24396	
+1	7201	255	sao.c7	sink	18	1	clean-sink	6746656	0	14021	24396	
+1	7201	255	sao.c7	sink	18	0	clean4	5500957	4297	8595	24396	
+1	7201	256	mozilla.dense	source	19	0	dump-file	17856043	43343	8668	24396	1-mozilla.dense-source-019-dump-file.bin
+1	7201	256	mozilla.dense	source	19	1	dump-memory	34728734	53632	14302	32252	1-mozilla.dense-source-019-dump-memory.bin
+1	7201	257	mozilla.c7	source	7	1	dump-memory	28524911	43292	14430	32344	1-mozilla.c7-source-007-dump-memory.bin
+1	7201	257	mozilla.c7	source	7	0	dump-file	15544939	42132	3511	24396	1-mozilla.c7-source-007-dump-file.bin
+1	7201	258	mozilla.dense	sink	10	1	clean-sink	18344664	39037	10646	24396	
+1	7201	258	mozilla.dense	sink	10	0	clean4	20245610	36908	15817	24396	
+1	7201	259	sao.c7	sink	14	1	clean-sink	5397426	7628	5085	24396	
+1	7201	259	sao.c7	sink	14	0	clean4	6226013	6231	6231	24396	
+1	7201	260	sao.c7	aa	14	0	clean4	5075957	8579	4289	24396	
+1	7201	260	sao.c7	aa	14	1	clean4	6472300	6765	6765	24396	
+1	7201	261	sao.c7	aa	1	1	clean4	6127812	0	13999	24396	
+1	7201	261	sao.c7	aa	1	0	clean4	5493937	6453	6453	24396	
+1	7201	262	sao.dense	sink	24	0	clean4	6418668	6081	9122	24396	
+1	7201	262	sao.dense	sink	24	1	clean-sink	6115173	14471	0	24396	
+1	7201	263	mozilla.dense	sink	18	1	clean-sink	16590464	39628	9907	24396	
+1	7201	263	mozilla.dense	sink	18	0	clean4	46534717	49347	12336	24396	
+1	7201	264	sao.dense	sink	16	1	clean-sink	7923553	6150	9225	24396	
+1	7201	264	sao.dense	sink	16	0	clean4	7398642	15987	0	24396	
+1	7201	265	mozilla.c7	aa	10	0	clean4	14795512	42301	3253	24396	
+1	7201	265	mozilla.c7	aa	10	1	clean4	15741935	39409	6568	24396	
+1	7201	266	sao.c7	sink	16	0	clean4	6055420	9637	3212	24396	
+1	7201	266	sao.c7	sink	16	1	clean-sink	5984269	13126	0	24396	
+1	7201	267	mozilla.dense	source	9	0	dump-file	17077885	39866	10872	24396	1-mozilla.dense-source-009-dump-file.bin
+1	7201	267	mozilla.dense	source	9	1	dump-memory	34547491	51266	17088	32048	1-mozilla.dense-source-009-dump-memory.bin
+1	7201	268	mozilla.dense	sink	5	0	clean4	29495253	50931	10913	24396	
+1	7201	268	mozilla.dense	sink	5	1	clean-sink	51618955	61647	7705	24396	
+1	7201	269	sao.dense	aa	8	1	clean4	12270614	13988	6994	24396	
+1	7201	269	sao.dense	aa	8	0	clean4	7469572	10503	7877	24396	
+1	7201	270	mozilla.dense	sink	17	0	clean4	19397340	47936	7989	24396	
+1	7201	270	mozilla.dense	sink	17	1	clean-sink	18289924	42874	12862	24396	
+1	7201	271	sao.dense	source	6	1	dump-memory	11347292	5518	16554	24396	1-sao.dense-source-006-dump-memory.bin
+1	7201	271	sao.dense	source	6	0	dump-file	7834851	13495	4498	24396	1-sao.dense-source-006-dump-file.bin
+1	7201	272	sao.dense	source	15	0	dump-file	7299071	11653	5826	24396	1-sao.dense-source-015-dump-file.bin
+1	7201	272	sao.dense	source	15	1	dump-memory	10956363	13051	6525	24396	1-sao.dense-source-015-dump-memory.bin
+1	7201	273	sao.c7	aa	17	1	clean4	6401228	13752	0	24396	
+1	7201	273	sao.c7	aa	17	0	clean4	7224758	7520	7520	24396	
+1	7201	274	mozilla.c7	source	8	0	dump-file	37916088	48273	13792	24396	1-mozilla.c7-source-008-dump-file.bin
+1	7201	274	mozilla.c7	source	8	1	dump-memory	33755241	39887	23932	32236	1-mozilla.c7-source-008-dump-memory.bin
+1	7201	275	mozilla.c7	source	23	1	dump-memory	26736900	32323	25140	32120	1-mozilla.c7-source-023-dump-memory.bin
+1	7201	275	mozilla.c7	source	23	0	dump-file	16577424	39895	7979	24396	1-mozilla.c7-source-023-dump-file.bin
+1	7201	276	mozilla.c7	sink	18	0	clean4	15091129	26945	19246	24396	
+1	7201	276	mozilla.c7	sink	18	1	clean-sink	18947469	37346	9336	24396	
+1	7201	277	mozilla.dense	aa	1	1	clean4	18085959	42478	10619	24396	
+1	7201	277	mozilla.dense	aa	1	0	clean4	15943978	46885	3907	24396	
+1	7201	278	mozilla.c7	aa	11	1	clean4	15565221	41364	7520	24396	
+1	7201	278	mozilla.c7	aa	11	0	clean4	15925899	39285	6547	24396	
+1	7201	279	sao.c7	sink	8	0	clean4	5987489	2778	11115	24396	
+1	7201	279	sao.c7	sink	8	1	clean-sink	6039609	12595	0	24396	
+1	7201	280	mozilla.c7	source	24	1	dump-memory	29999055	36507	25555	31872	1-mozilla.c7-source-024-dump-memory.bin
+1	7201	280	mozilla.c7	source	24	0	dump-file	16616675	33879	15057	24396	1-mozilla.c7-source-024-dump-file.bin
+1	7201	281	mozilla.c7	sink	24	0	clean4	14362743	36418	8092	24396	
+1	7201	281	mozilla.c7	sink	24	1	clean-sink	16147894	43549	3959	24396	
+1	7201	282	sao.c7	source	8	1	dump-memory	8817974	6141	9212	24396	1-sao.c7-source-008-dump-memory.bin
+1	7201	282	sao.c7	source	8	0	dump-file	5530448	0	12463	24396	1-sao.c7-source-008-dump-file.bin
+1	7201	283	sao.dense	aa	14	0	clean4	6405808	12514	3128	24396	
+1	7201	283	sao.dense	aa	14	1	clean4	5815354	14745	0	24396	
+1	7201	284	sao.dense	aa	23	0	clean4	5233200	7275	7275	24396	
+1	7201	284	sao.dense	aa	23	1	clean4	5741723	15099	0	24396	
+1	7201	285	sao.c7	source	15	0	dump-file	5232252	4089	8178	24396	1-sao.c7-source-015-dump-file.bin
+1	7201	285	sao.c7	source	15	1	dump-memory	10045313	10305	6870	24396	1-sao.c7-source-015-dump-memory.bin
+1	7201	286	mozilla.c7	sink	20	1	clean-sink	14317471	36900	7380	24396	
+1	7201	286	mozilla.c7	sink	20	0	clean4	14301540	34817	8704	24396	
+1	7201	287	mozilla.c7	aa	24	1	clean4	15396866	36892	8198	24396	
+1	7201	287	mozilla.c7	aa	24	0	clean4	15732345	33860	12697	24396	
+1	7201	288	mozilla.c7	source	3	0	dump-file	16144444	35644	11881	24396	1-mozilla.c7-source-003-dump-file.bin
+1	7201	288	mozilla.c7	source	3	1	dump-memory	32145574	40003	21820	32048	1-mozilla.c7-source-003-dump-memory.bin
+1	7201	289	sao.dense	aa	1	1	clean4	5830535	15723	0	24396	
+1	7201	289	sao.dense	aa	1	0	clean4	5724673	15283	0	24396	
+1	7201	290	sao.dense	aa	17	0	clean4	5444426	11646	2911	24396	
+1	7201	290	sao.dense	aa	17	1	clean4	5925957	15116	0	24396	
+1	7201	291	sao.dense	sink	7	0	clean4	5387965	15164	0	24396	
+1	7201	291	sao.dense	sink	7	1	clean-sink	5933468	11505	3835	24396	
+1	7201	292	mozilla.dense	sink	21	0	clean4	15084239	42963	3905	24396	
+1	7201	292	mozilla.dense	sink	21	1	clean-sink	17423493	45038	8188	24396	
+1	7201	293	mozilla.dense	sink	13	0	clean4	18375586	54492	0	24396	
+1	7201	293	mozilla.dense	sink	13	1	clean-sink	17761631	35697	20398	24396	
+1	7201	294	mozilla.c7	source	22	0	dump-file	18098730	40150	10950	24396	1-mozilla.c7-source-022-dump-file.bin
+1	7201	294	mozilla.c7	source	22	1	dump-memory	33951146	39146	24911	32220	1-mozilla.c7-source-022-dump-memory.bin
+1	7201	295	mozilla.dense	aa	9	0	clean4	17893265	33398	12524	24396	
+1	7201	295	mozilla.dense	aa	9	1	clean4	19036830	38254	12751	24396	
+1	7201	296	mozilla.dense	source	12	0	dump-file	21616620	25161	25161	24396	1-mozilla.dense-source-012-dump-file.bin
+1	7201	296	mozilla.dense	source	12	1	dump-memory	42967785	42052	30583	32348	1-mozilla.dense-source-012-dump-memory.bin
+1	7201	297	mozilla.dense	source	16	1	dump-memory	37114200	39633	25221	32476	1-mozilla.dense-source-016-dump-memory.bin
+1	7201	297	mozilla.dense	source	16	0	dump-file	22121202	34574	17287	24396	1-mozilla.dense-source-016-dump-file.bin
+1	7201	298	sao.dense	sink	3	1	clean-sink	6660984	10196	6797	24396	
+1	7201	298	sao.dense	sink	3	0	clean4	6761377	7773	7773	24396	
+1	7201	299	sao.dense	source	7	0	dump-file	8330132	14801	3700	24396	1-sao.dense-source-007-dump-file.bin
+1	7201	299	sao.dense	source	7	1	dump-memory	10769518	13498	8998	24396	1-sao.dense-source-007-dump-memory.bin
+1	7201	300	sao.dense	sink	20	0	clean4	6438340	17750	0	24396	
+1	7201	300	sao.dense	sink	20	1	clean-sink	6351827	9182	6121	24396	
+2	13741	1	mozilla.dense	aa	0	1	clean4	16793759	45362	8247	24396	
+2	13741	1	mozilla.dense	aa	0	0	clean4	16995095	37402	14961	24396	
+2	13741	2	mozilla.dense	source	0	1	dump-memory	31867638	46513	19380	32360	warm.bin
+2	13741	2	mozilla.dense	source	0	0	dump-file	17492185	47535	3656	24396	warm.bin
+2	13741	3	sao.dense	sink	0	0	clean4	7253817	7993	7993	24524	
+2	13741	3	sao.dense	sink	0	1	clean-sink	6232504	11303	3767	24524	
+2	13741	4	sao.c7	aa	0	0	clean4	5421176	9727	3242	24524	
+2	13741	4	sao.c7	aa	0	1	clean4	4713299	12611	0	24524	
+2	13741	5	sao.c7	source	0	1	dump-memory	9186053	8280	8280	24524	warm.bin
+2	13741	5	sao.c7	source	0	0	dump-file	5151899	0	13372	24524	warm.bin
+2	13741	6	sao.dense	aa	0	1	clean4	5815804	11645	3881	24524	
+2	13741	6	sao.dense	aa	0	0	clean4	6489271	9840	4920	24524	
+2	13741	7	mozilla.dense	sink	0	0	clean4	19542983	36533	18266	24524	
+2	13741	7	mozilla.dense	sink	0	1	clean-sink	22791198	28994	18121	24524	
+2	13741	8	mozilla.c7	source	0	0	dump-file	16276517	34088	8522	24524	warm.bin
+2	13741	8	mozilla.c7	source	0	1	dump-memory	29994375	44323	14774	32104	warm.bin
+2	13741	9	sao.dense	source	0	1	dump-memory	11344923	13759	6879	24524	warm.bin
+2	13741	9	sao.dense	source	0	0	dump-file	6478471	10456	5228	24524	warm.bin
+2	13741	10	mozilla.c7	aa	0	1	clean4	14056775	31555	10518	24524	
+2	13741	10	mozilla.c7	aa	0	0	clean4	15921229	28587	14293	24524	
+2	13741	11	mozilla.c7	sink	0	0	clean4	15240853	36801	5257	24524	
+2	13741	11	mozilla.c7	sink	0	1	clean-sink	14624419	38846	3237	24524	
+2	13741	12	sao.c7	sink	0	0	clean4	5861276	0	12099	24524	
+2	13741	12	sao.c7	sink	0	1	clean-sink	5930646	6342	6342	24524	
+2	13741	13	mozilla.c7	sink	1	1	clean-sink	16311298	34003	8500	24524	
+2	13741	13	mozilla.c7	sink	1	0	clean4	13705859	34325	7627	24524	
+2	13741	14	mozilla.dense	aa	3	0	clean4	16204485	45035	4503	24524	
+2	13741	14	mozilla.dense	aa	3	1	clean4	16276986	37368	9342	24524	
+2	13741	15	mozilla.c7	aa	7	1	clean4	14098216	20996	20996	24524	
+2	13741	15	mozilla.c7	aa	7	0	clean4	14277611	37217	4652	24524	
+2	13741	16	mozilla.c7	source	9	0	dump-file	15338045	34961	8740	24524	2-mozilla.c7-source-009-dump-file.bin
+2	13741	16	mozilla.c7	source	9	1	dump-memory	31863488	29437	29437	32240	2-mozilla.c7-source-009-dump-memory.bin
+2	13741	17	sao.dense	source	9	1	dump-memory	11806793	12851	8567	24524	2-sao.dense-source-009-dump-memory.bin
+2	13741	17	sao.dense	source	9	0	dump-file	5925378	0	15273	24524	2-sao.dense-source-009-dump-file.bin
+2	13741	18	sao.c7	source	1	0	dump-file	4520774	11397	0	24524	2-sao.c7-source-001-dump-file.bin
+2	13741	18	sao.c7	source	1	1	dump-memory	9922860	12186	4062	24524	2-sao.c7-source-001-dump-memory.bin
+2	13741	19	sao.c7	aa	17	0	clean4	5317802	0	12439	24524	
+2	13741	19	sao.c7	aa	17	1	clean4	4824022	3771	7543	24524	
+2	13741	20	sao.c7	sink	22	0	clean4	4692909	11478	0	24524	
+2	13741	20	sao.c7	sink	22	1	clean-sink	5264933	3626	7252	24524	
+2	13741	21	mozilla.dense	aa	4	0	clean4	16291427	43028	3911	24524	
+2	13741	21	mozilla.dense	aa	4	1	clean4	16729147	47647	0	24524	
+2	13741	22	sao.c7	sink	17	1	clean-sink	4775541	8218	4109	24524	
+2	13741	22	sao.c7	sink	17	0	clean4	5738662	3234	9703	24524	
+2	13741	23	mozilla.dense	sink	17	1	clean-sink	16270998	41947	9321	24524	
+2	13741	23	mozilla.dense	sink	17	0	clean4	15744935	38344	7668	24524	
+2	13741	24	mozilla.c7	sink	11	0	clean4	15722894	38884	4320	24524	
+2	13741	24	mozilla.c7	sink	11	1	clean-sink	14825134	42494	0	24524	
+2	13741	25	mozilla.dense	aa	23	1	clean4	16394740	39344	7868	24524	
+2	13741	25	mozilla.dense	aa	23	0	clean4	16094423	42800	3890	24524	
+2	13741	26	sao.c7	aa	21	1	clean4	4721749	8178	4089	24524	
+2	13741	26	sao.c7	aa	21	0	clean4	4974495	12412	0	24524	
+2	13741	27	sao.c7	source	18	0	dump-file	5301664	0	12645	24524	2-sao.c7-source-018-dump-file.bin
+2	13741	27	sao.c7	source	18	1	dump-memory	10106883	8487	8487	24524	2-sao.c7-source-018-dump-memory.bin
+2	13741	28	sao.c7	aa	13	0	clean4	5267612	4060	8120	24524	
+2	13741	28	sao.c7	aa	13	1	clean4	4730949	7769	3884	24524	
+2	13741	29	sao.c7	sink	13	0	clean4	4596527	12029	0	24524	
+2	13741	29	sao.c7	sink	13	1	clean-sink	4974756	2910	8732	24524	
+2	13741	30	mozilla.dense	source	23	0	dump-file	15783535	42537	4253	24524	2-mozilla.dense-source-023-dump-file.bin
+2	13741	30	mozilla.dense	source	23	1	dump-memory	35090783	37269	29815	32188	2-mozilla.dense-source-023-dump-memory.bin
+2	13741	31	sao.dense	source	21	1	dump-memory	10321119	11520	7680	24524	2-sao.dense-source-021-dump-memory.bin
+2	13741	31	sao.dense	source	21	0	dump-file	6677625	15666	0	24524	2-sao.dense-source-021-dump-file.bin
+2	13741	32	mozilla.dense	source	13	1	dump-memory	33185018	48535	20223	32360	2-mozilla.dense-source-013-dump-memory.bin
+2	13741	32	mozilla.dense	source	13	0	dump-file	15758605	36242	13591	24524	2-mozilla.dense-source-013-dump-file.bin
+2	13741	33	mozilla.dense	sink	15	0	clean4	15476259	25855	21546	24524	
+2	13741	33	mozilla.dense	sink	15	1	clean-sink	16325537	39934	7260	24524	
+2	13741	34	sao.c7	source	7	1	dump-memory	10954313	2782	13913	24524	2-sao.c7-source-007-dump-memory.bin
+2	13741	34	sao.c7	source	7	0	dump-file	6185163	12116	0	24524	2-sao.c7-source-007-dump-file.bin
+2	13741	35	sao.c7	source	9	1	dump-memory	9329427	0	16953	24524	2-sao.c7-source-009-dump-memory.bin
+2	13741	35	sao.c7	source	9	0	dump-file	4548315	12133	0	24524	2-sao.c7-source-009-dump-file.bin
+2	13741	36	sao.c7	sink	12	0	clean4	5116598	11987	0	24524	
+2	13741	36	sao.c7	sink	12	1	clean-sink	5646411	0	12173	24524	
+2	13741	37	mozilla.c7	sink	9	1	clean-sink	13639596	38311	3482	24524	
+2	13741	37	mozilla.c7	sink	9	0	clean4	14935355	36099	7219	24524	
+2	13741	38	mozilla.dense	source	19	1	dump-memory	33191228	47519	17279	32308	2-mozilla.dense-source-019-dump-memory.bin
+2	13741	38	mozilla.dense	source	19	0	dump-file	16803049	30405	17374	24524	2-mozilla.dense-source-019-dump-file.bin
+2	13741	39	sao.dense	source	1	1	dump-memory	10626357	12035	8023	24524	2-sao.dense-source-001-dump-memory.bin
+2	13741	39	sao.dense	source	1	0	dump-file	5972329	11696	3898	24524	2-sao.dense-source-001-dump-file.bin
+2	13741	40	sao.dense	aa	22	1	clean4	6844779	7625	7625	24524	
+2	13741	40	sao.dense	aa	22	0	clean4	5948818	7120	7120	24524	
+2	13741	41	mozilla.dense	aa	11	0	clean4	14951065	30448	15224	24524	
+2	13741	41	mozilla.dense	aa	11	1	clean4	17160908	36834	10524	24524	
+2	13741	42	sao.c7	sink	10	1	clean-sink	5042467	3086	9258	24524	
+2	13741	42	sao.c7	sink	10	0	clean4	5174209	11903	0	24524	
+2	13741	43	sao.c7	sink	3	1	clean-sink	5183310	0	11899	24524	
+2	13741	43	sao.c7	sink	3	0	clean4	5150750	0	12246	24524	
+2	13741	44	mozilla.dense	sink	3	0	clean4	17141776	47955	0	24524	
+2	13741	44	mozilla.dense	sink	3	1	clean-sink	18641062	36222	12074	24524	
+2	13741	45	sao.dense	sink	7	1	clean-sink	6843529	12225	4075	24524	
+2	13741	45	sao.dense	sink	7	0	clean4	6429978	11747	3915	24524	
+2	13741	46	sao.c7	source	16	0	dump-file	5686541	3160	9480	24524	2-sao.c7-source-016-dump-file.bin
+2	13741	46	sao.c7	source	16	1	dump-memory	10363460	14410	3602	24524	2-sao.c7-source-016-dump-memory.bin
+2	13741	47	mozilla.c7	sink	2	1	clean-sink	15376296	35109	11703	24524	
+2	13741	47	mozilla.c7	sink	2	0	clean4	15920389	42679	3879	24524	
+2	13741	48	mozilla.c7	source	12	0	dump-file	16740847	44555	3427	24524	2-mozilla.c7-source-012-dump-file.bin
+2	13741	48	mozilla.c7	source	12	1	dump-memory	31823947	44136	14712	31964	2-mozilla.c7-source-012-dump-memory.bin
+2	13741	49	mozilla.c7	sink	24	1	clean-sink	14554947	38751	3875	24524	
+2	13741	49	mozilla.c7	sink	24	0	clean4	15347585	31833	14148	24524	
+2	13741	50	sao.dense	sink	23	1	clean-sink	6267586	11706	3902	24524	
+2	13741	50	sao.dense	sink	23	0	clean4	6750746	15329	0	24524	
+2	13741	51	mozilla.c7	aa	8	1	clean4	16111093	42199	4219	24524	
+2	13741	51	mozilla.c7	aa	8	0	clean4	15823446	32818	14586	24524	
+2	13741	52	mozilla.dense	aa	6	1	clean4	17548986	41878	6979	24524	
+2	13741	52	mozilla.dense	aa	6	0	clean4	17368312	41338	9186	24524	
+2	13741	53	mozilla.c7	aa	12	0	clean4	16654285	34326	11442	24524	
+2	13741	53	mozilla.c7	aa	12	1	clean4	15313905	39023	7095	24524	
+2	13741	54	sao.dense	sink	11	1	clean-sink	6387438	16101	0	24524	
+2	13741	54	sao.dense	sink	11	0	clean4	6933801	12932	3233	24524	
+2	13741	55	mozilla.c7	sink	6	1	clean-sink	15742494	29257	16253	24524	
+2	13741	55	mozilla.c7	sink	6	0	clean4	15121080	37677	8372	24524	
+2	13741	56	mozilla.dense	source	11	0	dump-file	15823956	50233	0	24524	2-mozilla.dense-source-011-dump-file.bin
+2	13741	56	mozilla.dense	source	11	1	dump-memory	27622280	48301	13173	32156	2-mozilla.dense-source-011-dump-memory.bin
+2	13741	57	mozilla.dense	aa	5	1	clean4	17296810	51520	0	24524	
+2	13741	57	mozilla.dense	aa	5	0	clean4	17431214	43326	8665	24524	
+2	13741	58	sao.dense	sink	21	1	clean-sink	8362754	12928	4309	24524	
+2	13741	58	sao.dense	sink	21	0	clean4	7115594	12942	4314	24524	
+2	13741	59	mozilla.c7	aa	1	1	clean4	17112406	41432	8286	24524	
+2	13741	59	mozilla.c7	aa	1	0	clean4	15591291	39940	4437	24524	
+2	13741	60	sao.dense	sink	5	1	clean-sink	6614303	15427	0	24524	
+2	13741	60	sao.dense	sink	5	0	clean4	6893620	10175	5087	24524	
+2	13741	61	sao.c7	aa	1	0	clean4	4899173	4243	8487	24524	
+2	13741	61	sao.c7	aa	1	1	clean4	6157563	4543	9086	24524	
+2	13741	62	mozilla.dense	sink	4	1	clean-sink	17014754	45218	5652	24524	
+2	13741	62	mozilla.dense	sink	4	0	clean4	18061328	35929	16331	24524	
+2	13741	63	sao.dense	sink	1	0	clean4	6113942	12369	4123	24524	
+2	13741	63	sao.dense	sink	1	1	clean-sink	6202185	10390	5195	24524	
+2	13741	64	mozilla.dense	aa	16	0	clean4	15540479	29229	19486	24524	
+2	13741	64	mozilla.dense	aa	16	1	clean4	16111323	44523	4047	24524	
+2	13741	65	sao.dense	aa	17	1	clean4	6221513	7810	7810	24524	
+2	13741	65	sao.dense	aa	17	0	clean4	7478793	7056	7056	24524	
+2	13741	66	mozilla.c7	source	2	1	dump-memory	27898587	33812	16906	32064	2-mozilla.c7-source-002-dump-memory.bin
+2	13741	66	mozilla.c7	source	2	0	dump-file	16484382	29967	11237	24524	2-mozilla.c7-source-002-dump-file.bin
+2	13741	67	sao.dense	aa	13	1	clean4	6828178	10031	5015	24524	
+2	13741	67	sao.dense	aa	13	0	clean4	5629701	7650	7650	24524	
+2	13741	68	mozilla.c7	aa	24	1	clean4	14076586	40957	3723	24524	
+2	13741	68	mozilla.c7	aa	24	0	clean4	14628529	35064	10519	24524	
+2	13741	69	mozilla.c7	aa	16	1	clean4	14782832	29981	14990	24524	
+2	13741	69	mozilla.c7	aa	16	0	clean4	15342825	40463	4046	24524	
+2	13741	70	mozilla.c7	source	13	0	dump-file	17123407	38761	3523	24524	2-mozilla.c7-source-013-dump-file.bin
+2	13741	70	mozilla.c7	source	13	1	dump-memory	30539618	34847	26135	31916	2-mozilla.c7-source-013-dump-memory.bin
+2	13741	71	sao.c7	sink	9	1	clean-sink	5023786	12651	0	24524	
+2	13741	71	sao.c7	sink	9	0	clean4	4384621	5875	5875	24524	
+2	13741	72	mozilla.dense	aa	24	0	clean4	15800295	37922	11376	24524	
+2	13741	72	mozilla.dense	aa	24	1	clean4	16583535	41270	7503	24524	
+2	13741	73	mozilla.c7	aa	15	0	clean4	14298561	41048	3420	24524	
+2	13741	73	mozilla.c7	aa	15	1	clean4	15949969	37770	8393	24524	
+2	13741	74	mozilla.c7	sink	19	0	clean4	15152360	37123	6749	24524	
+2	13741	74	mozilla.c7	sink	19	1	clean-sink	15330646	34498	9856	24524	
+2	13741	75	mozilla.c7	source	3	1	dump-memory	30449995	40423	20211	31908	2-mozilla.c7-source-003-dump-memory.bin
+2	13741	75	mozilla.c7	source	3	0	dump-file	14870134	45323	0	24524	2-mozilla.c7-source-003-dump-file.bin
+2	13741	76	mozilla.c7	sink	3	0	clean4	15836697	35234	10570	24524	
+2	13741	76	mozilla.c7	sink	3	1	clean-sink	15491549	35987	10796	24524	
+2	13741	77	sao.c7	sink	11	0	clean4	5876416	6329	6329	24524	
+2	13741	77	sao.c7	sink	11	1	clean-sink	5222692	9454	3151	24524	
+2	13741	78	mozilla.dense	source	3	1	dump-memory	33403882	45714	21098	32052	2-mozilla.dense-source-003-dump-memory.bin
+2	13741	78	mozilla.dense	source	3	0	dump-file	16784040	30845	17626	24524	2-mozilla.dense-source-003-dump-file.bin
+2	13741	79	mozilla.dense	source	17	0	dump-file	15341445	48853	0	24524	2-mozilla.dense-source-017-dump-file.bin
+2	13741	79	mozilla.dense	source	17	1	dump-memory	35061862	42972	25067	32348	2-mozilla.dense-source-017-dump-memory.bin
+2	13741	80	mozilla.c7	aa	2	1	clean4	14504156	35638	8909	24524	
+2	13741	80	mozilla.c7	aa	2	0	clean4	15238043	36229	9880	24524	
+2	13741	81	mozilla.c7	sink	17	0	clean4	15440127	40041	4449	24524	
+2	13741	81	mozilla.c7	sink	17	1	clean-sink	16784219	32064	14251	24524	
+2	13741	82	mozilla.c7	sink	22	0	clean4	15673583	44188	0	24524	
+2	13741	82	mozilla.c7	sink	22	1	clean-sink	14998777	38301	5471	24524	
+2	13741	83	sao.c7	source	22	1	dump-memory	9832109	10691	7127	24524	2-sao.c7-source-022-dump-memory.bin
+2	13741	83	sao.c7	source	22	0	dump-file	4963684	0	12810	24524	2-sao.c7-source-022-dump-file.bin
+2	13741	84	mozilla.c7	source	16	1	dump-memory	32179064	42005	21002	31996	2-mozilla.c7-source-016-dump-memory.bin
+2	13741	84	mozilla.c7	source	16	0	dump-file	17638659	43240	3326	24524	2-mozilla.c7-source-016-dump-file.bin
+2	13741	85	sao.dense	sink	6	0	clean4	9846978	8334	8334	24524	
+2	13741	85	sao.dense	sink	6	1	clean-sink	8191259	5041	10083	24524	
+2	13741	86	mozilla.dense	sink	12	0	clean4	17173647	44119	7353	24524	
+2	13741	86	mozilla.dense	sink	12	1	clean-sink	17370423	41184	7488	24524	
+2	13741	87	sao.c7	sink	6	1	clean-sink	5546569	4346	8692	24524	
+2	13741	87	sao.c7	sink	6	0	clean4	5110099	9709	3236	24524	
+2	13741	88	sao.dense	source	6	1	dump-memory	12856477	10644	10644	24524	2-sao.dense-source-006-dump-memory.bin
+2	13741	88	sao.dense	source	6	0	dump-file	6750358	16329	0	24524	2-sao.dense-source-006-dump-file.bin
+2	13741	89	sao.dense	source	20	1	dump-memory	11396263	10613	10613	24524	2-sao.dense-source-020-dump-memory.bin
+2	13741	89	sao.dense	source	20	0	dump-file	5798825	7879	7879	24524	2-sao.dense-source-020-dump-file.bin
+2	13741	90	sao.dense	aa	11	0	clean4	6921020	15097	0	24524	
+2	13741	90	sao.dense	aa	11	1	clean4	6808597	9802	6535	24524	
+2	13741	91	mozilla.c7	aa	23	0	clean4	14620868	35956	9806	24524	
+2	13741	91	mozilla.c7	aa	23	1	clean4	15728055	36476	9119	24524	
+2	13741	92	sao.dense	source	17	0	dump-file	7516734	7353	7353	24524	2-sao.dense-source-017-dump-file.bin
+2	13741	92	sao.dense	source	17	1	dump-memory	10221376	15289	5096	24524	2-sao.dense-source-017-dump-memory.bin
+2	13741	93	sao.dense	sink	13	1	clean-sink	8652761	14556	2911	24524	
+2	13741	93	sao.dense	sink	13	0	clean4	11207181	12432	6216	24524	
+2	13741	94	sao.dense	sink	19	1	clean-sink	6897780	10237	5118	24524	
+2	13741	94	sao.dense	sink	19	0	clean4	8650000	9802	4901	24524	
+2	13741	95	sao.c7	sink	15	0	clean4	7386411	14295	0	24524	
+2	13741	95	sao.c7	sink	15	1	clean-sink	6327156	8822	5881	24524	
+2	13741	96	mozilla.c7	aa	13	0	clean4	16645006	41356	6892	24524	
+2	13741	96	mozilla.c7	aa	13	1	clean4	18601340	47515	0	24524	
+2	13741	97	mozilla.dense	sink	14	1	clean-sink	15801995	40739	8147	24524	
+2	13741	97	mozilla.dense	sink	14	0	clean4	16543063	43132	6635	24524	
+2	13741	98	mozilla.dense	source	9	0	dump-file	18734393	42268	7044	24524	2-mozilla.dense-source-009-dump-file.bin
+2	13741	98	mozilla.dense	source	9	1	dump-memory	38458630	40601	29528	32204	2-mozilla.dense-source-009-dump-memory.bin
+2	13741	99	sao.dense	aa	2	1	clean4	6571313	12269	4089	24524	
+2	13741	99	sao.dense	aa	2	0	clean4	6381258	7594	7594	24524	
+2	13741	100	sao.c7	sink	8	1	clean-sink	6357927	10014	3338	24524	
+2	13741	100	sao.c7	sink	8	0	clean4	5753653	13980	0	24524	
+2	13741	101	mozilla.dense	aa	12	1	clean4	16453081	44128	6789	24524	
+2	13741	101	mozilla.dense	aa	12	0	clean4	17235399	36098	10829	24524	
+2	13741	102	mozilla.dense	sink	1	0	clean4	17864554	49189	0	24524	
+2	13741	102	mozilla.dense	sink	1	1	clean-sink	20439493	46219	0	24524	
+2	13741	103	sao.c7	sink	2	0	clean4	7327539	3894	7788	24524	
+2	13741	103	sao.c7	sink	2	1	clean-sink	5282792	3741	7483	24524	
+2	13741	104	mozilla.dense	source	12	1	dump-memory	33274681	33294	29595	32304	2-mozilla.dense-source-012-dump-memory.bin
+2	13741	104	mozilla.dense	source	12	0	dump-file	18442886	41508	7547	24524	2-mozilla.dense-source-012-dump-file.bin
+2	13741	105	mozilla.c7	sink	5	1	clean-sink	15676075	42506	4250	24524	
+2	13741	105	mozilla.c7	sink	5	0	clean4	15460108	46301	0	24524	
+2	13741	106	sao.c7	sink	7	0	clean4	6596283	9611	4805	24524	
+2	13741	106	sao.c7	sink	7	1	clean-sink	5308842	0	12758	24524	
+2	13741	107	mozilla.c7	source	19	1	dump-memory	29774940	42173	16869	31848	2-mozilla.c7-source-019-dump-memory.bin
+2	13741	107	mozilla.c7	source	19	0	dump-file	15004467	40726	4525	24524	2-mozilla.c7-source-019-dump-file.bin
+2	13741	108	sao.dense	aa	10	0	clean4	5670921	15216	0	24524	
+2	13741	108	sao.dense	aa	10	1	clean4	6088361	12139	3034	24524	
+2	13741	109	sao.dense	source	18	0	dump-file	6268615	15321	0	24524	2-sao.dense-source-018-dump-file.bin
+2	13741	109	sao.dense	source	18	1	dump-memory	10306849	15758	3939	24524	2-sao.dense-source-018-dump-memory.bin
+2	13741	110	sao.c7	sink	23	1	clean-sink	6130522	7462	4974	24524	
+2	13741	110	sao.c7	sink	23	0	clean4	5311173	12160	0	24524	
+2	13741	111	sao.c7	source	2	1	dump-memory	11008325	12211	6105	24524	2-sao.c7-source-002-dump-memory.bin
+2	13741	111	sao.c7	source	2	0	dump-file	5596570	12335	0	24524	2-sao.c7-source-002-dump-file.bin
+2	13741	112	sao.dense	sink	14	1	clean-sink	6705145	12033	3008	24524	
+2	13741	112	sao.dense	sink	14	0	clean4	8181720	9518	6345	24524	
+2	13741	113	mozilla.dense	aa	18	0	clean4	18171571	37504	11251	24524	
+2	13741	113	mozilla.dense	aa	18	1	clean4	17545526	32684	16342	24524	
+2	13741	114	mozilla.c7	aa	11	0	clean4	19356229	44780	7463	24524	
+2	13741	114	mozilla.c7	aa	11	1	clean4	20331780	32342	14374	24524	
+2	13741	115	sao.dense	source	10	1	dump-memory	12324695	16729	3345	24524	2-sao.dense-source-010-dump-memory.bin
+2	13741	115	sao.dense	source	10	0	dump-file	7828183	13233	4411	24524	2-sao.dense-source-010-dump-file.bin
+2	13741	116	sao.dense	sink	4	0	clean4	8200790	13031	4343	24524	
+2	13741	116	sao.dense	sink	4	1	clean-sink	7105064	17939	0	24524	
+2	13741	117	sao.dense	source	24	0	dump-file	7178706	12874	4291	24524	2-sao.dense-source-024-dump-file.bin
+2	13741	117	sao.dense	source	24	1	dump-memory	9869298	10094	10094	24524	2-sao.dense-source-024-dump-memory.bin
+2	13741	118	sao.c7	source	11	1	dump-memory	9168883	13963	3490	24524	2-sao.c7-source-011-dump-memory.bin
+2	13741	118	sao.c7	source	11	0	dump-file	6591603	9714	4857	24524	2-sao.c7-source-011-dump-file.bin
+2	13741	119	mozilla.dense	sink	22	1	clean-sink	17538576	34382	13752	24524	
+2	13741	119	mozilla.dense	sink	22	0	clean4	16335088	45245	5027	24524	
+2	13741	120	sao.c7	source	6	0	dump-file	5920426	10699	2674	24524	2-sao.c7-source-006-dump-file.bin
+2	13741	120	sao.c7	source	6	1	dump-memory	10708219	0	18264	24524	2-sao.c7-source-006-dump-memory.bin
+2	13741	121	sao.c7	sink	21	1	clean-sink	5619470	8908	4454	24524	
+2	13741	121	sao.c7	sink	21	0	clean4	4173137	2749	8249	24524	
+2	13741	122	sao.dense	source	4	1	dump-memory	9263555	8304	8304	24524	2-sao.dense-source-004-dump-memory.bin
+2	13741	122	sao.dense	source	4	0	dump-file	9073859	12295	4098	24524	2-sao.dense-source-004-dump-file.bin
+2	13741	123	mozilla.c7	sink	8	1	clean-sink	20574007	47783	7351	24524	
+2	13741	123	mozilla.c7	sink	8	0	clean4	21035937	39350	17886	24524	
+2	13741	124	sao.dense	sink	18	0	clean4	7906423	13591	6795	24524	
+2	13741	124	sao.dense	sink	18	1	clean-sink	9303965	18716	0	24524	
+2	13741	125	mozilla.c7	sink	20	0	clean4	23877503	52731	4056	24524	
+2	13741	125	mozilla.c7	sink	20	1	clean-sink	22863300	48259	7424	24524	
+2	13741	126	sao.c7	aa	10	1	clean4	10173615	10565	5282	24524	
+2	13741	126	sao.c7	aa	10	0	clean4	8855265	9396	6264	24524	
+2	13741	127	mozilla.c7	aa	3	1	clean4	24411797	36826	18413	24524	
+2	13741	127	mozilla.c7	aa	3	0	clean4	67213246	54035	9824	24524	
+2	13741	128	sao.dense	sink	3	0	clean4	16536633	12728	4242	24524	
+2	13741	128	sao.dense	sink	3	1	clean-sink	10191007	14236	4745	24524	
+2	13741	129	mozilla.dense	source	15	0	dump-file	24096717	43126	17250	24524	2-mozilla.dense-source-015-dump-file.bin
+2	13741	129	mozilla.dense	source	15	1	dump-memory	42056554	58234	22397	32212	2-mozilla.dense-source-015-dump-memory.bin
+2	13741	130	mozilla.dense	sink	9	0	clean4	31955980	56897	7586	24524	
+2	13741	130	mozilla.dense	sink	9	1	clean-sink	42273609	60351	4642	24524	
+2	13741	131	sao.c7	aa	19	0	clean4	5891515	11402	2850	24524	
+2	13741	131	sao.c7	aa	19	1	clean4	6181063	0	14137	24524	
+2	13741	132	sao.c7	aa	20	0	clean4	6233054	12044	3011	24524	
+2	13741	132	sao.c7	aa	20	1	clean4	6474160	10263	5131	24524	
+2	13741	133	mozilla.dense	source	10	0	dump-file	21591110	52479	8746	24524	2-mozilla.dense-source-010-dump-file.bin
+2	13741	133	mozilla.dense	source	10	1	dump-memory	31219264	51021	17007	32124	2-mozilla.dense-source-010-dump-memory.bin
+2	13741	134	sao.dense	sink	8	0	clean4	7187246	12948	5179	24524	
+2	13741	134	sao.dense	sink	8	1	clean-sink	7104374	12773	3193	24524	
+2	13741	135	sao.dense	sink	9	1	clean-sink	7303779	8781	8781	24524	
+2	13741	135	sao.dense	sink	9	0	clean4	7100134	16596	0	24524	
+2	13741	136	sao.dense	aa	19	0	clean4	6179184	13242	3310	24524	
+2	13741	136	sao.dense	aa	19	1	clean4	6022599	0	16377	24524	
+2	13741	137	sao.c7	source	17	0	dump-file	5544048	7051	7051	24524	2-sao.c7-source-017-dump-file.bin
+2	13741	137	sao.c7	source	17	1	dump-memory	9391508	7232	10848	24524	2-sao.c7-source-017-dump-memory.bin
+2	13741	138	sao.dense	sink	10	1	clean-sink	6079041	9976	6650	24524	
+2	13741	138	sao.dense	sink	10	0	clean4	6425269	10331	5165	24524	
+2	13741	139	sao.c7	sink	18	0	clean4	5695011	3416	10250	24524	
+2	13741	139	sao.c7	sink	18	1	clean-sink	7474513	11021	2755	24524	
+2	13741	140	mozilla.dense	sink	6	1	clean-sink	18003607	45147	10418	24524	
+2	13741	140	mozilla.dense	sink	6	0	clean4	18524889	48116	6873	24524	
+2	13741	141	sao.c7	aa	24	1	clean4	6013109	10178	3392	24524	
+2	13741	141	sao.c7	aa	24	0	clean4	5856185	10539	3513	24524	
+2	13741	142	sao.dense	source	5	1	dump-memory	10033574	10102	10102	24524	2-sao.dense-source-005-dump-memory.bin
+2	13741	142	sao.dense	source	5	0	dump-file	6626784	2088	14621	24524	2-sao.dense-source-005-dump-file.bin
+2	13741	143	mozilla.dense	sink	21	0	clean4	17369251	54075	0	24524	
+2	13741	143	mozilla.dense	sink	21	1	clean-sink	18745993	47632	7328	24524	
+2	13741	144	sao.c7	aa	15	1	clean4	6035401	14754	0	24524	
+2	13741	144	sao.c7	aa	15	0	clean4	6700145	2810	11242	24524	
+2	13741	145	sao.dense	source	7	1	dump-memory	9942990	10162	10162	24524	2-sao.dense-source-007-dump-memory.bin
+2	13741	145	sao.dense	source	7	0	dump-file	6203023	8557	8557	24524	2-sao.dense-source-007-dump-file.bin
+2	13741	146	mozilla.dense	sink	8	1	clean-sink	17234870	49319	3793	24524	
+2	13741	146	mozilla.dense	sink	8	0	clean4	17825673	54430	0	24524	
+2	13741	147	mozilla.c7	aa	6	0	clean4	16454631	44734	4473	24524	
+2	13741	147	mozilla.c7	aa	6	1	clean4	16659396	40256	8945	24524	
+2	13741	148	mozilla.dense	aa	2	1	clean4	17854254	50489	3883	24524	
+2	13741	148	mozilla.dense	aa	2	0	clean4	16639516	45313	8238	24524	
+2	13741	149	mozilla.dense	aa	21	0	clean4	16902302	44374	8068	24524	
+2	13741	149	mozilla.dense	aa	21	1	clean4	20018384	43332	12999	24524	
+2	13741	150	mozilla.c7	sink	14	0	clean4	16834539	46754	4675	24524	
+2	13741	150	mozilla.c7	sink	14	1	clean-sink	17250740	43965	3663	24524	
+2	13741	151	sao.dense	source	16	0	dump-file	8237081	5827	11655	24524	2-sao.dense-source-016-dump-file.bin
+2	13741	151	sao.dense	source	16	1	dump-memory	12524929	11313	11313	24524	2-sao.dense-source-016-dump-memory.bin
+2	13741	152	mozilla.dense	sink	13	0	clean4	17863364	41556	13852	24524	
+2	13741	152	mozilla.dense	sink	13	1	clean-sink	17799972	46442	9288	24524	
+2	13741	153	mozilla.c7	aa	19	1	clean4	17406374	41379	7523	24524	
+2	13741	153	mozilla.c7	aa	19	0	clean4	16823319	39703	7218	24524	
+2	13741	154	mozilla.c7	source	17	1	dump-memory	26938113	29631	29631	32208	2-mozilla.c7-source-017-dump-memory.bin
+2	13741	154	mozilla.c7	source	17	0	dump-file	15374537	34204	15547	24524	2-mozilla.c7-source-017-dump-file.bin
+2	13741	155	mozilla.dense	aa	14	1	clean4	22897640	52635	10527	24524	
+2	13741	155	mozilla.dense	aa	14	0	clean4	16343038	46812	7802	24524	
+2	13741	156	sao.dense	aa	6	0	clean4	8494236	14045	3511	24524	
+2	13741	156	sao.dense	aa	6	1	clean4	7179356	7796	11695	24524	
+2	13741	157	sao.dense	aa	16	1	clean4	7069433	15926	0	24524	
+2	13741	157	sao.dense	aa	16	0	clean4	6770547	4529	13588	24524	
+2	13741	158	mozilla.c7	aa	9	0	clean4	16708638	30614	17007	24524	
+2	13741	158	mozilla.c7	aa	9	1	clean4	16219526	30883	17647	24524	
+2	13741	159	sao.dense	aa	20	0	clean4	7006432	12325	4108	24524	
+2	13741	159	sao.dense	aa	20	1	clean4	6096460	13054	3263	24524	
+2	13741	160	sao.c7	source	10	1	dump-memory	10384261	6243	12487	24524	2-sao.c7-source-010-dump-memory.bin
+2	13741	160	sao.c7	source	10	0	dump-file	6067320	13162	0	24524	2-sao.c7-source-010-dump-file.bin
+2	13741	161	mozilla.dense	sink	20	0	clean4	21229251	39619	11885	24524	
+2	13741	161	mozilla.dense	sink	20	1	clean-sink	21227012	45105	6939	24524	
+2	13741	162	mozilla.c7	source	15	0	dump-file	19869400	40686	6781	24524	2-mozilla.c7-source-015-dump-file.bin
+2	13741	162	mozilla.c7	source	15	1	dump-memory	38253876	47246	26248	32044	2-mozilla.c7-source-015-dump-memory.bin
+2	13741	163	sao.c7	source	14	1	dump-memory	10679716	4864	14593	24524	2-sao.c7-source-014-dump-memory.bin
+2	13741	163	sao.c7	source	14	0	dump-file	8003987	9345	9345	24524	2-sao.c7-source-014-dump-file.bin
+2	13741	164	mozilla.c7	sink	13	1	clean-sink	17628538	46130	7688	24524	
+2	13741	164	mozilla.c7	sink	13	0	clean4	18427046	41218	9159	24524	
+2	13741	165	sao.c7	sink	5	0	clean4	7027954	9484	6323	24524	
+2	13741	165	sao.c7	sink	5	1	clean-sink	6421418	0	15335	24524	
+2	13741	166	mozilla.c7	source	21	0	dump-file	18704383	34938	17469	24524	2-mozilla.c7-source-021-dump-file.bin
+2	13741	166	mozilla.c7	source	21	1	dump-memory	40101168	43311	30318	32096	2-mozilla.c7-source-021-dump-memory.bin
+2	13741	167	sao.c7	sink	4	1	clean-sink	6092511	6949	6949	24524	
+2	13741	167	sao.c7	sink	4	0	clean4	5291603	0	13499	24524	
+2	13741	168	mozilla.dense	source	5	1	dump-memory	33473015	33988	33988	32292	2-mozilla.dense-source-005-dump-memory.bin
+2	13741	168	mozilla.dense	source	5	0	dump-file	19672086	46289	9257	24524	2-mozilla.dense-source-005-dump-file.bin
+2	13741	169	sao.c7	aa	7	0	clean4	8025346	8177	8177	24524	
+2	13741	169	sao.c7	aa	7	1	clean4	6063090	3497	10493	24524	
+2	13741	170	sao.c7	aa	12	1	clean4	6729376	4462	8924	24524	
+2	13741	170	sao.c7	aa	12	0	clean4	5338854	14075	0	24524	
+2	13741	171	mozilla.dense	aa	13	0	clean4	16322137	49270	3284	24524	
+2	13741	171	mozilla.dense	aa	13	1	clean4	16840201	48042	3202	24524	
+2	13741	172	sao.c7	source	21	0	dump-file	5972568	4504	9008	24524	2-sao.c7-source-021-dump-file.bin
+2	13741	172	sao.c7	source	21	1	dump-memory	9793387	7632	7632	24524	2-sao.c7-source-021-dump-memory.bin
+2	13741	173	mozilla.dense	sink	24	1	clean-sink	16927531	36786	8174	24524	
+2	13741	173	mozilla.dense	sink	24	0	clean4	18096739	43072	3915	24524	
+2	13741	174	mozilla.c7	sink	21	0	clean4	18659821	36663	6666	24524	
+2	13741	174	mozilla.c7	sink	21	1	clean-sink	16861441	34554	7678	24524	
+2	13741	175	sao.c7	source	24	0	dump-file	6209343	0	13433	24524	2-sao.c7-source-024-dump-file.bin
+2	13741	175	sao.c7	source	24	1	dump-memory	9749116	11557	3852	24524	2-sao.c7-source-024-dump-memory.bin
+2	13741	176	sao.c7	aa	3	1	clean4	6908850	10089	2522	24524	
+2	13741	176	sao.c7	aa	3	0	clean4	5499257	0	11228	24524	
+2	13741	177	mozilla.c7	sink	12	0	clean4	17122297	28619	14309	24524	
+2	13741	177	mozilla.c7	sink	12	1	clean-sink	14206278	41284	4128	24524	
+2	13741	178	mozilla.dense	source	18	0	dump-file	16416990	38023	11407	24524	2-mozilla.dense-source-018-dump-file.bin
+2	13741	178	mozilla.dense	source	18	1	dump-memory	30064676	52449	14304	32368	2-mozilla.dense-source-018-dump-memory.bin
+2	13741	179	sao.dense	aa	8	0	clean4	6481520	13163	3290	24524	
+2	13741	179	sao.dense	aa	8	1	clean4	6126402	10732	5366	24524	
+2	13741	180	mozilla.c7	aa	17	1	clean4	16401790	50114	0	24524	
+2	13741	180	mozilla.c7	aa	17	0	clean4	17778832	51588	0	24524	
+2	13741	181	mozilla.dense	sink	18	0	clean4	18292674	43651	11904	24524	
+2	13741	181	mozilla.dense	sink	18	1	clean-sink	18118740	41004	11182	24524	
+2	13741	182	sao.dense	source	13	1	dump-memory	9631363	3333	16668	24524	2-sao.dense-source-013-dump-memory.bin
+2	13741	182	sao.dense	source	13	0	dump-file	6439039	10911	5455	24524	2-sao.dense-source-013-dump-file.bin
+2	13741	183	sao.c7	aa	11	0	clean4	5200192	0	12888	24524	
+2	13741	183	sao.c7	aa	11	1	clean4	5431785	9995	3331	24524	
+2	13741	184	mozilla.dense	sink	23	1	clean-sink	16744118	40389	12116	24524	
+2	13741	184	mozilla.dense	sink	23	0	clean4	18580180	40633	13544	24524	
+2	13741	185	mozilla.c7	source	5	0	dump-file	16208975	41554	7555	24524	2-mozilla.c7-source-005-dump-file.bin
+2	13741	185	mozilla.c7	source	5	1	dump-memory	29793511	30135	30135	32016	2-mozilla.c7-source-005-dump-memory.bin
+2	13741	186	mozilla.dense	aa	17	0	clean4	17928404	49720	4972	24524	
+2	13741	186	mozilla.dense	aa	17	1	clean4	16815049	41982	7633	24524	
+2	13741	187	mozilla.dense	source	24	0	dump-file	17030046	36523	10435	24524	2-mozilla.dense-source-024-dump-file.bin
+2	13741	187	mozilla.dense	source	24	1	dump-memory	27814923	37958	22774	32268	2-mozilla.dense-source-024-dump-memory.bin
+2	13741	188	mozilla.dense	sink	2	1	clean-sink	19196805	43800	7300	24524	
+2	13741	188	mozilla.dense	sink	2	0	clean4	17782112	47323	4302	24524	
+2	13741	189	mozilla.dense	aa	9	0	clean4	18314464	42979	14326	24524	
+2	13741	189	mozilla.dense	aa	9	1	clean4	17166837	45598	3799	24524	
+2	13741	190	sao.dense	sink	22	0	clean4	8280082	14071	2814	24524	
+2	13741	190	sao.dense	sink	22	1	clean-sink	6853328	10481	5240	24524	
+2	13741	191	sao.dense	aa	18	1	clean4	5535068	15144	0	24524	
+2	13741	191	sao.dense	aa	18	0	clean4	6014870	10765	3588	24524	
+2	13741	192	sao.dense	sink	15	1	clean-sink	6223454	14985	0	24524	
+2	13741	192	sao.dense	sink	15	0	clean4	5704693	15294	0	24524	
+2	13741	193	sao.c7	source	23	1	dump-memory	10929853	0	17947	24524	2-sao.c7-source-023-dump-memory.bin
+2	13741	193	sao.c7	source	23	0	dump-file	5323063	4247	8495	24524	2-sao.c7-source-023-dump-file.bin
+2	13741	194	mozilla.c7	aa	18	1	clean4	17245160	33558	13423	24524	
+2	13741	194	mozilla.c7	aa	18	0	clean4	15228792	41592	4159	24524	
+2	13741	195	sao.c7	source	15	1	dump-memory	8602069	3959	11879	24524	2-sao.c7-source-015-dump-memory.bin
+2	13741	195	sao.c7	source	15	0	dump-file	7300839	13178	0	24524	2-sao.c7-source-015-dump-file.bin
+2	13741	196	sao.dense	aa	9	1	clean4	6660574	16016	0	24524	
+2	13741	196	sao.dense	aa	9	0	clean4	5983219	10345	5172	24524	
+2	13741	197	mozilla.c7	source	14	1	dump-memory	41393589	40918	26039	31900	2-mozilla.c7-source-014-dump-memory.bin
+2	13741	197	mozilla.c7	source	14	0	dump-file	14951436	42372	3026	24524	2-mozilla.c7-source-014-dump-file.bin
+2	13741	198	mozilla.c7	source	18	0	dump-file	17632909	31308	15654	24524	2-mozilla.c7-source-018-dump-file.bin
+2	13741	198	mozilla.c7	source	18	1	dump-memory	33674869	35760	27814	32092	2-mozilla.c7-source-018-dump-memory.bin
+2	13741	199	mozilla.dense	source	6	1	dump-memory	31428038	43507	19776	32104	2-mozilla.dense-source-006-dump-memory.bin
+2	13741	199	mozilla.dense	source	6	0	dump-file	18242961	35684	11894	24524	2-mozilla.dense-source-006-dump-file.bin
+2	13741	200	sao.c7	aa	22	1	clean4	5397936	10488	2622	24524	
+2	13741	200	sao.c7	aa	22	0	clean4	5594929	13368	0	24524	
+2	13741	201	mozilla.dense	source	7	0	dump-file	16575173	40694	9043	24524	2-mozilla.dense-source-007-dump-file.bin
+2	13741	201	mozilla.dense	source	7	1	dump-memory	36090086	47820	23910	32176	2-mozilla.dense-source-007-dump-memory.bin
+2	13741	202	sao.dense	sink	24	0	clean4	6434949	17249	0	24524	
+2	13741	202	sao.dense	sink	24	1	clean-sink	7056414	14325	3581	24524	
+2	13741	203	mozilla.c7	aa	22	0	clean4	15162902	36393	9098	24524	
+2	13741	203	mozilla.c7	aa	22	1	clean4	15793695	45904	4173	24524	
+2	13741	204	mozilla.c7	sink	23	1	clean-sink	16945642	34063	15139	24524	
+2	13741	204	mozilla.c7	sink	23	0	clean4	15909359	39465	9866	24524	
+2	13741	205	sao.dense	sink	2	0	clean4	9250103	6465	12931	24524	
+2	13741	205	sao.dense	sink	2	1	clean-sink	7221977	16103	0	24524	
+2	13741	206	mozilla.dense	aa	10	1	clean4	19101244	52876	3776	24524	
+2	13741	206	mozilla.dense	aa	10	0	clean4	23056324	49491	8248	24524	
+2	13741	207	sao.dense	source	8	0	dump-file	9420328	9442	9442	24524	2-sao.dense-source-008-dump-file.bin
+2	13741	207	sao.dense	source	8	1	dump-memory	13427712	9339	14008	24524	2-sao.dense-source-008-dump-memory.bin
+2	13741	208	sao.c7	aa	23	0	clean4	11935966	14151	0	24524	
+2	13741	208	sao.c7	aa	23	1	clean4	18405855	9103	9103	24524	
+2	13741	209	mozilla.c7	source	1	0	dump-file	27435195	39585	14844	24524	2-mozilla.c7-source-001-dump-file.bin
+2	13741	209	mozilla.c7	source	1	1	dump-memory	36916765	43652	29101	32048	2-mozilla.c7-source-001-dump-memory.bin
+2	13741	210	sao.dense	source	2	1	dump-memory	12423257	11593	11593	24524	2-sao.dense-source-002-dump-memory.bin
+2	13741	210	sao.dense	source	2	0	dump-file	7797041	11681	7787	24524	2-sao.dense-source-002-dump-file.bin
+2	13741	211	sao.c7	aa	14	1	clean4	5895258	5583	8375	24524	
+2	13741	211	sao.c7	aa	14	0	clean4	6209353	11318	3772	24524	
+2	13741	212	sao.dense	aa	4	0	clean4	7138965	10574	7049	24524	
+2	13741	212	sao.dense	aa	4	1	clean4	7055293	9715	7286	24524	
+2	13741	213	sao.dense	sink	17	1	clean-sink	7221037	0	17577	24524	
+2	13741	213	sao.dense	sink	17	0	clean4	19658786	19154	3830	24524	
+2	13741	214	sao.c7	source	12	1	dump-memory	24134859	0	22786	24524	2-sao.c7-source-012-dump-memory.bin
+2	13741	214	sao.c7	source	12	0	dump-file	7714279	9779	6519	24524	2-sao.c7-source-012-dump-file.bin
+2	13741	215	sao.dense	source	12	0	dump-file	6029600	3982	11946	24524	2-sao.dense-source-012-dump-file.bin
+2	13741	215	sao.dense	source	12	1	dump-memory	10686708	11126	7417	24524	2-sao.dense-source-012-dump-memory.bin
+2	13741	216	mozilla.dense	sink	10	1	clean-sink	21078658	43203	9600	24524	
+2	13741	216	mozilla.dense	sink	10	0	clean4	21643622	34891	17445	24524	
+2	13741	217	mozilla.c7	sink	16	0	clean4	14654159	26668	19049	24524	
+2	13741	217	mozilla.c7	sink	16	1	clean-sink	15886999	31896	13669	24524	
+2	13741	218	mozilla.dense	source	14	0	dump-file	16242336	49676	0	24524	2-mozilla.dense-source-014-dump-file.bin
+2	13741	218	mozilla.dense	source	14	1	dump-memory	29057523	50225	15453	32168	2-mozilla.dense-source-014-dump-memory.bin
+2	13741	219	mozilla.c7	aa	21	0	clean4	16844629	40899	11154	24524	
+2	13741	219	mozilla.c7	aa	21	1	clean4	15833046	37530	7506	24524	
+2	13741	220	mozilla.dense	source	22	1	dump-memory	29842992	45565	17525	32252	2-mozilla.dense-source-022-dump-memory.bin
+2	13741	220	mozilla.dense	source	22	0	dump-file	17542826	46385	3865	24524	2-mozilla.dense-source-022-dump-file.bin
+2	13741	221	mozilla.c7	aa	5	1	clean4	15176782	38769	7049	24524	
+2	13741	221	mozilla.c7	aa	5	0	clean4	14925316	40641	4515	24524	
+2	13741	222	mozilla.c7	aa	4	1	clean4	16927943	32256	14336	24524	
+2	13741	222	mozilla.c7	aa	4	0	clean4	25612833	46254	16819	24524	
+2	13741	223	mozilla.c7	aa	10	0	clean4	18754405	34693	13010	24524	
+2	13741	223	mozilla.c7	aa	10	1	clean4	15232503	41076	3734	24524	
+2	13741	224	sao.dense	source	14	0	dump-file	6482920	11088	3696	24524	2-sao.dense-source-014-dump-file.bin
+2	13741	224	sao.dense	source	14	1	dump-memory	9936900	0	17533	24524	2-sao.dense-source-014-dump-memory.bin
+2	13741	225	sao.c7	sink	1	1	clean-sink	6309216	12839	0	24524	
+2	13741	225	sao.c7	sink	1	0	clean4	5569119	3763	7526	24524	
+2	13741	226	sao.c7	source	19	0	dump-file	5541558	7433	3716	24524	2-sao.c7-source-019-dump-file.bin
+2	13741	226	sao.c7	source	19	1	dump-memory	10770070	4725	9451	24524	2-sao.c7-source-019-dump-memory.bin
+2	13741	227	sao.dense	aa	14	0	clean4	7930463	14564	0	24524	
+2	13741	227	sao.dense	aa	14	1	clean4	7609617	15510	0	24524	
+2	13741	228	sao.c7	source	3	1	dump-memory	9184963	8260	8260	24524	2-sao.c7-source-003-dump-memory.bin
+2	13741	228	sao.c7	source	3	0	dump-file	8063656	5308	7963	24524	2-sao.c7-source-003-dump-file.bin
+2	13741	229	sao.c7	source	8	1	dump-memory	9644663	0	16328	24524	2-sao.c7-source-008-dump-memory.bin
+2	13741	229	sao.c7	source	8	0	dump-file	5334213	3033	9100	24524	2-sao.c7-source-008-dump-file.bin
+2	13741	230	mozilla.dense	aa	7	1	clean4	16425141	45958	3829	24524	
+2	13741	230	mozilla.dense	aa	7	0	clean4	16668485	47094	4709	24524	
+2	13741	231	sao.c7	sink	24	0	clean4	5280793	7621	5080	24524	
+2	13741	231	sao.c7	sink	24	1	clean-sink	4826892	8846	2948	24524	
+2	13741	232	mozilla.dense	aa	22	1	clean4	16534534	34022	13609	24524	
+2	13741	232	mozilla.dense	aa	22	0	clean4	16318648	45192	4108	24524	
+2	13741	233	sao.dense	sink	16	0	clean4	6650725	13278	3319	24524	
+2	13741	233	sao.dense	sink	16	1	clean-sink	7017733	11011	5505	24524	
+2	13741	234	sao.dense	source	22	0	dump-file	6893589	3376	13507	24524	2-sao.dense-source-022-dump-file.bin
+2	13741	234	sao.dense	source	22	1	dump-memory	9856519	15964	3991	24524	2-sao.dense-source-022-dump-memory.bin
+2	13741	235	sao.c7	source	20	0	dump-file	6240914	13731	0	24524	2-sao.c7-source-020-dump-file.bin
+2	13741	235	sao.c7	source	20	1	dump-memory	10250558	11086	5543	24524	2-sao.c7-source-020-dump-memory.bin
+2	13741	236	mozilla.dense	aa	19	1	clean4	22332997	44814	7469	24524	
+2	13741	236	mozilla.dense	aa	19	0	clean4	17946345	44107	10178	24524	
+2	13741	237	mozilla.dense	aa	1	0	clean4	18218863	49803	0	24524	
+2	13741	237	mozilla.dense	aa	1	1	clean4	17112126	43677	4367	24524	
+2	13741	238	mozilla.dense	source	4	1	dump-memory	27699852	46862	14058	32260	2-mozilla.dense-source-004-dump-memory.bin
+2	13741	238	mozilla.dense	source	4	0	dump-file	16051741	32825	16412	24524	2-mozilla.dense-source-004-dump-file.bin
+2	13741	239	mozilla.dense	source	16	1	dump-memory	27947988	43752	17501	32408	2-mozilla.dense-source-016-dump-memory.bin
+2	13741	239	mozilla.dense	source	16	0	dump-file	15932329	45415	4128	24524	2-mozilla.dense-source-016-dump-file.bin
+2	13741	240	mozilla.c7	source	7	1	dump-memory	25816179	43689	11915	32104	2-mozilla.c7-source-007-dump-memory.bin
+2	13741	240	mozilla.c7	source	7	0	dump-file	15785285	32222	10740	24524	2-mozilla.c7-source-007-dump-file.bin
+2	13741	241	sao.dense	source	15	0	dump-file	6081481	11359	3786	24524	2-sao.dense-source-015-dump-file.bin
+2	13741	241	sao.dense	source	15	1	dump-memory	9162892	15295	3823	24524	2-sao.dense-source-015-dump-memory.bin
+2	13741	242	sao.c7	source	5	0	dump-file	5319053	6446	6446	24524	2-sao.c7-source-005-dump-file.bin
+2	13741	242	sao.c7	source	5	1	dump-memory	9209213	0	15813	24524	2-sao.c7-source-005-dump-memory.bin
+2	13741	243	mozilla.dense	source	8	1	dump-memory	27077137	41442	18837	32196	2-mozilla.dense-source-008-dump-memory.bin
+2	13741	243	mozilla.dense	source	8	0	dump-file	17061085	42550	7091	24524	2-mozilla.dense-source-008-dump-file.bin
+2	13741	244	mozilla.dense	aa	15	1	clean4	17724471	36527	10436	24524	
+2	13741	244	mozilla.dense	aa	15	0	clean4	17430524	46418	4219	24524	
+2	13741	245	sao.dense	aa	1	1	clean4	6774556	12590	3147	24524	
+2	13741	245	sao.dense	aa	1	0	clean4	6224594	14713	0	24524	
+2	13741	246	sao.dense	aa	3	1	clean4	5826066	12351	2470	24524	
+2	13741	246	sao.dense	aa	3	0	clean4	5675472	7675	7675	24524	
+2	13741	247	sao.c7	sink	20	1	clean-sink	5450596	0	12009	24524	
+2	13741	247	sao.c7	sink	20	0	clean4	5050196	11873	0	24524	
+2	13741	248	mozilla.dense	source	2	0	dump-file	17100116	44517	7419	24524	2-mozilla.dense-source-002-dump-file.bin
+2	13741	248	mozilla.dense	source	2	1	dump-memory	32666636	50290	19342	32220	2-mozilla.dense-source-002-dump-memory.bin
+2	13741	249	sao.c7	aa	2	0	clean4	5885467	14615	0	24524	
+2	13741	249	sao.c7	aa	2	1	clean4	6215415	6755	6755	24524	
+2	13741	250	sao.dense	aa	21	1	clean4	5537998	11556	3852	24524	
+2	13741	250	sao.dense	aa	21	0	clean4	6304197	7355	7355	24524	
+2	13741	251	mozilla.c7	source	8	1	dump-memory	30497265	42555	17731	32160	2-mozilla.c7-source-008-dump-memory.bin
+2	13741	251	mozilla.c7	source	8	0	dump-file	15412287	36360	9090	24524	2-mozilla.c7-source-008-dump-file.bin
+2	13741	252	mozilla.c7	source	20	0	dump-file	15900148	36711	12237	24524	2-mozilla.c7-source-020-dump-file.bin
+2	13741	252	mozilla.c7	source	20	1	dump-memory	32224307	46176	16791	32140	2-mozilla.c7-source-020-dump-memory.bin
+2	13741	253	sao.c7	aa	5	1	clean4	5625239	8174	5449	24524	
+2	13741	253	sao.c7	aa	5	0	clean4	5296353	8773	4386	24524	
+2	13741	254	mozilla.c7	aa	14	0	clean4	16495313	45817	4165	24524	
+2	13741	254	mozilla.c7	aa	14	1	clean4	17093265	44779	4477	24524	
+2	13741	255	sao.c7	source	4	0	dump-file	5829745	0	13870	24524	2-sao.c7-source-004-dump-file.bin
+2	13741	255	sao.c7	source	4	1	dump-memory	12117911	8270	12406	24524	2-sao.c7-source-004-dump-memory.bin
+2	13741	256	mozilla.c7	sink	15	1	clean-sink	16256566	25654	21378	24524	
+2	13741	256	mozilla.c7	sink	15	0	clean4	15884858	25824	20659	24524	
+2	13741	257	mozilla.c7	sink	4	1	clean-sink	15226562	30066	15033	24524	
+2	13741	257	mozilla.c7	sink	4	0	clean4	14228490	38589	7016	24524	
+2	13741	258	mozilla.dense	sink	7	0	clean4	17578237	45587	3798	24524	
+2	13741	258	mozilla.dense	sink	7	1	clean-sink	17383744	41274	6879	24524	
+2	13741	259	sao.c7	sink	16	0	clean4	6137743	9912	3304	24524	
+2	13741	259	sao.c7	sink	16	1	clean-sink	5474576	9530	3176	24524	
+2	13741	260	mozilla.c7	source	4	1	dump-memory	33261141	47763	14696	32160	2-mozilla.c7-source-004-dump-memory.bin
+2	13741	260	mozilla.c7	source	4	0	dump-file	18587350	46544	3580	24524	2-mozilla.c7-source-004-dump-file.bin
+2	13741	261	sao.c7	aa	8	1	clean4	7260199	8120	5413	24524	
+2	13741	261	sao.c7	aa	8	0	clean4	7595456	9152	4576	24524	
+2	13741	262	sao.dense	aa	12	1	clean4	8411184	14088	3522	24524	
+2	13741	262	sao.dense	aa	12	0	clean4	9064370	11451	5725	24524	
+2	13741	263	mozilla.c7	sink	18	1	clean-sink	19787038	44659	3721	24524	
+2	13741	263	mozilla.c7	sink	18	0	clean4	33783583	48087	12021	24524	
+2	13741	264	sao.dense	aa	23	1	clean4	12223423	21206	0	24524	
+2	13741	264	sao.dense	aa	23	0	clean4	7215817	17764	0	24524	
+2	13741	265	mozilla.c7	source	22	0	dump-file	16225096	41895	7617	24524	2-mozilla.c7-source-022-dump-file.bin
+2	13741	265	mozilla.c7	source	22	1	dump-memory	31504559	34999	24499	32052	2-mozilla.c7-source-022-dump-memory.bin
+2	13741	266	mozilla.c7	source	10	1	dump-memory	27369754	36336	21801	32208	2-mozilla.c7-source-010-dump-memory.bin
+2	13741	266	mozilla.c7	source	10	0	dump-file	47996141	63601	4240	24524	2-mozilla.c7-source-010-dump-file.bin
+2	13741	267	sao.c7	aa	18	0	clean4	6317116	2763	11052	24524	
+2	13741	267	sao.c7	aa	18	1	clean4	5125550	6504	6504	24524	
+2	13741	268	sao.dense	aa	7	0	clean4	6359057	7919	7919	24524	
+2	13741	268	sao.dense	aa	7	1	clean4	6358468	11960	3986	24524	
+2	13741	269	mozilla.dense	sink	5	1	clean-sink	16842800	36435	13663	24524	
+2	13741	269	mozilla.dense	sink	5	0	clean4	17456296	41084	10271	24524	
+2	13741	270	mozilla.dense	sink	19	0	clean4	17015563	45935	4593	24524	
+2	13741	270	mozilla.dense	sink	19	1	clean-sink	17726361	37307	12435	24524	
+2	13741	271	sao.c7	sink	19	1	clean-sink	5393744	9721	3240	24524	
+2	13741	271	sao.c7	sink	19	0	clean4	5512197	6506	6506	24524	
+2	13741	272	mozilla.dense	source	21	1	dump-memory	33077637	45026	13508	32280	2-mozilla.dense-source-021-dump-memory.bin
+2	13741	272	mozilla.dense	source	21	0	dump-file	19300236	35762	10728	24524	2-mozilla.dense-source-021-dump-file.bin
+2	13741	273	mozilla.c7	source	6	1	dump-memory	29315939	34389	19105	32252	2-mozilla.c7-source-006-dump-memory.bin
+2	13741	273	mozilla.c7	source	6	0	dump-file	17006404	38809	3880	24524	2-mozilla.c7-source-006-dump-file.bin
+2	13741	274	sao.dense	source	23	0	dump-file	6323616	13332	3333	24524	2-sao.dense-source-023-dump-file.bin
+2	13741	274	sao.dense	source	23	1	dump-memory	11820634	8446	12669	24524	2-sao.dense-source-023-dump-memory.bin
+2	13741	275	sao.c7	source	13	0	dump-file	5618709	4074	8149	24524	2-sao.c7-source-013-dump-file.bin
+2	13741	275	sao.c7	source	13	1	dump-memory	9572972	13638	3409	24524	2-sao.c7-source-013-dump-memory.bin
+2	13741	276	sao.dense	source	11	1	dump-memory	10878562	7729	11593	24524	2-sao.dense-source-011-dump-memory.bin
+2	13741	276	sao.dense	source	11	0	dump-file	5824645	7496	7496	24524	2-sao.dense-source-011-dump-file.bin
+2	13741	277	sao.c7	aa	4	0	clean4	4739570	0	12260	24524	
+2	13741	277	sao.c7	aa	4	1	clean4	5073456	9208	3069	24524	
+2	13741	278	mozilla.c7	source	23	0	dump-file	14343671	35340	10097	24524	2-mozilla.c7-source-023-dump-file.bin
+2	13741	278	mozilla.c7	source	23	1	dump-memory	28209824	39654	19827	32040	2-mozilla.c7-source-023-dump-memory.bin
+2	13741	279	mozilla.c7	sink	10	0	clean4	16339668	39779	4419	24524	
+2	13741	279	mozilla.c7	sink	10	1	clean-sink	14932467	37120	8249	24524	
+2	13741	280	mozilla.c7	source	24	0	dump-file	15426407	44372	0	24524	2-mozilla.c7-source-024-dump-file.bin
+2	13741	280	mozilla.c7	source	24	1	dump-memory	27562439	38379	19189	32024	2-mozilla.c7-source-024-dump-memory.bin
+2	13741	281	mozilla.c7	aa	20	0	clean4	14904495	45785	0	24524	
+2	13741	281	mozilla.c7	aa	20	1	clean4	15123621	40699	4522	24524	
+2	13741	282	mozilla.dense	source	20	1	dump-memory	26595755	34376	25782	32408	2-mozilla.dense-source-020-dump-memory.bin
+2	13741	282	mozilla.dense	source	20	0	dump-file	16835901	43696	6722	24524	2-mozilla.dense-source-020-dump-file.bin
+2	13741	283	sao.c7	aa	16	0	clean4	5991839	6526	6526	24524	
+2	13741	283	sao.c7	aa	16	1	clean4	5224070	12637	0	24524	
+2	13741	284	sao.c7	aa	6	1	clean4	4883483	8818	2939	24524	
+2	13741	284	sao.c7	aa	6	0	clean4	4890434	9256	3085	24524	
+2	13741	285	sao.dense	sink	12	0	clean4	5567349	12293	3073	24524	
+2	13741	285	sao.dense	sink	12	1	clean-sink	5846187	15220	0	24524	
+2	13741	286	mozilla.dense	sink	16	0	clean4	16697086	45496	3791	24524	
+2	13741	286	mozilla.dense	sink	16	1	clean-sink	15534310	43866	5483	24524	
+2	13741	287	sao.dense	aa	5	0	clean4	5749783	11430	3810	24524	
+2	13741	287	sao.dense	aa	5	1	clean4	6278877	9397	4698	24524	
+2	13741	288	sao.dense	source	19	0	dump-file	6000208	15165	0	24524	2-sao.dense-source-019-dump-file.bin
+2	13741	288	sao.dense	source	19	1	dump-memory	10236237	9679	9679	24524	2-sao.dense-source-019-dump-memory.bin
+2	13741	289	mozilla.dense	sink	11	1	clean-sink	17338852	44987	6921	24524	
+2	13741	289	mozilla.dense	sink	11	0	clean4	19390489	38844	12948	24524	
+2	13741	290	sao.dense	aa	24	0	clean4	6249805	3984	11953	24524	
+2	13741	290	sao.dense	aa	24	1	clean4	6609763	12318	4106	24524	
+2	13741	291	sao.c7	aa	9	1	clean4	5426115	6455	6455	24524	
+2	13741	291	sao.c7	aa	9	0	clean4	4880014	8888	2962	24524	
+2	13741	292	mozilla.dense	aa	20	1	clean4	15711563	41446	7535	24524	
+2	13741	292	mozilla.dense	aa	20	0	clean4	15983040	42373	7062	24524	
+2	13741	293	mozilla.c7	source	11	1	dump-memory	29639667	43622	15862	32160	2-mozilla.c7-source-011-dump-memory.bin
+2	13741	293	mozilla.c7	source	11	0	dump-file	15388996	40161	4016	24524	2-mozilla.c7-source-011-dump-file.bin
+2	13741	294	sao.dense	sink	20	0	clean4	6148853	9470	6313	24524	
+2	13741	294	sao.dense	sink	20	1	clean-sink	5491218	14813	0	24524	
+2	13741	295	mozilla.c7	sink	7	0	clean4	15180561	30534	15267	24524	
+2	13741	295	mozilla.c7	sink	7	1	clean-sink	16150734	34078	11359	24524	
+2	13741	296	sao.c7	sink	14	0	clean4	8240311	16251	0	24524	
+2	13741	296	sao.c7	sink	14	1	clean-sink	9786667	16933	0	24524	
+2	13741	297	mozilla.dense	aa	8	0	clean4	25995242	38820	24262	24524	
+2	13741	297	mozilla.dense	aa	8	1	clean4	33475576	49278	13439	24524	
+2	13741	298	mozilla.dense	source	1	0	dump-file	26004871	51499	11884	24524	2-mozilla.dense-source-001-dump-file.bin
+2	13741	298	mozilla.dense	source	1	1	dump-memory	46664092	50362	29378	32240	2-mozilla.dense-source-001-dump-memory.bin
+2	13741	299	sao.dense	source	3	0	dump-file	15847677	15498	5166	24524	2-sao.dense-source-003-dump-file.bin
+2	13741	299	sao.dense	source	3	1	dump-memory	15322155	12455	12455	24524	2-sao.dense-source-003-dump-memory.bin
+2	13741	300	sao.dense	aa	15	0	clean4	10642417	12665	5066	24524	
+2	13741	300	sao.dense	aa	15	1	clean4	7379050	9373	9373	24524	

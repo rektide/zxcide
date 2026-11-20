@@ -1,0 +1,220 @@
+2026-11-20T22:39:34Z
+lock: /home/rektide/src/zxc-rs/.test-agent/zxc-perf.lock ; parent affinity before pinning: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+loadavg: (11.72314453125, 19.92626953125, 22.7421875)
+7.1.0-debplus.1
+
+CPU CORE SOCKET NODE ONLINE    MAXMHZ
+  0    0      0    0    yes 3801.0000
+  1    1      0    0    yes 3801.0000
+  2    2      0    0    yes 3801.0000
+  3    3      0    0    yes 3801.0000
+  4    4      0    0    yes 3801.0000
+  5    5      0    0    yes 3801.0000
+  6    6      0    0    yes 3801.0000
+  7    7      0    0    yes 3801.0000
+  8    0      0    0    yes 3801.0000
+  9    1      0    0    yes 3801.0000
+ 10    2      0    0    yes 3801.0000
+ 11    3      0    0    yes 3801.0000
+ 12    4      0    0    yes 3801.0000
+ 13    5      0    0    yes 3801.0000
+ 14    6      0    0    yes 3801.0000
+ 15    7      0    0    yes 3801.0000
+
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           48 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  16
+On-line CPU(s) list:                     0-15
+Vendor ID:                               AuthenticAMD
+Model name:                              AMD Ryzen 7 5800X 8-Core Processor
+CPU family:                              25
+Model:                                   33
+Thread(s) per core:                      2
+Core(s) per socket:                      8
+Socket(s):                               1
+Stepping:                                2
+Microcode version:                       0xa20120e
+Frequency boost:                         enabled
+CPU(s) scaling MHz:                      86%
+CPU max MHz:                             3801.0000
+CPU min MHz:                             555.5310
+BogoMIPS:                                7599.65
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm debug_swap
+L1d cache:                               256 KiB (8 instances)
+L1i cache:                               256 KiB (8 instances)
+L2 cache:                                4 MiB (8 instances)
+L3 cache:                                32 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-15
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Vulnerable
+Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:                Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Not affected
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Vulnerable
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Vulnerable
+
+0 powersave
+1 powersave
+2 powersave
+3 powersave
+4 powersave
+5 powersave
+6 powersave
+7 powersave
+8 powersave
+9 powersave
+10 powersave
+11 powersave
+12 powersave
+13 powersave
+14 powersave
+15 powersave
+/sys/devices/system/cpu/amd_pstate/status 
+active
+/sys/devices/system/cpu/cpufreq/boost 
+1
+/proc/self/cgroup 
+0::/user.slice/user-1000.slice/user@1000.service/app.slice/opencode.service
+/proc/stat 
+cpu  52446590 10144 25169565 409388714 9182866 0 928677 0 0 0
+cpu0 2105084 447 993988 26494767 553500 0 793354 0 0 0
+cpu1 2025092 376 896640 27571177 569728 0 9664 0 0 0
+cpu2 1931926 279 847281 27878010 448781 0 7904 0 0 0
+cpu3 3566304 494 1863938 25091111 510850 0 8407 0 0 0
+cpu4 2660483 548 1084822 26691573 582090 0 9807 0 0 0
+cpu5 2948876 648 1195635 26282125 578724 0 10658 0 0 0
+cpu6 2433964 496 982029 27070277 548900 0 10628 0 0 0
+cpu7 3671400 557 1761727 25105523 499235 0 8940 0 0 0
+cpu8 2319298 501 983664 27189803 584644 0 9323 0 0 0
+cpu9 2013409 394 880666 27573850 627282 0 8953 0 0 0
+cpu10 1893189 322 866238 27802934 556551 0 7565 0 0 0
+cpu11 7211738 1178 4272382 19126957 519015 0 7091 0 0 0
+cpu12 3160162 762 1303767 25931953 676328 0 9332 0 0 0
+cpu13 4216671 1165 1794619 24366496 689244 0 9777 0 0 0
+cpu14 2787418 663 1168478 26380159 721633 0 10350 0 0 0
+cpu15 7501572 1306 4273684 18831990 516354 0 6920 0 0 0
+2026-11-20T22:40:02Z
+lock: /home/rektide/src/zxc-rs/.test-agent/zxc-perf.lock ; parent affinity before pinning: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+loadavg: (9.24658203125, 18.52001953125, 22.18310546875)
+7.1.0-debplus.1
+
+CPU CORE SOCKET NODE ONLINE    MAXMHZ
+  0    0      0    0    yes 3801.0000
+  1    1      0    0    yes 3801.0000
+  2    2      0    0    yes 3801.0000
+  3    3      0    0    yes 3801.0000
+  4    4      0    0    yes 3801.0000
+  5    5      0    0    yes 3801.0000
+  6    6      0    0    yes 3801.0000
+  7    7      0    0    yes 3801.0000
+  8    0      0    0    yes 3801.0000
+  9    1      0    0    yes 3801.0000
+ 10    2      0    0    yes 3801.0000
+ 11    3      0    0    yes 3801.0000
+ 12    4      0    0    yes 3801.0000
+ 13    5      0    0    yes 3801.0000
+ 14    6      0    0    yes 3801.0000
+ 15    7      0    0    yes 3801.0000
+
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           48 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  16
+On-line CPU(s) list:                     0-15
+Vendor ID:                               AuthenticAMD
+Model name:                              AMD Ryzen 7 5800X 8-Core Processor
+CPU family:                              25
+Model:                                   33
+Thread(s) per core:                      2
+Core(s) per socket:                      8
+Socket(s):                               1
+Stepping:                                2
+Microcode version:                       0xa20120e
+Frequency boost:                         enabled
+CPU(s) scaling MHz:                      85%
+CPU max MHz:                             3801.0000
+CPU min MHz:                             555.5310
+BogoMIPS:                                7599.65
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm debug_swap
+L1d cache:                               256 KiB (8 instances)
+L1i cache:                               256 KiB (8 instances)
+L2 cache:                                4 MiB (8 instances)
+L3 cache:                                32 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-15
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Vulnerable
+Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:                Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Not affected
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Vulnerable
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Vulnerable
+
+0 powersave
+1 powersave
+2 powersave
+3 powersave
+4 powersave
+5 powersave
+6 powersave
+7 powersave
+8 powersave
+9 powersave
+10 powersave
+11 powersave
+12 powersave
+13 powersave
+14 powersave
+15 powersave
+/sys/devices/system/cpu/amd_pstate/status 
+active
+/sys/devices/system/cpu/cpufreq/boost 
+1
+/proc/self/cgroup 
+0::/user.slice/user-1000.slice/user@1000.service/app.slice/opencode.service
+/proc/stat 
+cpu  52457775 10144 25173500 409417654 9183120 0 928822 0 0 0
+cpu0 2105412 447 994149 26496940 553517 0 793467 0 0 0
+cpu1 2025378 376 896788 27573494 569745 0 9668 0 0 0
+cpu2 1933685 279 847716 27878596 448782 0 7905 0 0 0
+cpu3 3567564 494 1864328 25092218 510853 0 8407 0 0 0
+cpu4 2661737 548 1085186 26692694 582095 0 9808 0 0 0
+cpu5 2950206 648 1195968 26283231 578728 0 10658 0 0 0
+cpu6 2434320 496 982176 27072516 548923 0 10631 0 0 0
+cpu7 3671718 557 1761873 25107798 499249 0 8943 0 0 0
+cpu8 2319652 501 983804 27192048 584687 0 9324 0 0 0
+cpu9 2013693 394 880802 27576167 627312 0 8956 0 0 0
+cpu10 1893513 322 866346 27805285 556562 0 7568 0 0 0
+cpu11 7212540 1178 4272628 19128690 519030 0 7092 0 0 0
+cpu12 3160619 762 1303932 25934120 676346 0 9334 0 0 0
+cpu13 4217122 1165 1794813 24368609 689267 0 9781 0 0 0
+cpu14 2787846 663 1168654 26382305 721658 0 10352 0 0 0
+cpu15 7502766 1306 4274331 18832937 516360 0 6921 0 0 0

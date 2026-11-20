@@ -1,0 +1,14 @@
+        PASS [   0.011s] ( 1/13) zxc-cli::files failed_decode_never_publishes_or_clobbers_output
+        PASS [   0.008s] ( 2/13) zxc-cli::ranges rejects_offset_wrap_without_emitting_bytes
+        PASS [   0.024s] ( 3/13) zxc-cli::ranges indexed_cli_uses_plaintext_offsets_and_frame_local_dictionaries
+        PASS [   0.008s] ( 4/13) zxc-parallel channel::tests::out_of_order_completion_does_not_return_credit
+        PASS [   0.017s] ( 5/13) zxc-cli::threads parallel_limit_failure_never_publishes_a_partial_file
+        PASS [   0.011s] ( 6/13) zxc-parallel scheduler_tests::fails_cleanly_with_partial_sink_writes
+        PASS [   0.074s] ( 7/13) zxc-parallel scheduler_tests::stress_windows_and_shutdown
+        PASS [   0.009s] ( 8/13) zxc-parallel::streaming corruption_and_read_failure_report_in_order
+        PASS [   0.024s] ( 9/13) zxc-parallel::streaming frame_boundaries_dictionary_changes_and_cumulative_limit
+        PASS [   0.096s] (10/13) zxc-parallel::streaming matches_reference_vectors_and_serial_rejections
+        PASS [   0.004s] (11/13) zxc-parallel::streaming rejects_invalid_configuration_without_io_even_in_serial
+        PASS [   0.007s] (12/13) zxc-parallel::streaming short_non_send_io_and_single_worker_and_partial_windows
+        PASS [   0.281s] (13/13) zxc-parallel::streaming byte_identical_to_serial_for_all_frame_settings
+     Summary [   0.325s] 13 tests run: 13 passed, 0 skipped

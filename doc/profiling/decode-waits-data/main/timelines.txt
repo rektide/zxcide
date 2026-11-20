@@ -1,0 +1,144 @@
+1-mozilla.c7-dump-006.bin frame=0 head=39 compute=404.2 us kind=1 payload=243652 plain=524288
+  since head compute-start (µs):
+        -39.0  head next_start
+         -2.2  head admit
+          0.0  head compute
+        251.5  later 41 computed (worker 3)
+        320.7  later 40 computed (worker 2)
+        404.2  head computed
+        867.3  later 41 inserted in pending
+        867.5  later 40 inserted in pending
+        867.6  head result_got
+        867.6  head commit
+        868.5  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=70.9, b=152.7, c=463.2
+2-mozilla.c7-dump-019.bin frame=0 head=8 compute=1379.3 us kind=1 payload=242138 plain=524288
+  since head compute-start (µs):
+        -31.5  head next_start
+         -3.2  head admit
+          0.0  head compute
+        485.7  later 9 computed (worker 1)
+        489.3  later 9 inserted in pending
+        596.2  later 11 computed (worker 3)
+        599.5  later 11 inserted in pending
+        729.0  later 10 computed (worker 2)
+        732.6  later 10 inserted in pending
+        870.5  later 12 computed (worker 1)
+        874.9  later 12 inserted in pending
+        997.6  later 13 computed (worker 3)
+       1000.0  later 13 inserted in pending
+       1064.2  later 14 computed (worker 2)
+       1066.8  later 14 inserted in pending
+       1268.8  later 15 computed (worker 1)
+       1272.1  later 15 inserted in pending
+       1379.3  head computed
+       1381.7  head result_got
+       1381.8  head commit
+       1386.2  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=292.2, b=892.9, b_pending=889.3, c=2.4, exposed=380.6, exposed_idle1=66.8, exposed_idle2=204.1, exposed_idle3=109.6, exposed_pending=380.6, exposed_worker=804.0
+1-mozilla.dense-dump-010.bin frame=0 head=8 compute=1600.1 us kind=1 payload=242060 plain=524288
+  since head compute-start (µs):
+        -37.4  head next_start
+         -2.4  head admit
+          0.0  head compute
+        550.3  later 9 computed (worker 1)
+        553.8  later 9 inserted in pending
+        952.1  later 12 computed (worker 1)
+        957.1  later 12 inserted in pending
+        974.6  later 11 computed (worker 2)
+        979.1  later 11 inserted in pending
+       1039.1  later 10 computed (worker 3)
+       1042.3  later 10 inserted in pending
+       1338.3  later 14 computed (worker 2)
+       1340.9  later 14 inserted in pending
+       1442.6  later 13 computed (worker 1)
+       1445.3  later 13 inserted in pending
+       1471.8  later 15 computed (worker 3)
+       1474.2  later 15 inserted in pending
+       1600.1  head computed
+       1602.6  head result_got
+       1602.8  head commit
+       1606.8  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=290.9, b=1049.1, b_pending=1045.7, c=2.6, exposed=260.5, exposed_idle1=104.5, exposed_idle2=28.6, exposed_idle3=127.3, exposed_pending=260.5, exposed_worker=543.8
+2-mozilla.dense-dump-024.bin frame=0 head=26 compute=1535.5 us kind=1 payload=185554 plain=524288
+  since head compute-start (µs):
+       -729.3  head next_start
+       -704.6  head admit
+          0.0  head compute
+        599.9  later 29 computed (worker 3)
+        603.1  later 29 inserted in pending
+        647.8  later 27 computed (worker 0)
+        650.1  later 27 inserted in pending
+        752.8  later 28 computed (worker 2)
+        755.2  later 28 inserted in pending
+       1002.6  later 30 computed (worker 3)
+       1030.3  later 31 computed (worker 0)
+       1035.4  later 30 inserted in pending
+       1035.6  later 31 inserted in pending
+       1233.7  later 32 computed (worker 2)
+       1236.3  later 32 inserted in pending
+       1436.7  later 33 computed (worker 3)
+       1440.0  later 33 inserted in pending
+       1535.5  head computed
+       1538.0  head result_got
+       1538.1  head commit
+       1539.3  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=274.5, b=934.9, b_pending=931.7, c=2.5, exposed=504.5, exposed_idle1=203.9, exposed_idle2=202.9, exposed_idle3=97.8, exposed_pending=504.5, exposed_worker=903.0
+1-sao.c7-dump-007.bin frame=0 head=12 compute=400.8 us kind=1 payload=405094 plain=524288
+  since head compute-start (µs):
+        -93.8  head next_start
+        -19.3  head admit
+          0.0  head compute
+        337.2  later 13 computed (worker 3)
+        342.9  later 13 inserted in pending
+        400.8  head computed
+        404.8  head result_got
+        404.9  head commit
+        405.5  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    b=58.0, b_pending=57.9, c=4.0
+2-sao.c7-dump-020.bin frame=0 head=2 compute=1674.4 us kind=1 payload=393128 plain=524288
+  since head compute-start (µs):
+       -184.6  head next_start
+         -6.8  head admit
+          0.0  head compute
+       1506.2  later 3 computed (worker 2)
+       1674.4  head computed
+       2085.9  later 3 inserted in pending
+       2086.1  head result_got
+       2086.1  head commit
+       2087.8  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=23.1, b=168.2, c=411.6
+1-sao.dense-dump-024.bin frame=0 head=2 compute=1981.9 us kind=1 payload=392915 plain=524288
+  since head compute-start (µs):
+       -631.7  head next_start
+         -3.5  head admit
+          0.0  head compute
+       1372.8  later 3 computed (worker 1)
+       1457.0  later 3 inserted in pending
+       1770.1  later 5 computed (worker 0)
+       1775.6  later 5 inserted in pending
+       1981.9  head computed
+       2240.3  head result_got
+       2240.4  head commit
+       2242.6  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    b=524.8, b_pending=524.7, c=258.4
+2-sao.dense-dump-017.bin frame=0 head=1 compute=1462.1 us kind=1 payload=394756 plain=524288
+  since head compute-start (µs):
+       -171.2  head next_start
+         -3.5  head admit
+          0.0  head compute
+       1358.7  later 2 computed (worker 3)
+       1462.1  head computed
+       2719.6  later 2 inserted in pending
+       2719.7  head result_got
+       2719.8  head commit
+       2722.1  head credit
+  receive intervals (µs) / exposed by idle worker count:
+    a=69.7, b=103.4, c=1257.5
