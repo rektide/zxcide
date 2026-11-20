@@ -1,0 +1,32 @@
+Workspace nextest, all CLI transports
+        PASS [   0.008s] (16/57) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+     Summary [   3.193s] 57 tests run: 57 passed, 0 skipped
+
+Release scalar codec nextest
+        PASS [   0.004s] ( 7/32) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+     Summary [   0.074s] 32 tests run: 32 passed, 0 skipped
+
+Codec clippy, all targets, merge-simd + ledger, warnings denied
+    Checking zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/crates/codec)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.66s
+
+Pinned C interop, serial
+Frozen: 180 byte-for-byte cross-decoding checks and 72 indexed range checks passed
+Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed range checks passed (generator revision 1, seed 99335130674745)
+
+Pinned C interop, Crossbeam
+Generated: 36 cases, 72 byte-for-byte cross-decoding checks and 156 indexed range checks passed (generator revision 1, seed 99335130674745)
+
+Clean CLI timing gate
+verified exact SHA-256 and quiet stderr on 34 decodes
+
+Clean parallel confirmation gate
+verified exact SHA-256 and quiet stderr on 8 decodes
+
+Clean sparse-entropy control gate
+verified exact SHA-256 and quiet stderr on 4 decodes
+
+Clean longer RAW/sparse control gate
+verified exact SHA-256 and quiet stderr on 8 decodes
+
+Typed WIT harness: exit 0 and empty stderr; exact plaintext, limit and truncation were asserted.

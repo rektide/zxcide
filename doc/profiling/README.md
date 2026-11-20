@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e055e0d34ffe9jui9j3JSrIqMx', title: Fixed-archive timing and retention study for the retained Huffman buffers }
   - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Extended default decoder timing matrix to Rust-produced archives }
   - { resource: 'opencode://ses_e0814f934ffe3jycgQ8eN3iHoB', title: Fixed-archive worker scaling implementation and acceptance }
   - { resource: /design/comparison-report/report1.astra.md, title: Worker scaling and CPU cost measurement contract }
@@ -25,7 +26,7 @@ For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledge
 
 ## Compare compression and fixed-archive CLI decode
 
-The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine.
+The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings.
 
 ```sh
 cargo xtask comparison-report                           # all 12 files; C levels 1,3,7; decode workers 1,4,8

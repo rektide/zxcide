@@ -1,0 +1,13 @@
+variant	when	frame_size	kind	peak_bytes	retained_bytes
+base	first	524288	1	616494	0
+base	first	4096	0	0	0
+base	last	524288	1	534982	0
+base	first	4096	1	4608	0
+base	last	4096	0	0	0
+base	last	4096	1	4608	0
+trial	first	524288	1	652301	652301
+trial	first	4096	0	0	0
+trial	last	524288	1	661111	661111
+trial	first	4096	1	4608	4608
+trial	last	4096	0	0	0
+trial	last	4096	1	4608	4608
