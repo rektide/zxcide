@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_e0846a824ffeA6B7lwD85vbibK', title: Configurable pinned CLI comparison and clean-cache acceptance }
   - { resource: 'opencode://ses_e0acf0f83ffeOu7mBN3OsQ5Dc8', title: Native byte ledger, wide-Huffman WIT comparison and paired Criterion measurements }
   - { resource: 'opencode://ses_e0b145b97ffeZCgqrI2NHSkUTX', title: Rust xtask, paired native and WIT component benchmarks, Linux perf and opt-in DWARF capture verification }
   - { resource: 'https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md', title: Wasmtime perf agents and jitdump injection }
@@ -18,6 +19,29 @@ sources:
 # Profile a codec change
 
 For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledger](ledger.md) ranks individual sites and pairs each workload with its uninstrumented timing interval.
+
+## Compare compression and fixed-archive CLI decode
+
+```sh
+cargo xtask comparison-report                          # all 12 Silesia files; C levels 3,7
+cargo xtask comparison-report --quick                  # only dickens + sao; same sampling protocol
+cargo xtask comparison-report --before PATH/TO/RUN     # remeasure a previous run's saved Rust CLI
+cargo xtask comparison-report --levels 1,3,5,7         # any nonempty, distinct list from 1..7
+```
+
+Options combine. Each selected C level gets its own encode speed and archive size, and every decoder reads the **same pinned archive** at that level. Rust Split and Dense are encoded once each per file/pass regardless of the number of C levels; their encode comparisons use C3 and C7 respectively when selected. These are reference points, not numeric equivalents. With `--before`, the report also cross-verifies and times the hash-checked previous binary under today's conditions, even when the two runs select different levels or files. Supply a trusted run directory, not just its Markdown file.
+
+First use on native Linux needs Cargo/Rust, Python 3.11+ (stdlib), Git, CMake 3.21+, Make, a native C compiler and network. The runner downloads the pinned Silesia ZIP, checks the full digest and member set, fetches the exact [performance reference](https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c), and builds it in native Release mode. This pin is separate from `cargo xtask interop`. Warm runs recheck source, ZIP, plaintext and [archive identities](scorecard/upstream-level-hashes.json); timings are never reused. Each staged archive is decoded exactly by every CLI before timing. C uses `-T1`; Rust uses serial, default features and release with empty rustflags. Both keep default block size and checksums.
+
+Read the aggregate tables on stdout. Follow the printed path for aggregate **and per-file** tables in `run.log` and `report.md`. Rows give decimal plaintext MB/s and median elapsed CLI time (including process startup, warm file input and output to `/dev/null`). Aggregate time is the median of seven whole-scope pass totals after one shuffled warmup. Min–max is observed spread; use a quiet host and optionally constrain inherited affinity with `taskset`. For preloaded buffer API timings and the explicit-binary scorecard, see the [separate study](scorecard/README.md).
+
+Each completed `<Cargo target>/comparison-report/runs/<id>/` contains the saved executables, build and verification identities, timing order and all samples in `raw.json`. Copy that directory to keep it across `cargo clean`. Re-render without building or running either codec:
+
+```sh
+python3 -B xtask/comparison_tables.py PATH/TO/RUN/raw.json
+```
+
+Failures leave `incomplete-*/run.log`, never a published report. If a cached checkout or ZIP is corrupt, inspect the named path and move it aside before retrying.
 
 ## Compare parallel transports
 

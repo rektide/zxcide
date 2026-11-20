@@ -10,8 +10,8 @@ use std::{
 use xshell::{Shell, cmd};
 mod interop;
 mod ledger;
-mod smoke;
 mod scorecard;
+mod smoke;
 
 #[derive(Clone, Copy, ValueEnum, PartialEq, Eq)]
 enum Backend {
@@ -156,7 +156,10 @@ fn main() -> Result<()> {
     );
     match task {
         Task::ComparisonReport { quick, before, levels } => {
-            let mut run = cmd!(sh, "python3 -B xtask/comparison_report.py --target {target} --levels {levels}");
+            let mut run = cmd!(
+                sh,
+                "python3 -B xtask/comparison_report.py --target {target} --levels {levels}"
+            );
             if quick {
                 run = run.arg("--quick");
             }
