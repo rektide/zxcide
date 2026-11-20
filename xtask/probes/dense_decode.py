@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare CLI decoders on exactly the Dense archives in a frozen scorecard."""
+"""Compare CLI decoders on exactly the selected archives in a frozen scorecard."""
 import argparse
 import csv
 import hashlib
@@ -21,6 +21,8 @@ def main():
     for arg in ('scorecard', 'archives', 'before', 'after', 'c_cli'):
         parser.add_argument(arg, type=Path)
     parser.add_argument('--passes', type=int, default=7)
+    parser.add_argument('--encoder', choices=('rust_dense', 'rust_split', 'c3', 'c7'), default='rust_dense',
+                        help='which scorecard archive hashes the supplied directory must match')
     args = parser.parse_args()
     if args.passes < 1:
         parser.error('--passes must be positive')
@@ -28,7 +30,7 @@ def main():
     for name, entry in json.loads(args.scorecard.read_text())['files'].items():
         path = args.archives / (name + '.zxc')
         with path.open('rb') as src:
-            if digest(src) != entry['archives']['rust_dense']['sha256']:
+            if digest(src) != entry['archives'][args.encoder]['sha256']:
                 sys.exit(f'wrong archive: {path}')
         for label, cli, flags in [('before', args.before, ['decode']), ('after', args.after, ['decode']),
                                   ('C', args.c_cli, ['-qdc', '-T1'])]:
