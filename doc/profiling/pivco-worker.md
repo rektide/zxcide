@@ -6,6 +6,7 @@ resource: /doc/profiling/pivco-worker.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-20 }
 sources:
+  - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Connected the byte-buffer result to the subsequent traversal-queue trial }
   - { resource: 'opencode://ses_e055e0d34ffe9jui9j3JSrIqMx', title: Implemented and measured the worker-buffer experiment and verified interoperability }
   - { resource: '/doc/profiling/pipeline-comparison.sol.md', title: Rank 2 and fixed-archive promotion criteria }
   - { resource: '/doc/profiling/pivco-scratch.md', title: Rejected merge-layout trial, distinct from lifetime reuse }
@@ -49,6 +50,8 @@ The focused four-worker rerun (two series of 24 pairs) measured wall changes of 
 Separate whole-process `perf stat` on `sao` found essentially unchanged instructions on Dense (<0.2% difference); it does not isolate PivCo or explain the time delta. The larger savings in explicit zero-init volume are **not** the same as fewer physical stores (e.g. baseline zero allocations may be demand-zeroed).
 
 ## Allocation and retention
+
+The [follow-up traversal queue trial](pivco-queue.md) isolated metadata allocation from the byte buffers measured here. On 4 KiB mixed it removed 765 of 768 queue allocations or growths, but the two serial elapsed improvements (4.0% and 0.9%) fell short of the 5% adoption criterion. Only the byte-buffer reuse described here shipped.
 
 Separate diagnostic executables count successful sections, initial allocations and capacity growths at the **two byte-buffer sites**, and traversal Vec/queue allocations/growth separately. Bytes below are Vec capacities, not process RSS or peak per request across all workers. Baseline peak includes a Huffman literal output still live while its token section decodes. For the trial, each retained buffer can record its own high water from a different block. Figures for four workers in the [allocation table](pivco-worker-data/allocations.tsv) are individual active worker contexts; Silesia runs more than four contexts in total because pools are frame-local. Timing never uses diagnostic executables.
 
