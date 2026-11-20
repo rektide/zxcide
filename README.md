@@ -81,6 +81,8 @@ The `zxc:codec/buffers@0.1.0` export takes and returns byte lists and requires n
 
 ## Compare and tune
 
+The release CLI enables runtime-selected SIMD for Huffman bitmap merges; use `--no-default-features` on the CLI build for the scalar variant. Library users can enable `zxc-codec/merge-simd`. See the [same-archive decode comparison](doc/profiling/dense-decode.md) for measured throughput and remaining upstream gaps.
+
 `cargo xtask bench native` benchmarks the Rust library directly with no Wasm toolchain. With the component prerequisites above, `cargo xtask compare upstream-l7/decode` times the same archive three ways: native with reused buffers, native with fresh buffers, and the component through its WIT export. See the [profiling guide](doc/profiling/README.md#compare-native-and-component) for baselines, workload selection and perf captures.
 
 ## Compatibility checks

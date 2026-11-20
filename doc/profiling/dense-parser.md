@@ -23,7 +23,7 @@ On the two inputs in the [Huffman study](dense-huffman.sol.md), the new parser (
 
 **Full Silesia:** the sum of the 12 independent archives fell from **82,530,245 to 70,459,885 bytes** (−14.6%). C7 totals **70,113,423 bytes**: the aggregate gap narrowed from 17.7% to **0.49%**. Every file shrank versus previous Dense; five are smaller than C7. The biggest remaining byte gaps are `webster` (+151,370 bytes) and `mozilla` (+129,936); the largest percentage gap is `nci` (+3.43%). The [full scorecard](scorecard/dense-full-smoke-20261120.json) includes exact byte comparisons with both decoders for all 48 archives. Its single-pass times are smoke evidence; use the [paired encode samples](scorecard/dense-paired-20261120.tsv) for the two-file timing comparison.
 
-**Decode is still a separate gap.** On the same new Dense archives, the Rust/C CLIs decoded `dickens` in 30.4/7.1 ms and `sao` in 31.3/6.8 ms (seven shuffled warm-cache medians, affinity 12–15). The encoder's ratio result doesn't imply decoder throughput parity.
+**Decode was the next gap.** On the same new Dense archives, the Rust/C CLIs decoded `dickens` in 30.4/7.1 ms and `sao` in 31.3/6.8 ms (seven shuffled warm-cache medians, affinity 12–15). The [subsequent decoder changes](dense-decode.md) more than doubled Rust throughput across all 12 frozen archives.
 
 **Where the bytes went.** On `dickens`, the parser leaves 968,736 literal bytes, down from 2,443,017. C7 leaves 1,617,412 but uses fewer sequences (999,495 vs. our 1,190,757); its smaller offset stream nearly cancels our literal saving. On `sao` we now leave 4,270,734 literal bytes against C7's 4,277,930. All 20 and 14 Rust blocks still choose Huffman for both sections. The gain came from what the parser fed the entropy coder.
 
