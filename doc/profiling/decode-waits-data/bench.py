@@ -20,6 +20,8 @@ BASE = {'aa': ('clean4', 'clean4'), 'scale': ('clean1', 'clean4'),
 SLOTS = {'aa': BASE['aa'], 'slots4': ('clean4', 'clean-slots4'),
          'slots16': ('clean4', 'clean-slots16'), 'dump4': ('clean-slots4', 'dump4'),
          'dump8': BASE['dump'], 'dump16': ('clean-slots16', 'dump16')}
+IO = {'aa': BASE['aa'], 'sink': ('clean4', 'clean-sink'),
+      'source': ('dump-file', 'dump-memory')}
 
 
 def sha(stream):
@@ -36,13 +38,17 @@ def file_sha(path):
 
 
 def invocation(a, case, mode, path):
-    binary = a.build / ('clean' if mode.startswith('clean') else 'probe')
+    binary = a.build / ('clean' if mode.startswith('clean') else 'probe-io' if a.io else 'probe')
     threads = 1 if mode == 'clean1' else 4
     slots = 16 if mode.endswith('16') else 4 if mode in ('clean-slots4', 'dump4') else 8
-    argv = [str(binary), 'decode', '--threads', str(threads), '--slots', str(slots),
+    # The shipping `test` command uses the same decode function and io::sink.
+    argv = [str(binary), 'test' if mode == 'clean-sink' else 'decode', '--threads', str(threads), '--slots', str(slots),
             '--backend', 'crossbeam', str(a.fixtures / f'{case}.zxc')]
     env = os.environ.copy()
     env.pop('ZXC_WAIT_TRACE', None)
+    env.pop('ZXC_WAIT_MEMORY_SOURCE', None)
+    if mode == 'dump-memory':
+        env['ZXC_WAIT_MEMORY_SOURCE'] = '1'
     if mode.startswith('dump'):
         env['ZXC_WAIT_TRACE'] = str(path)
     if mode == 'capture':
@@ -59,10 +65,10 @@ def verify(a, cells, out):
             raise ValueError(f'{name}: wrong fixture hash: {digest}')
         expect[name] = digest, size
         print('fixture', name, size, digest, sep='\t', file=out)
-    for mode in ('clean', 'probe'):
+    for mode in ('clean', 'probe-io' if a.io else 'probe'):
         binary = a.build / mode
         print('binary', mode, *reversed(file_sha(binary)), sep='\t', file=out)
-        if (b'ZXCWAIT1' in binary.read_bytes()) != (mode == 'probe'):
+        if (b'ZXCWAIT1' in binary.read_bytes()) != (mode != 'clean'):
             raise ValueError(f'{binary}: wrong probe signature')
     for case in CASES:
         for mode in sorted(set(x for pair in cells.values() for x in pair)):
@@ -78,9 +84,11 @@ def verify(a, cells, out):
                     status = proc.wait()
                 err.seek(0)
                 stderr = err.read()
-            if status or stderr or got != expect[case.split('.')[0]] or target.exists() != mode.startswith('dump'):
+            expected = sha_empty if mode == 'clean-sink' else expect[case.split('.')[0]]
+            if status or stderr or got != expected or target.exists() != mode.startswith('dump'):
                 raise ValueError(f'{case}/{mode}: status {status}, stderr {stderr!r}, got {got}')
-            print('decoded-to-eof', case, mode, got[1], got[0], 'exit=0', 'stderr=0', sep='\t', file=out)
+            print('sink-checked-to-eof' if mode == 'clean-sink' else 'decoded-to-eof', case, mode,
+                  got[1], got[0], 'exit=0', 'stderr=0', sep='\t', file=out)
 
 
 def measure(a, case, mode, target, null, err):
@@ -121,8 +129,11 @@ def environment(out, mask):
             print(name, '\n' + '\n'.join(p.read_text().splitlines()[:17]), file=out)
 
 
+sha_empty = hashlib.sha256(b'').hexdigest(), 0
+
+
 def run(a):
-    cells = SLOTS if a.slots else BASE
+    cells = SLOTS if a.slots else IO if a.io else BASE
     a.out.mkdir(parents=True)  # fresh directory: no stale sidecars
     traces = a.out / 'traces'
     traces.mkdir()
@@ -151,7 +162,7 @@ def run(a):
                 for order, (case, name, pair, reverse) in enumerate(warm + schedule, 1):
                     for member in ((1, 0) if reverse else (0, 1)):
                         mode = cells[name][member]
-                        target = traces / f'{series}-{case}-{name}-{pair:03}.bin' if pair else a.out / 'warm.bin'
+                        target = traces / f'{series}-{case}-{name}-{pair:03}-{mode}.bin' if pair else a.out / 'warm.bin'
                         nums = measure(a, case, mode, target, null, err)
                         writer.writerow((series, seed, order, case, name, pair, member, mode, *nums,
                                          target.name if mode.startswith('dump') else ''))
@@ -169,7 +180,9 @@ if __name__ == '__main__':
     p.add_argument('--fixtures', type=lambda x: Path(x).resolve(), default=ROOT / '.test-agent/pivco-worker/fixtures')
     p.add_argument('--pairs', type=int, default=32)
     p.add_argument('--seeds', nargs=2, type=int, default=[1729, 9437])
-    p.add_argument('--slots', action='store_true', help='follow-up cells, including traces at 4/8/16 slots')
+    followup = p.add_mutually_exclusive_group()
+    followup.add_argument('--slots', action='store_true', help='follow-up cells, including traces at 4/8/16 slots')
+    followup.add_argument('--io', action='store_true', help='sensitivity: cursor source and separate clean sink')
     args = p.parse_args()
     if args.pairs < 12 or args.pairs % 2 or len(set(args.seeds)) != 2:
         p.error('need an even count >=12 and independent seeds')

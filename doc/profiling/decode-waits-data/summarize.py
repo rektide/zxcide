@@ -49,7 +49,7 @@ def timing(path):
 def trace(run):
     grouped = defaultdict(list)
     for r in read(run / 'budgets.tsv'):
-        grouped[r['case'], r['test'], r['series']].append(r)
+        grouped[r['case'], r.get('mode', r['test']), r['series']].append(r)
     print('TRACE medians; ns converted to ms, or fraction / denominator stated in column')
     keys = (
         'pool', 'startup_wall', 'interior_wall', 'drain_wall', 'frame', 'prologue', 'post_pool', 'footer',
@@ -88,7 +88,7 @@ def trace(run):
     grouped = defaultdict(lambda: defaultdict(list))
     per_index = defaultdict(lambda: defaultdict(list))
     for r in read(run / 'blocks.tsv'):
-        key = r['case'], r['test'], r['series']
+        key = r['case'], r.get('mode', r['test']), r['series']
         grouped[key][r['trace']].append(r)
         per_index[key][int(r['index'])].append(r)
     stats = ('compute_ns', 'job_handoff_ns', 'job_postsend_ns', 'result_handoff_ns', 'result_postsend_ns',

@@ -331,7 +331,8 @@ def batch(run, out, fixtures):
         done, frames = read_trace(run / 'traces' / row['trace'])
         need(len(frames) == 1 and frames[0][3] == layouts[case], f'{case}: fixture metadata mismatch')
         for idx, frame in enumerate(frames):
-            label = {key: row[key] for key in ('series', 'case', 'test', 'pair', 'trace')} | {'frame_index': idx}
+            label = {key: row[key] for key in ('series', 'case', 'test', 'pair', 'trace')} | {
+                'mode': row['mode'], 'frame_index': idx}
             try:
                 metrics, jobs, heads = reduce_frame(frame)
             except ValueError as e:
