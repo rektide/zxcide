@@ -6,6 +6,8 @@ resource: /doc/profiling/pipeline-comparison.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-20 }
 sources:
+  - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Linked follow-up experiments to the pipeline map }
+  - { resource: 'opencode://ses_e04e0c593ffeh2M02O1L9LZa6h', title: Independent assessment of threshold promotion and unchanged-archive controls }
   - { resource: 'opencode://ses_e07fbd59dffennNT7JsCQhJviH', title: Source trace, clean comparison evidence, and experiment ranking }
   - { resource: 'https://github.com/rektide/zxc-rs/tree/f76005b0950e81516c54cceffdefb1f26a543921', title: Rust codec at clean comparison build }
   - { resource: 'https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c', title: Upstream C performance pin }
@@ -84,6 +86,8 @@ Dense `sao` sends **2.32×** as many literal bytes through Huffman as C7, with n
 4. **Verify and publish.** Rust and [`zxc_decompress_chunk_wrapper_body`](https://github.com/hellobertrand/zxc/blob/5719a96f778226868b29dba621a8c4e302b74d7c/src/lib/zxc_decompress.c#L1598-L1655) hash reconstructed logical bytes, not overstore slack; checksummed pipeline output is handed to the ordered writer only after block verification. Rust validates expected plaintext length when the positioned caller provides it. Treat malformed count/mode/extent, truncated or invalid extras, history underflow, checksum failure, seek/footer truncation, and max-output failure as independent checks; interop acceptance on valid archives does not require identical error codes or identical permissiveness on malformed bytes. Check the exact terminal path, not just the padded worker path.
 
 ## Experiments in priority order
+
+**Follow-up decisions:** [Short match extensions](dense-decode.md#follow-up-short-match-length-extensions) and [worker-owned Huffman byte buffers](pivco-worker.md) shipped. The [literal savings sweep](dense-literal-savings.sol.md) retained the existing Dense policy: at 4%, `sao` took 44% less serial time in Rust and 21% less in C, but nine files had identical archives and neither decoder met the 5% full-corpus wall-time goal. The rows below preserve the original hypotheses and measurement criteria.
 
 These are proposed gates and expected directions, not measured speedup forecasts. For byte-preserving changes, benchmark fixed hash-checked C7, Dense and Split archives, not archives produced by each candidate; add C3, PAK and RAW controls. Compare block-only decode/encode, checksum cost and full CLI separately, with paired shuffled runs and child CPU as well as wall. Run counters on separate invocations from timing. Sample instructions, cycles, branches/misses and L1D/LLC misses per plaintext byte, plus the stage counters below; total CPU is not an attribution counter. Use full Silesia before promoting, plus 4 KiB, incompressible, long runs, dictionary crossings, scalar/no-SIMD and component controls. Proposed screen for a default speed optimization: repeatable ≥5% improvement on its named hot workload, no unexplained >3% regression on a control, and interop, exact plaintext/EOF plus existing malformed-input and bounded-output tests green.
 
