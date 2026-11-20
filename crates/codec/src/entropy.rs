@@ -2,6 +2,7 @@
 //! symbol lists bottom-up. Each subtree owns a disjoint output interval.
 use crate::{require, take};
 use std::{collections::VecDeque, io};
+mod flat;
 #[cfg(any(
     test,
     not(target_arch = "wasm32"),
@@ -65,8 +66,9 @@ impl Tree {
             code += 1;
             prev = depth;
         }
-        // A perfect subtree of height >=2 has one packed run, not one
-        // bitmap per internal node. Packed codes take the root bit first.
+        // A perfect subtree of height >=2 has one packed run. A pair of
+        // leaves has a single bitmap, equivalently a one-bit packed run.
+        // Both can be decoded directly without materializing child streams.
         let mut height = vec![None; nodes.len()];
         for i in (0..nodes.len()).rev() {
             if nodes[i].symbol.is_some() {
@@ -80,7 +82,7 @@ impl Tree {
         let mut queue = VecDeque::from([0]);
         while let Some(i) = queue.pop_front() {
             match height[i] {
-                Some(d) if d >= 2 => {
+                Some(d) if d >= 1 => {
                     nodes[i].flat = d;
                     for value in 0..1usize << d {
                         let mut n = i;
@@ -114,7 +116,12 @@ impl Tree {
             let run = take(&mut src, (n * usize::from(node.flat.max(1))).div_ceil(8))?;
             if node.flat == 0 {
                 let whole = n / 8;
-                let ones = run[..whole].iter().map(|b| b.count_ones() as usize).sum::<usize>()
+                let (words, tail) = run[..whole].as_chunks::<8>();
+                let ones = words
+                    .iter()
+                    .map(|w| u64::from_ne_bytes(*w).count_ones() as usize)
+                    .sum::<usize>()
+                    + tail.iter().map(|b| b.count_ones() as usize).sum::<usize>()
                     + if n % 8 == 0 {
                         0
                     } else {
@@ -133,12 +140,7 @@ impl Tree {
                     }
                 }
             } else {
-                for (k, dst) in output[start..start + n].iter_mut().enumerate() {
-                    let bit = k * usize::from(node.flat);
-                    let byte = bit / 8;
-                    let pair = u16::from(run[byte]) | (u16::from(*run.get(byte + 1).unwrap_or(&0)) << 8);
-                    *dst = node.lookup[usize::from((pair >> (bit % 8)) & ((1 << node.flat) - 1))];
-                }
+                flat::unpack(&mut output[start..start + n], run, &node.lookup);
             }
         }
         require(src.is_empty(), "trailing Huffman data")?;

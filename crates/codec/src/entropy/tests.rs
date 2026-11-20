@@ -1,6 +1,33 @@
 use super::*;
 
 #[test]
+fn packed_subtrees_decode_all_widths_and_tail_lengths() {
+    for width in 1..=8 {
+        let symbols = 1 << width;
+        let mut lengths = [0; 128];
+        lengths[..symbols / 2].fill((width << 4) | width);
+        let tree = Tree::new(&lengths).unwrap();
+        // Complete canonical trees use bit-reversed symbol IDs on the wire.
+        // Cover every code and every possible final partial group. Start
+        // with set padding so a read of unused bits is observable.
+        let source: Vec<_> = (0..symbols + 8).map(|i| (i * 109 % symbols) as u8).collect();
+        for n in symbols..symbols + 8 {
+            let mut run = vec![0xff; (n * usize::from(width)).div_ceil(8)];
+            for (i, &s) in source[..n].iter().enumerate() {
+                for b in 0..width {
+                    let bit = i * usize::from(width) + usize::from(b);
+                    if s >> (width - b - 1) & 1 == 0 {
+                        run[bit / 8] &= !(1 << (bit % 8));
+                    }
+                }
+            }
+            assert_eq!(tree.decode(&run, n).unwrap(), source[..n]);
+            assert!(tree.decode(&run[..run.len() - 1], n).is_err());
+        }
+    }
+}
+
+#[test]
 fn emit_prices_and_packs_mixed_branch_and_flat_runs() {
     // Symbol 0 goes left. Symbols 1..=8 share the three-bit flat run on
     // the right. Its 3rd and 6th codes straddle a byte boundary.

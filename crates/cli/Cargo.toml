@@ -9,6 +9,8 @@ name = "zxc"
 path = "src/main.rs"
 
 [features]
+default = ["merge-simd"]
+merge-simd = ["zxc-codec/merge-simd"]
 tracy = ["zxc-codec/tracy", "zxc-seek/tracy", "zxc-parallel/tracy", "dep:tracy-client"]
 flume = ["zxc-parallel/flume"]
 kanal = ["zxc-parallel/kanal"]
