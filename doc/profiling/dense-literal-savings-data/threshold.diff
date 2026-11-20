@@ -1,0 +1,27 @@
+--- a/crates/codec/src/entropy/pack.rs
++++ b/crates/codec/src/entropy/pack.rs
+@@ -242,6 +242,8 @@ fn encode_rle(src: &[u8]) -> Vec<u8> {
+     out
+ }
+ 
++const LITERAL_HUFFMAN_MIN_SAVINGS_PERCENT: usize = 1;
++
+ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) -> (u8, Cow<'a, [u8]>) {
+     zone!("price entropy");
+     let mut best = (0, Cow::Borrowed(src));
+@@ -256,6 +258,15 @@ pub(crate) fn best<'a>(src: &'a [u8], literal: bool, dict: Option<&Dictionary>) ->
+             best = (1, Cow::Owned(rle));
+         }
+     }
++    if literal {
++        // Require the target saving against raw, and still strictly beat RLE
++        // if it won above. emit() takes an exclusive payload byte limit.
++        let min_saved = (src.len() * LITERAL_HUFFMAN_MIN_SAVINGS_PERCENT).div_ceil(100).max(1);
++        budget = budget.min((src.len() - 4).saturating_sub(min_saved - 1));
++        if budget == 0 {
++            return best;
++        }
++    }
+     let mut freq = [0; 256];
+     for &b in src {
+         freq[usize::from(b)] += 1;
