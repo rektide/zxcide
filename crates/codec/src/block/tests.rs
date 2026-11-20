@@ -29,18 +29,116 @@ fn match_payload(kind: u8, width: usize, literals: &[u8], ll: usize, len: usize,
         payload.push(((ll.min(mask) as u8) << 4) | ml.min(mask) as u8);
         payload.extend_from_slice(&offset.to_le_bytes()[..width]);
     }
-    for extra in [ll, ml].into_iter().filter_map(|n| n.checked_sub(mask)) {
-        match extra {
-            0..128 => payload.push(extra as u8),
-            128..16384 => payload.extend_from_slice(&[128 | (extra & 63) as u8, (extra >> 6) as u8]),
-            16384..=2097151 => {
-                payload.extend_from_slice(&[192 | (extra & 31) as u8, (extra >> 5) as u8, (extra >> 13) as u8]);
-            }
-            _ => panic!("length is out of range"),
-        }
+    for length in [ll, ml].into_iter().filter_map(|n| n.checked_sub(mask)) {
+        push_extra(&mut payload, length);
     }
     payload.resize(payload.len() + 32, 0);
     payload
+}
+
+fn push_extra(payload: &mut Vec<u8>, extra: usize) {
+    match extra {
+        0..128 => payload.push(extra as u8),
+        128..16384 => payload.extend_from_slice(&[128 | (extra & 63) as u8, (extra >> 6) as u8]),
+        16384..=2097151 => {
+            payload.extend_from_slice(&[192 | (extra & 31) as u8, (extra >> 5) as u8, (extra >> 13) as u8]);
+        }
+        _ => panic!("length is out of range"),
+    }
+}
+
+// Lengths and distances are logical values, not biased wire fields. The
+// extension tail is left unpadded so truncation tests can target its end.
+fn spl16_payload(lit: &[u8], runs: &[(usize, usize, u16)]) -> Vec<u8> {
+    let mut payload = (runs.len() as u32).to_le_bytes().to_vec();
+    payload.extend_from_slice(&(lit.len() as u32).to_le_bytes());
+    payload.extend_from_slice(&[0; 4]);
+    payload.extend_from_slice(lit);
+    payload.extend(
+        runs.iter()
+            .map(|&(ll, ml, _)| ((ll.min(15) as u8) << 4) | ((ml - 5).min(15) as u8)),
+    );
+    for &(_, _, off) in runs {
+        payload.extend_from_slice(&(off - 1).to_le_bytes());
+    }
+    for &(ll, ml, _) in runs {
+        for extra in [ll, ml - 5].into_iter().filter_map(|n| n.checked_sub(15)) {
+            push_extra(&mut payload, extra);
+        }
+    }
+    payload
+}
+
+#[test]
+fn spl16_short_runs_and_fallbacks_match_bytewise_history() {
+    const INLINE: [(usize, usize, u16); 6] = [(0, 5, 5), (14, 19, 19), (2, 16, 31), (3, 17, 32), (9, 8, 8), (1, 7, 31)];
+    let history = dictionary((0..100).map(|i| (i * 109) as u8).collect());
+    let literals: Vec<u8> = (0..700).map(|i| (i * 29) as u8).collect();
+    let mut scratch = vec![0xA5; 4096];
+    // Vary where escapes, a real overlap and a dictionary crossing appear
+    // relative to the boundaries of a series of inline runs.
+    for shift in 0..5 {
+        let mut runs = vec![(3, 15, 8)];
+        runs.extend(INLINE[..shift].iter().copied());
+        runs.extend(INLINE);
+        let pos: usize = runs.iter().map(|&(ll, ml, _)| ll + ml).sum();
+        runs.push((0, 17, (pos + 5) as u16));
+        runs.extend(INLINE);
+        runs.extend([(15, 20, 3), (145, 7, 128), (9, 170, 19)]);
+        runs.extend(INLINE);
+        let lit_used: usize = runs.iter().map(|&(ll, _, _)| ll).sum();
+        for tail in [0, 1, 23, 200] {
+            let lit = &literals[..lit_used + tail];
+            let payload = spl16_payload(lit, &runs);
+            let mut expected = history.content.clone();
+            let mut l = 0;
+            for &(ll, ml, off) in &runs {
+                expected.extend_from_slice(&lit[l..l + ll]);
+                l += ll;
+                for _ in 0..ml {
+                    expected.push(expected[expected.len() - usize::from(off)]);
+                }
+            }
+            expected.extend_from_slice(&lit[l..]);
+            let plain = &expected[history.content.len()..];
+            assert_eq!(unpack(1, &payload, 4096, Some(&history), &mut scratch).unwrap(), plain);
+            assert_eq!(
+                unpack(1, &payload, plain.len(), Some(&history), &mut Vec::new()).unwrap(),
+                plain
+            );
+        }
+    }
+}
+
+#[test]
+fn spl16_rejects_malformed_runs_after_inline_prefix() {
+    let lit = [b'Q'; 120];
+    let mut runs = vec![(12, 8, 7)];
+    runs.extend([(1, 17, 19); 11]);
+    let mut scratch = vec![0xA5; 4096];
+    let valid = spl16_payload(&lit, &runs);
+    assert_eq!(unpack(1, &valid, 4096, None, &mut scratch).unwrap(), [b'Q'; 315]);
+    for (last, limit, truncate, expected_error) in [
+        ((4, 8, u16::MAX), 4096, false, "match before start of history"),
+        ((122, 7, 20), 4096, false, "short section"),
+        ((4, 19, 20), 333, false, "match exceeds block size"),
+        ((15, 150, 20), 4096, true, "short section"),
+    ] {
+        // Put the invalid distance in the second lane, after an inline
+        // sequence that can be copied before that lane declines batching.
+        runs.push(last);
+        runs.push((1, 17, 19));
+        let mut payload = spl16_payload(&lit, &runs);
+        if truncate {
+            payload.pop();
+        }
+        let err = unpack(1, &payload, limit, None, &mut scratch).unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+        assert_eq!(err.to_string(), expected_error);
+        assert_eq!(unpack(1, &valid, 4096, None, &mut scratch).unwrap(), [b'Q'; 315]);
+        runs.pop();
+        runs.pop();
+    }
 }
 
 #[test]

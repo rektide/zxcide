@@ -187,10 +187,12 @@ fn unpack<'a>(
     // entropy counts give one offset per token, or n complete packed words.
     let len = if packed {
         let words = sequences.as_chunks::<4>().0;
-        reconstruct::<255>(
-            words
-                .iter()
-                .map(|&[lo, hi, ml, ll]| (ll, ml, u16::from_le_bytes([lo, hi]))),
+        reconstruct::<255, _>(
+            Scalar(
+                words
+                    .iter()
+                    .map(|&[lo, hi, ml, ll]| (ll, ml, u16::from_le_bytes([lo, hi]))),
+            ),
             &literals,
             data,
             limit,
@@ -198,11 +200,13 @@ fn unpack<'a>(
             out,
         )?
     } else if width == 1 {
-        reconstruct::<15>(
-            sequences
-                .iter()
-                .zip(offsets)
-                .map(|(&t, &off)| (t >> 4, t & 15, u16::from(off))),
+        reconstruct::<15, _>(
+            Scalar(
+                sequences
+                    .iter()
+                    .zip(offsets)
+                    .map(|(&t, &off)| (t >> 4, t & 15, u16::from(off))),
+            ),
             &literals,
             data,
             limit,
@@ -210,12 +214,11 @@ fn unpack<'a>(
             out,
         )?
     } else {
-        let words = offsets.as_chunks::<2>().0;
-        reconstruct::<15>(
-            sequences
-                .iter()
-                .zip(words)
-                .map(|(&t, &off)| (t >> 4, t & 15, u16::from_le_bytes(off))),
+        reconstruct::<15, _>(
+            Spl16 {
+                tokens: &sequences,
+                offsets: offsets.as_chunks::<2>().0,
+            },
             &literals,
             data,
             limit,
@@ -230,8 +233,98 @@ fn unpack<'a>(
     Ok(&out[..len])
 }
 
-fn reconstruct<const MASK: u8>(
-    sequences: impl Iterator<Item = (u8, u8, u16)>,
+// Other token layouts monomorphize to the checked loop without a batch branch.
+trait Sequences {
+    const SPL16: bool = false;
+    fn next(&mut self) -> Option<(u8, u8, u16)>;
+
+    // Return the number of literals consumed and total bytes produced, or
+    // leave the token cursor and logical output prefix untouched on a miss.
+    #[inline(always)]
+    fn batch(
+        &mut self,
+        _lit: &[u8],
+        _out: &mut [u8],
+        _pos: usize,
+        _end: usize,
+        _limit: usize,
+    ) -> Option<(usize, usize)> {
+        None
+    }
+}
+
+struct Scalar<I>(I);
+
+impl<I: Iterator<Item = (u8, u8, u16)>> Sequences for Scalar<I> {
+    #[inline(always)]
+    fn next(&mut self) -> Option<(u8, u8, u16)> {
+        self.0.next()
+    }
+}
+
+struct Spl16<'a> {
+    tokens: &'a [u8],
+    offsets: &'a [[u8; 2]],
+}
+
+impl Sequences for Spl16<'_> {
+    const SPL16: bool = true;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<(u8, u8, u16)> {
+        let (&t, rest) = self.tokens.split_first()?;
+        let (&off, tail) = self.offsets.split_first().unwrap();
+        self.tokens = rest;
+        self.offsets = tail;
+        Some((t >> 4, t & 15, u16::from_le_bytes(off)))
+    }
+
+    #[inline(always)]
+    fn batch(&mut self, lit: &[u8], out: &mut [u8], pos: usize, end: usize, limit: usize) -> Option<(usize, usize)> {
+        const BATCH: usize = 2;
+        let t = u32::from(u16::from_le_bytes(*self.tokens.first_chunk()?));
+        // `end` counts all literals, even those still to be copied. Reserve
+        // each preceding match (at most 19 bytes) plus the final 24-byte store.
+        // Each preceding literal run consumes at most 14 bytes of its stream.
+        if end + (BATCH - 1) * 19 + 24 > out.len().min(limit) || lit.len() < (BATCH - 1) * 14 + 16 {
+            return None;
+        }
+        // Adding 1 to each isolated nibble sets bit 4 exactly for 0xF
+        // (a length extension). The lanes are independent bytes.
+        let nibble = 0x0f0f_0f0f;
+        if ((((t & nibble) + 0x0101_0101) | (((t >> 4) & nibble) + 0x0101_0101)) & 0x1010_1010) != 0 {
+            return None;
+        }
+        let (offs, tail) = self.offsets.split_first_chunk::<BATCH>().unwrap();
+        let mut l = 0;
+        let mut d = pos;
+        for (i, &off) in offs.iter().enumerate() {
+            let t = (t >> (8 * i)) as u8;
+            let ll = usize::from(t >> 4);
+            let ml = usize::from(t & 15) + 5;
+            let off = usize::from(u16::from_le_bytes(off)) + 1;
+            let m = d + ll;
+            if off > m || off < ml {
+                // Earlier stores only touched the uncommitted suffix. Resume
+                // at the original token with the checked decoder.
+                return None;
+            }
+            out[d..][..16].copy_from_slice(&lit[l..][..16]);
+            // The needed source ends at or before `m`. Snapshot the wider
+            // range before writing so even the padding may safely overlap.
+            let src = *out[m - off..].first_chunk::<24>().unwrap();
+            out[m..][..24].copy_from_slice(&src);
+            l += ll;
+            d = m + ml;
+        }
+        self.tokens = &self.tokens[BATCH..];
+        self.offsets = tail;
+        Some((l, d - pos))
+    }
+}
+
+fn reconstruct<const MASK: u8, S: Sequences>(
+    mut sequences: S,
     mut lit: &[u8],
     mut data: &[u8],
     limit: usize,
@@ -240,7 +333,14 @@ fn reconstruct<const MASK: u8>(
 ) -> io::Result<usize> {
     let mut match_budget = limit - lit.len();
     let mut pos = 0;
-    for (ll, ml, off) in sequences {
+    loop {
+        if let Some((l, d)) = sequences.batch(lit, out, pos, limit - match_budget, limit) {
+            lit = &lit[l..];
+            pos += d;
+            match_budget -= d - l;
+            continue;
+        }
+        let Some((ll, ml, off)) = sequences.next() else { break };
         let mut ll = usize::from(ll);
         if ll == usize::from(MASK) {
             ll += extra(&mut data)?;
@@ -262,7 +362,15 @@ fn reconstruct<const MASK: u8>(
         // Fixed-width copies avoid a variable-size copy for short runs. Extra
         // bytes are outside the logical prefix and will be overwritten before
         // they can be used as history or returned as plaintext.
-        if ll <= 8
+        // The wider SPL16 copy also handles short extended literal runs.
+        if S::SPL16
+            && ll <= 32
+            && pos + 32 <= out.len()
+            && let Some(bytes) = lit.first_chunk::<32>()
+        {
+            out[pos..pos + 32].copy_from_slice(bytes);
+            lit = &lit[ll..];
+        } else if ll <= 8
             && pos + 8 <= out.len()
             && let Some(bytes) = lit.first_chunk::<8>()
         {
@@ -278,7 +386,10 @@ fn reconstruct<const MASK: u8>(
             // The logical source is all in previously written output. The
             // wider copy may overlap only in its unneeded bytes; copy_within
             // preserves the original source bytes in that case too.
-            if ml <= 8 && pos + 8 <= out.len() {
+            // Cover all inline SPL lengths without a copy-width ladder.
+            if S::SPL16 && ml <= 24 && pos + 24 <= out.len() {
+                out.copy_within(start..start + 24, pos);
+            } else if ml <= 8 && pos + 8 <= out.len() {
                 out.copy_within(start..start + 8, pos);
             } else if ml <= 16 && pos + 16 <= out.len() {
                 out.copy_within(start..start + 16, pos);
