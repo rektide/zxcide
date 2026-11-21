@@ -162,6 +162,145 @@ fn frame_boundaries_dictionary_changes_and_cumulative_limit() {
 }
 
 #[test]
+fn compatible_frames_reset_integrity_and_dictionary_on_non_send_io() {
+    let dicts = dictionaries();
+    let text = fixtures("dict_seekable_l7.expected");
+    let plain = source();
+    let mut archive = Vec::new();
+    let mut expected = Vec::new();
+    let mut boundary = 0;
+    for (i, (dict, bytes)) in [
+        (Some(&dicts[0]), &text[..]),
+        (None, &plain[..BLOCK * 2]),
+        (Some(&dicts[1]), &text[..]),
+        (Some(&dicts[2]), &plain[..BLOCK * 2 + 17]),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let opts = EncodeOptions {
+            block_log: 12,
+            checksum: i != 1,
+            seekable: i % 2 == 0,
+            dictionary: dict,
+            ..Default::default()
+        };
+        for _ in 0..5 {
+            zxc_codec::encode(&[][..], &mut archive, opts).unwrap();
+        }
+        zxc_codec::encode(bytes, &mut archive, opts).unwrap();
+        if i == 3 {
+            boundary = expected.len();
+        }
+        expected.extend_from_slice(bytes);
+    }
+    for slots in [1, 2, 7] {
+        for (limit, written) in [
+            (boundary, boundary),
+            (boundary + BLOCK - 1, boundary),
+            (expected.len(), expected.len()),
+        ] {
+            let mut output = ShortWriter(Rc::new(()), Vec::new());
+            let result = decode(
+                Fragmented(&archive, Rc::new(()), false),
+                &mut output,
+                DecodeOptions {
+                    dictionaries: &dicts,
+                    max_output: Some(limit as u64),
+                },
+                config(Backend::Crossbeam, 4, slots),
+            );
+            if written == expected.len() {
+                result.unwrap();
+            } else {
+                assert_eq!(result.unwrap_err().to_string(), "decoded output limit exceeded");
+            }
+            assert_eq!(output.1, expected[..written]);
+        }
+    }
+}
+
+#[test]
+fn warm_pool_still_resolves_dictionary_for_empty_frames() {
+    let dicts = dictionaries();
+    let opts = EncodeOptions {
+        block_log: 12,
+        ..Default::default()
+    };
+    let prefix = serial(b"verified", opts);
+    let empty = serial(
+        &[],
+        EncodeOptions {
+            dictionary: Some(&dicts[2]),
+            ..opts
+        },
+    );
+    let archive = [prefix.as_slice(), &empty, &prefix].concat();
+    for dictionaries in [&[][..], &dicts[..2]] {
+        let mut output = Vec::new();
+        let err = decode(
+            &archive[..],
+            &mut output,
+            DecodeOptions {
+                dictionaries,
+                ..Default::default()
+            },
+            config(Backend::Crossbeam, 3, 2),
+        )
+        .unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+        assert_eq!(err.to_string(), "dictionary 00000000 required");
+        assert_eq!(output, b"verified");
+    }
+}
+
+#[test]
+fn warm_pool_does_not_cross_malformed_frame_boundaries() {
+    let plain = vec![b'x'; BLOCK * 2];
+    let options = EncodeOptions {
+        block_log: 12,
+        seekable: true,
+        ..Default::default()
+    };
+    let warm = serial(b"first frame", options);
+    let frame = serial(&plain, options);
+    let settings = FrameHeader::parse(frame[..FRAME_HEADER_SIZE].try_into().unwrap()).unwrap();
+    let mut eof = FRAME_HEADER_SIZE;
+    for _ in 0..2 {
+        eof += DataBlockHeader::parse(frame[eof..eof + BLOCK_HEADER_SIZE].try_into().unwrap(), settings)
+            .unwrap()
+            .disk_size();
+    }
+    for (offset, message) in [
+        (eof - 1, "block checksum mismatch"),
+        (eof + BLOCK_HEADER_SIZE - 1, "invalid EOF block header"),
+        (eof + 2 * BLOCK_HEADER_SIZE - 1, "invalid seek table header"),
+        (frame.len() - 1, "frame footer or digest mismatch"),
+    ] {
+        let mut bad = frame.clone();
+        bad[offset] ^= 1;
+        let bytes = [warm.as_slice(), &bad, &warm].concat();
+        let mut input = bytes.as_slice();
+        let mut expected = Vec::new();
+        let err = zxc_codec::decode(&mut input, &mut expected, Default::default()).unwrap_err();
+        assert_eq!(err.to_string(), message);
+        let mut output = Vec::new();
+        let mut parallel_input = bytes.as_slice();
+        let err = decode(
+            &mut parallel_input,
+            &mut output,
+            Default::default(),
+            config(Backend::Crossbeam, 4, 3),
+        )
+        .unwrap_err();
+        assert_eq!(err.kind(), io::ErrorKind::InvalidData);
+        assert_eq!(err.to_string(), message);
+        assert_eq!(output, expected);
+        assert!(parallel_input.ends_with(&warm));
+    }
+}
+
+#[test]
 fn corruption_and_read_failure_report_in_order() {
     let plain = source();
     let options = EncodeOptions {

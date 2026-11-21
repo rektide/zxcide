@@ -4,8 +4,9 @@
 
 use std::io::{self, Read, Write};
 use zxc_codec::{
-    BlockDecoder, BlockEncoder, DecodeOptions, EncodeOptions,
+    BlockDecoder, BlockEncoder, DecodeOptions, Dictionary, EncodeOptions,
     stream::{DecodeFrame, EncodeFrame, read_data_block, read_source_block},
+    wire::FrameHeader,
 };
 
 macro_rules! zone {
@@ -109,8 +110,8 @@ impl Config {
 trait Scheduler: Sized {
     fn run<S: Default + Send, J: Send + 'static, O: Send + 'static>(
         &self,
-        next: impl FnMut(Vec<u8>) -> io::Result<Option<J>>,
-        work: impl Fn(&mut S, u64, J) -> io::Result<O> + Sync,
+        next: impl FnMut(&mut Vec<u8>) -> io::Result<Option<J>>,
+        work: impl Fn(&mut S, u64, J, Vec<u8>) -> io::Result<O> + Sync,
         commit: impl FnMut(O) -> io::Result<Vec<u8>>,
     ) -> io::Result<()>;
 }
@@ -134,13 +135,13 @@ fn compute<S: Default, J, O>(
 }
 
 macro_rules! dispatch {
-    ($config:ident, $serial:path, $parallel:ident, $r:ident, $w:ident, $options:ident) => {{
+    ($config:ident, $serial:path, $crossbeam:ident, $parallel:ident, $r:ident, $w:ident, $options:ident) => {{
         $config.validate()?;
         if $config.workers == 1 {
             return $serial($r, $w, $options);
         }
         match $config.backend {
-            Backend::Crossbeam => $parallel(channel::Driver::<channel::Crossbeam>::new($config), $r, $w, $options),
+            Backend::Crossbeam => $crossbeam(channel::Driver::<channel::Crossbeam>::new($config), $r, $w, $options),
             #[cfg(feature = "flume")]
             Backend::Flume => $parallel(channel::Driver::<channel::Flume>::new($config), $r, $w, $options),
             #[cfg(feature = "kanal")]
@@ -157,7 +158,7 @@ macro_rules! dispatch {
 
 /// Encode one frame. The caller owns flushing and output-file publication.
 pub fn encode(r: impl Read, w: impl Write, options: EncodeOptions<'_>, config: Config) -> io::Result<()> {
-    dispatch!(config, zxc_codec::encode, encode_with, r, w, options)
+    dispatch!(config, zxc_codec::encode, encode_with, encode_with, r, w, options)
 }
 
 fn encode_with(
@@ -172,15 +173,15 @@ fn encode_with(
     let block_size = frame.block_size();
     let mut eof = false;
     driver.run(
-        |mut buf| {
+        |buf| {
             if eof {
                 return Ok(None);
             }
-            read_source_block(&mut r, &mut buf, block_size)?;
+            read_source_block(&mut r, buf, block_size)?;
             eof = buf.len() < block_size;
-            Ok((!buf.is_empty()).then_some(buf))
+            Ok((!buf.is_empty()).then_some(()))
         },
-        |work: &mut BlockEncoder, index, buf| Ok(work.encode_owned(buf, options, index)),
+        |work: &mut BlockEncoder, index, (), buf| Ok(work.encode_owned(buf, options, index)),
         |block| {
             frame.commit(&mut w, &block)?;
             Ok(block.into_payload())
@@ -194,9 +195,73 @@ fn encode_with(
 /// read or write that blocks externally cannot be interrupted by the driver.
 /// The caller owns flushing and output-file publication.
 pub fn decode(r: impl Read, w: impl Write, options: DecodeOptions<'_>, config: Config) -> io::Result<()> {
-    dispatch!(config, zxc_codec::decode, decode_with, r, w, options)
+    dispatch!(config, zxc_codec::decode, decode_channel, decode_with, r, w, options)
 }
 
+fn decode_channel<Q: channel::Transport>(
+    driver: channel::Driver<Q>,
+    mut r: impl Read,
+    mut w: impl Write,
+    options: DecodeOptions<'_>,
+) -> io::Result<()> {
+    let dicts = options.dictionaries;
+    let mut total = 0;
+    let mut next = DecodeFrame::start(&mut r, true)?;
+    while let Some(mut frame) = next {
+        let size = frame.header().block_size();
+        let slot = dictionary_slot(frame.header(), dicts)?;
+        next = driver.with_workers(
+            |work: &mut BlockDecoder, index, (header, slot): (_, Option<usize>), buf| {
+                Ok((header, work.decode_owned(header, buf, slot.map(|i| &dicts[i]), index)?))
+            },
+            |session| {
+                let mut slot = slot;
+                loop {
+                    {
+                        zone!("parallel decode frame");
+                        let settings = frame.header();
+                        session.run(
+                            |buf| Ok(read_data_block(&mut r, settings, buf)?.map(|header| (header, slot))),
+                            |(header, block)| {
+                                frame.commit(&mut w, header, block.as_verified(), &mut total, options.max_output)?;
+                                Ok(block.into_buffer())
+                            },
+                        )?;
+                        // All jobs and writes precede the footer, and no input
+                        // from the next frame is read until finish succeeds.
+                        frame.finish(&mut r)?;
+                    }
+                    match DecodeFrame::start(&mut r, false)? {
+                        Some(new) if new.header().block_size() == size => {
+                            slot = dictionary_slot(new.header(), dicts)?;
+                            frame = new;
+                        }
+                        // End this resource epoch. Joining drops even idle
+                        // worker scratch and every slot before the size change.
+                        next => return Ok(next),
+                    }
+                }
+            },
+        )?;
+    }
+    Ok(())
+}
+
+fn dictionary_slot(header: FrameHeader, dicts: &[Dictionary]) -> io::Result<Option<usize>> {
+    // Resolve once, including on empty frames. Like FrameHeader::dictionary,
+    // select the first match (ID zero is valid); jobs carry no borrowed data.
+    header
+        .dictionary_id()
+        .map(|id| {
+            dicts
+                .iter()
+                .position(|d| d.id() == id)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, format!("dictionary {id:08x} required")))
+        })
+        .transpose()
+}
+
+#[cfg(any(feature = "flume", feature = "kanal", feature = "crossfire", feature = "rayon"))]
 fn decode_with(
     driver: impl Scheduler,
     mut r: impl Read,
@@ -211,8 +276,8 @@ fn decode_with(
         let settings = frame.header();
         let dict = settings.dictionary(options.dictionaries)?;
         driver.run(
-            |mut buf| Ok(read_data_block(&mut r, settings, &mut buf)?.map(|header| (header, buf))),
-            |work: &mut BlockDecoder, index, (header, buf)| Ok((header, work.decode_owned(header, buf, dict, index)?)),
+            |buf| read_data_block(&mut r, settings, buf),
+            |work: &mut BlockDecoder, index, header, buf| Ok((header, work.decode_owned(header, buf, dict, index)?)),
             |(header, block)| {
                 frame.commit(&mut w, header, block.as_verified(), &mut total, options.max_output)?;
                 Ok(block.into_buffer())

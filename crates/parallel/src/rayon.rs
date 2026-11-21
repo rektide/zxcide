@@ -22,8 +22,8 @@ impl Driver<'_> {
 impl Scheduler for Driver<'_> {
     fn run<S: Default + Send, J: Send + 'static, O: Send + 'static>(
         &self,
-        mut next: impl FnMut(Vec<u8>) -> io::Result<Option<J>>,
-        work: impl Fn(&mut S, u64, J) -> io::Result<O> + Sync,
+        mut next: impl FnMut(&mut Vec<u8>) -> io::Result<Option<J>>,
+        work: impl Fn(&mut S, u64, J, Vec<u8>) -> io::Result<O> + Sync,
         mut commit: impl FnMut(O) -> io::Result<Vec<u8>>,
     ) -> io::Result<()> {
         let mut index = 0;
@@ -34,12 +34,13 @@ impl Scheduler for Driver<'_> {
         // Each pool thread is the sole user of its scratch. The mutex makes
         // that ownership safe without unsafe access or allocation per task.
         let scratch: Vec<_> = (0..self.config.workers).map(|_| Mutex::new(None)).collect();
+        let work = |scratch: &mut S, index, (job, buf)| work(scratch, index, job, buf);
         loop {
             let mut end = None;
-            while let Some(buf) = free.pop() {
+            while let Some(buf) = free.last_mut() {
                 match next(buf) {
                     Ok(Some(item)) => {
-                        batch.push((index, item));
+                        batch.push((index, (item, free.pop().unwrap())));
                         index += 1;
                     }
                     Ok(None) => {

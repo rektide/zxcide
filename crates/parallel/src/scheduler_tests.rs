@@ -113,7 +113,7 @@ fn exercise(driver: &impl Scheduler, slots: usize) {
     ] {
         let (read, written) = (Cell::new(0), Cell::new(0));
         let result = driver.run(
-            |mut buf| {
+            |buf| {
                 let n = read.get();
                 assert!(n - written.get() < slots, "admission exceeded {slots} slots");
                 match stop {
@@ -126,9 +126,9 @@ fn exercise(driver: &impl Scheduler, slots: usize) {
                 read.set(n + 1);
                 buf.clear();
                 buf.extend_from_slice(&(n as u64).to_le_bytes());
-                Ok(Some(buf))
+                Ok(Some(()))
             },
-            |scratch: &mut TrackedScratch, index, buf| {
+            |scratch: &mut TrackedScratch, index, (), buf| {
                 scratch.track(&live);
                 assert_eq!(buf, index.to_le_bytes());
                 if index % 3 == 0 {
