@@ -20,7 +20,7 @@ sources:
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
   - { resource: 'opencode://ses_e04ef8b0cffeJahvs500cwmoBM', title: Checked four-worker ordered-head and credit exposure on fixed archives }
-  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Measured the full-corpus worker sweep and added upstream comparison tables and TSV export }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Measured the full-corpus worker sweep and made decode throughput the default comparison view }
 ---
 
 # Profile a codec change
@@ -34,7 +34,7 @@ The [2026-11-20 status report](silesia-status-20261120.md) compares all 12 Siles
 The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings. The [Dense literal savings sweep](dense-literal-savings.sol.md) instead varies the encoder's archives while holding both decoders fixed.
 
 ```sh
-cargo xtask comparison-report                           # all 12 files; C levels 1,3,7; decode workers 1,4,8
+cargo xtask comparison-report                           # all 12 files; C levels 1,3,7; workers 1,2,3,4,6,8,12,16
 cargo xtask comparison-report --quick --decode-workers 1 --before PATH/TO/RUN
 cargo xtask comparison-report --files sao,mozilla --levels 1,7 --decode-workers 1,4,8 --concat
 ```
@@ -47,14 +47,15 @@ First use on native Linux needs Cargo/Rust, Python 3.11+ (stdlib), Git, CMake 3.
 
 `--concat` adds one decode launch per archive source, decoder and worker count by appending that source's frames in manifest order (at least two files). It does not combine plaintext for encoding, nor replace separate-file jobs. Comparing *N file launches* with *1 concatenated launch* uses the same byte totals, but the difference includes process/pool setup, input opens, cache state, frame boundaries and scheduler effects. It does not isolate startup cost or demonstrate an ordering bottleneck. The runner shuffles jobs, not frame order.
 
-The runner prints the matrix size and CPU budget before acquiring inputs. The default is 420 jobs per pass, or 3,360 launches including warmup, plus verification. To iterate faster, narrow `--files`, `--levels`, or `--decode-workers`. Worker settings are not a count of available cores: the runner reports inherited logical CPU affinity and the tightest discoverable cgroup CPU quota, warning `CONSTRAINED` if either is below the largest requested count. Neither the affinity nor the worker count changes automatically. Use a quiet host; an affinity mask can be set with `taskset`, and logical CPUs may be SMT siblings.
+The runner prints the matrix size and CPU budget before acquiring inputs. The default is 1,020 jobs per pass, or 8,160 launches including warmup, plus verification. To iterate faster, narrow `--files`, `--levels`, or `--decode-workers` (e.g. `1,4,8`). Worker settings are not a count of available cores: the runner reports inherited logical CPU affinity and the tightest discoverable cgroup CPU quota, warning `CONSTRAINED` if either is below the largest requested count. Neither the affinity nor the worker count changes automatically. Use a quiet host; an affinity mask can be set with `taskset`, and logical CPUs may be SMT siblings.
 
 ### Read or export the results
 
 | Output | Use it for |
 | --- | --- |
-| Terminal | Side-by-side archive bytes, size delta and encode speed for each Rust mode against **every selected C level**. The decode table shows every requested worker count on the highest selected C level's archives. |
-| `report.md` | Head-to-head tables for all measured archive sources and worker counts, then the full aggregate and **per-file** detail, including CPU, timing ranges and saved Rust comparisons. Also in `run.log`. |
+| Terminal | Side-by-side Rust and C decode throughput, one row per worker count, on the highest selected C level's archives. Separate files and concat are shown side by side when both are measured. |
+| `report.md` | Decode tables for all measured archive sources and worker counts, then the aggregate and **per-file** decode detail, including CPU, timing ranges and saved Rust comparisons. Also in `run.log`. |
+| `--format encode` | Optional encode and archive-size Markdown report, regenerated from `raw.json`. |
 | `summary.tsv` | Spreadsheet or script input: one row per measured configuration and scope, with numeric size and timing fields. |
 | `raw.json` | Full evidence: archive hashes, binary/build identities, exact output verification, timing order and individual samples. |
 
@@ -67,6 +68,7 @@ Each completed `<Cargo target>/comparison-report/runs/<id>/` contains these outp
 ```sh
 python3 -B xtask/comparison_tables.py PATH/TO/RUN/raw.json
 python3 -B xtask/comparison_tables.py --format tsv PATH/TO/RUN/raw.json > summary.tsv
+python3 -B xtask/comparison_tables.py --format encode PATH/TO/RUN/raw.json > encode.md
 ```
 
 Failures leave `incomplete-*/run.log`, never a published report. If a cached checkout or ZIP is corrupt, inspect the named path and move it aside before retrying.

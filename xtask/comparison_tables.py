@@ -15,6 +15,7 @@ MODES = {'split': 'C3', 'dense': 'C7'}
 QUICK = ('dickens', 'sao')
 SAMPLES = 7
 SEED = 42
+DEFAULT_DECODE_WORKERS = '1,2,3,4,6,8,12,16'
 MAX_WORKERS = 256  # Rust Config::MAX_WORKERS; pinned C accepts at least this many.
 CPU_FIELDS = ('user_us', 'system_us')
 
@@ -311,10 +312,9 @@ def delta(candidate, ref):
 def table(raw, times, scopes, kind):
     enc = kind == 'encode'
     paired = 'before' in raw['binaries']
-    headers = ['Scope', 'Point (reference)' if enc else 'Fixed archive', 'Encoder' if enc else 'Decoder',
-               'Plain B', 'Archive B']
+    headers = ['Scope', 'Point (reference)' if enc else 'Fixed archive', 'Encoder' if enc else 'Decoder', 'Plain B']
     if enc:
-        headers += ['Archive/plain %', 'Size Δ vs C %']
+        headers += ['Archive B', 'Archive/plain %', 'Size Δ vs C %']
     headers += ['Median ms', 'Min–max ms', 'MB/s', 'Speed × vs C']
     if paired:
         headers += ['Current/before ×'] + (['Size Δ vs before %'] if enc else [])
@@ -325,11 +325,11 @@ def table(raw, times, scopes, kind):
             ref = MODES.get(point, point)
             has_ref = int(ref[1:]) in raw['levels']
             label = f'{point} ({ref})' if point in MODES and has_ref else point
-            row = [scope, label, impl, f'{plain:,}', f'{size:,}']
+            row = [scope, label, impl, f'{plain:,}']
             if has_ref:
                 _, csize, cns, _, _ = measure(raw, times, names, kind, ref, 'c')
             if enc:
-                row += [f'{100*size/plain:.3f}', f'{delta(size, csize):+.3f}' if has_ref else '—']
+                row += [f'{size:,}', f'{100*size/plain:.3f}', f'{delta(size, csize):+.3f}' if has_ref else '—']
             row += [f'{ns/1e6:.2f}', f'{lo/1e6:.2f}–{hi/1e6:.2f}', f'{plain*1000/ns:.2f}',
                     f'{cns/ns:.3f}' if has_ref else '—']
             if paired:
@@ -348,18 +348,16 @@ def render_v1(raw, times):
     sections = [f"# Silesia comparison: {raw['scope']} ({len(files)} files; C levels {','.join(map(str, raw['levels']))})",
                 f"Verified: {arcs} archives, {arcs*len(raw['binaries'])} exact cross-decodes; "
                 f"{len(raw['jobs'])} CLI jobs/pass, one warmup + seven samples (seed 42)."]
-    for kind, title in [('encode', 'Encode + compression'), ('decode', 'Fixed-archive decode')]:
-        sections.extend([f'## {title} — aggregate', table(raw, times, [(raw['scope'], files)], kind)])
+    sections.extend([upstream_decode(raw, times), '## Fixed-archive decode — aggregate',
+                     table(raw, times, [(raw['scope'], files)], 'decode')])
     summary = '\n\n'.join(sections)
     sections.extend([f"Host: {raw['host']['cpu']}; affinity {raw['host']['affinity']}. C native Release, one worker plus streaming driver; "
                      'Rust portable release, default features, serial. Checksums on, default 512 KiB blocks. '
                      'Load, clock frequency and file-cache residency uncontrolled.',
                      'Median of per-pass elapsed totals; observed range, not confidence bounds. '
-                     'Decimal MB/s uses plaintext in both directions. Speed >1 is faster; negative size Δ is smaller. '
-                     'Split/C3 and Dense/C7 are reference points, not algorithm equivalents. '
+                     'Decimal MB/s uses plaintext bytes. Speed >1 is faster. '
                      'All decoders read identical pinned C bytes within each fixed-archive row group.'])
-    for kind, title in [('encode', 'Encode + compression'), ('decode', 'Fixed-archive decode')]:
-        sections.extend([f'## {title} — by file', table(raw, times, [(n, [n]) for n in files], kind)])
+    sections.extend(['## Fixed-archive decode — by file', table(raw, times, [(n, [n]) for n in files], 'decode')])
     return '\n\n'.join(sections) + '\n', summary
 
 
@@ -474,7 +472,7 @@ def table_v2(raw, times, scopes, kind):
     paired = 'before' in raw['binaries']
     headers = ['Scope'] if enc else ['Scope', 'Layout']
     headers += (['Point (reference)', 'Encoder', 'Plain B', 'Archive B', 'Archive/plain %', 'Size Δ vs C'] if enc else
-                 ['Archive source' if raw.get('schema', 2) >= 3 else 'Level', 'Plain B', 'Fixed archive B', 'Decoder', 'Workers'])
+                 ['Archive source' if raw.get('schema', 2) >= 3 else 'Level', 'Plain B', 'Decoder', 'Workers'])
     headers += ['Median ms', 'Min–max ms', 'MB/s', 'CPU s/GB']
     headers += ['Speed × vs C'] if enc else ['× vs own 1 worker', '× vs C at same N']
     if paired:
@@ -490,7 +488,7 @@ def table_v2(raw, times, scopes, kind):
                 row = [scope, label, impl, *size, f'{100*candidate.archive/candidate.plain:.3f}',
                        size_delta(candidate, result.c)]
             else:
-                row = [scope, layout, point, *size, impl, str(n)]
+                row = [scope, layout, point, size[0], impl, str(n)]
             row += candidate.columns()
             if not enc:
                 row += [ratio(result.one_worker, candidate)]
@@ -529,22 +527,39 @@ def upstream_encode(raw, times):
 
 
 def upstream_decode(raw, times, *, brief=False):
-    data = []
-    for concat in ([False, True] if raw.get('concat') else [False]):
-        for row in comparison_rows(raw, times, raw['selected_files'], 'decode', concat):
-            if row.impl != 'current' or brief and row.point != f'C{max(raw["levels"])}':
-                continue
-            m, c = row.value, row.c
-            data.append([row.point, 'concat' if concat else 'separate', str(row.workers),
-                         f'{m.mb_s:.2f}', f'{c.mb_s:.2f}', ratio(c, m)])
-    return markdown_table(['Fixed archive', 'Layout', 'Workers', 'Rust MB/s', 'Upstream MB/s', 'Rust speed / C'], data)
+    concats = [False, True] if raw.get('concat') else [False]
+    tables = [{(r.point, r.workers): r for r in comparison_rows(raw, times, raw['selected_files'], 'decode', concat)
+               if r.impl == 'current'} for concat in concats]
+    lead = f'C{max(raw["levels"])}'
+    points = [lead, *(p for p in decode_points(raw) if p != lead and not brief)]
+    layouts = (['Separate', 'Concat'] if raw.get('concat') else ['Separate'])
+    headers = ['Workers', *(f'{layout} {label}' for layout in layouts
+                            for label in ('Rust MB/s', 'C MB/s', 'Rust/C'))]
+    sections = ['## Decode throughput vs upstream',
+                'Each pair decodes identical archive bytes. MB/s measures plaintext output; Rust/C above 1 favors Rust.']
+    for point in points:
+        data = []
+        for workers in raw.get('decode_workers', [1]):
+            cells = [str(workers)]
+            for layout in tables:
+                row = layout[point, workers]
+                cells += [f'{row.value.mb_s:,.1f}', f'{row.c.mb_s:,.1f}', ratio(row.c, row.value)]
+            data.append(cells)
+        sections += [f'### {point} archives', markdown_table(headers, data)]
+    return '\n\n'.join(sections)
 
 
-def upstream_sections(raw, times, *, brief=False):
-    return ['## Encode and archive size vs upstream', upstream_encode(raw, times),
-            'Size Δ is Rust minus upstream (negative is smaller). Speed above 1 means Rust is faster. '
-            'MB/s uses plaintext bytes. Encoder settings are reference points, not equivalent levels.',
-            '## Decode vs upstream on identical bytes', upstream_decode(raw, times, brief=brief)]
+def render_encode(raw):
+    times = validate(raw)
+    files = raw['selected_files']
+    sections = [f'# Silesia encode comparison: {scope_label(raw)}', upstream_encode(raw, times),
+                'Size Δ is Rust minus upstream (negative is smaller). Speed above 1 means Rust is faster. '
+                'MB/s uses plaintext bytes. Encoder settings are reference points, not equivalent levels.']
+    for title, scopes in [('Aggregate', [(scope_label(raw), files)]), ('By file', [(n, [n]) for n in files])]:
+        detail = (table(raw, times, scopes, 'encode') if raw['schema'] == 1 else
+                  table_v2(raw, times, [(scope, names, False) for scope, names in scopes], 'encode'))
+        sections += [f'## {title}', detail]
+    return '\n\n'.join(sections) + '\n'
 
 
 def render_v2(raw, times):
@@ -554,15 +569,12 @@ def render_v2(raw, times):
     decode = [agg] + ([(scope_label(raw), files, True)] if raw['concat'] else [])
     verified = (f"Verified: {len(raw['verification'])} distinct exact cross-decodes through EOF; "
                 f'one shuffled warmup + seven measured passes (seed {SEED}).')
-    sections = ['# ' + summary[0], *summary[1:], verified, *upstream_sections(raw, times)]
-    titles = [('encode', 'Encode + compression', [agg]), ('decode', 'Fixed-archive decode', decode)]
-    sections += [part for kind, title, scopes in titles
-                 for part in (f'## {title} — aggregate', table_v2(raw, times, scopes, kind))]
+    sections = ['# ' + summary[0], *summary[1:], verified, upstream_decode(raw, times),
+                '## Fixed-archive decode — aggregate', table_v2(raw, times, decode, 'decode')]
     sections += [f"Host: {raw['host']['cpu']}. Eligible logical CPUs can include SMT siblings, not dedicated cores. "
                  'Load, clock frequency and file-cache residency are uncontrolled.',
-                 'Encode: C native Release `-T1`; Rust portable release, default features, serial. '
-                 'Checksums on, default 512 KiB blocks. Split/C3 and Dense/C7 are reference points, not algorithm equivalents. '
-                 'Negative size Δ is smaller; speed ratios greater than one are faster.',
+                 'C uses native Release; Rust uses portable Release with default features. '
+                 'Checksums on, default 512 KiB blocks.',
                  f"Decode: {raw['decode_policy']['c']}. Rust current uses " + ', '.join(
                      f'{n}: {p["backend"]}' + (f', {p["slots"]} slots' if p['slots'] is not None else '')
                      for n, p in raw['decode_policy']['current'].items()) + '.' +
@@ -578,10 +590,9 @@ def render_v2(raw, times):
                      'launches cover the same bytes. Their difference includes process/pool startup, input opens, cache state, '
                      'frame boundaries and scheduling. Shuffling jobs does not shuffle frame order or attribute waiting; '
                      'instrumentation is needed to isolate startup or locate ordering bottlenecks.']
-    for kind, title, _ in titles:
-        scopes = [(n, [n], False) for n in files]
-        sections += [f'## {title} — by file', table_v2(raw, times, scopes, kind)]
-    return '\n\n'.join(sections) + '\n', '\n\n'.join([verified, *upstream_sections(raw, times, brief=True)])
+    scopes = [(n, [n], False) for n in files]
+    sections += ['## Fixed-archive decode — by file', table_v2(raw, times, scopes, 'decode')]
+    return '\n\n'.join(sections) + '\n', '\n\n'.join([verified, upstream_decode(raw, times, brief=True)])
 
 
 def render(raw, times=None):
@@ -593,7 +604,8 @@ def render(raw, times=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Validate and re-render raw comparison evidence to stdout.')
     parser.add_argument('raw', type=Path)
-    parser.add_argument('--format', choices=('markdown', 'tsv'), default='markdown')
+    parser.add_argument('--format', choices=('markdown', 'tsv', 'encode'), default='markdown',
+                        help='decode Markdown (default), complete TSV, or encode/size Markdown')
     args = parser.parse_args()
     raw = json.loads(args.raw.read_text())
-    print(tsv(raw) if args.format == 'tsv' else render(raw)[0], end='')
+    print({'tsv': tsv, 'encode': render_encode, 'markdown': lambda raw: render(raw)[0]}[args.format](raw), end='')

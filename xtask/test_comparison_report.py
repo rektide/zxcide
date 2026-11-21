@@ -35,7 +35,8 @@ class Protocol(unittest.TestCase):
                 tables.files_arg(text)
         self.assertEqual(tables.files_arg('sao,mozilla'), ['mozilla', 'sao'])
         self.assertEqual(tables.matrix_size(dict(schema=3, selected_files=runner.FILES, levels=[1, 3, 7],
-                         binaries={'c': {}, 'current': {}}, decode_workers=[1, 4, 8], concat=False)), 420)
+                         binaries={'c': {}, 'current': {}}, decode_workers=tables.workers_arg(tables.DEFAULT_DECODE_WORKERS),
+                         concat=False)), 1020)
 
     def test_cpu_budget(self):
         temp_root = runner.ROOT / 'target'
@@ -95,9 +96,9 @@ class Protocol(unittest.TestCase):
                 times[tables.job_id('concat', 'decode', 'C7', impl, workers)] = [(5_000_000, 30_000)] * 7
         scopes = [('mozilla, sao', names, False), ('mozilla, sao', names, True)]
         result = tables.table_v2(raw, times, scopes, 'decode')
-        self.assertIn('| mozilla, sao | 2 file launches | C7 | 200,000 | 80,000 | current | 4 | 10.000 | '
+        self.assertIn('| mozilla, sao | 2 file launches | C7 | 200,000 | current | 4 | 10.000 | '
                       '2.000–10.000 | 20.000 | 100.000 | 4.000 | 2.000 | 3.000 |', result)
-        self.assertIn('| mozilla, sao | 1 concatenated launch | C7 | 200,000 | 80,000 | current | 4 | '
+        self.assertIn('| mozilla, sao | 1 concatenated launch | C7 | 200,000 | current | 4 | '
                       '5.000 | 5.000–5.000 | 40.000 | 150.000 | 1.000 | 1.000 | 1.000 |', result)
         raw['decode_workers'] = [4]
         self.assertIn('20.000 | 100.000 | — | 2.000 | 3.000 |', tables.table_v2(raw, times, scopes, 'decode'))
@@ -215,8 +216,10 @@ class Publication(unittest.TestCase):
         self.assertEqual(tables.render(raw)[0], (base / 'report.md').read_text())
         self.assertEqual(tables.tsv(raw), (base / 'summary.tsv').read_text())
         report = (base / 'report.md').read_text()
-        self.assertIn('| Split | C4 |', report)
-        self.assertIn('| current.dense | separate | 1 |', report)
+        self.assertIn('### current.dense archives', report)
+        self.assertNotIn('Archive B', report)
+        self.assertNotIn('Encode', report)
+        self.assertIn('| Split | C4 |', tables.render_encode(raw))
         self.args.levels = [2]
         self.args.before = base
         paired = runner.publish(self.args)
@@ -327,6 +330,12 @@ class Publication(unittest.TestCase):
         tabular = list(csv.DictReader(io.StringIO((base / 'summary.tsv').read_text()), delimiter='\t'))
         self.assertEqual(len(tabular), 108)
         self.assertEqual(sum(r['layout'] == 'concat' and r['scope'] == 'aggregate' for r in tabular), 24)
+        _, brief = tables.render(raw)
+        self.assertIn('| Workers | Separate Rust MB/s | Separate C MB/s | Separate Rust/C | Concat Rust MB/s |', brief)
+        self.assertEqual(brief.count('### C7 archives'), 1)
+        self.assertNotIn('### C1 archives', brief)
+        for n in self.args.decode_workers:
+            self.assertIn(f'\n| {n} |', brief)
         for point, key in [('C1', 'c.C1'), ('C7', 'c.C7'), ('current.split', 'current.split'),
                            ('current.dense', 'current.dense')]:
             bundle = raw['bundles'][point]

@@ -17,7 +17,7 @@ import uuid
 import zipfile
 
 from comparison_build import PERF_REV, ROOT, build_current, build_reference, host, snapshot
-from comparison_tables import (QUICK, SAMPLES, SEED, archive_key, archive_path, bundle_members, bundle_path,
+from comparison_tables import (DEFAULT_DECODE_WORKERS, QUICK, SAMPLES, SEED, archive_key, archive_path, bundle_members, bundle_path,
                                 check, decode_points, encode_argv, files_arg, jobs_v2, levels_arg, matrix_lines, render, rows, source_key,
                                 tsv, validate, verification_plan, worker_policy, workers_arg)
 from scorecard import FILES, URL, ZIP_SHA, sha, verified_zip
@@ -217,7 +217,7 @@ def main():
     scope.add_argument('--files', type=files_arg)
     p.add_argument('--before', type=Path)
     p.add_argument('--levels', type=levels_arg, default='1,3,7')
-    p.add_argument('--decode-workers', type=workers_arg, default='1,4,8')
+    p.add_argument('--decode-workers', type=workers_arg, default=DEFAULT_DECODE_WORKERS)
     p.add_argument('--concat', action='store_true')
     args = p.parse_args()
     if args.concat and args.files and len(args.files) < 2:

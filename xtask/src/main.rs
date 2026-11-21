@@ -56,7 +56,7 @@ enum Task {
         #[arg(long, default_value = "1,3,7")]
         levels: String,
         /// Comma-separated decode worker counts (distinct, 1..256).
-        #[arg(long, default_value = "1,4,8")]
+        #[arg(long, default_value = "1,2,3,4,6,8,12,16")]
         decode_workers: String,
         /// Also decode the selected fixed frames in a single launch per level.
         #[arg(long)]
