@@ -1,6 +1,7 @@
 """Offline comparison-report publication and aggregation regression tests."""
 import argparse
 import contextlib
+import csv
 import hashlib
 import io
 import json
@@ -101,6 +102,48 @@ class Protocol(unittest.TestCase):
         raw['decode_workers'] = [4]
         self.assertIn('20.000 | 100.000 | — | 2.000 | 3.000 |', tables.table_v2(raw, times, scopes, 'decode'))
 
+    def test_tsv_size_speed_reference_and_missing_cells(self):
+        files = ['dickens', 'sao']
+        raw = dict(schema=3, selected_files=files, levels=[3], binaries=dict(c={}, current={}, before={}),
+                   decode_workers=[2], concat=False, files={}, bundles={})
+        times = {}
+        lengths = {'c.C3': (50, 30), 'current.split': (40, 20), 'before.split': (25, 30),
+                   'current.dense': (35, 15), 'before.dense': (35, 15)}
+        for index, n in enumerate(files):
+            raw['files'][n] = dict(bytes=(80, 120)[index], archives={k: {'bytes': v[index]} for k, v in lengths.items()})
+            for kind in ('encode', 'decode'):
+                for point, impl in tables.rows(raw, kind):
+                    ns = 5 if impl == 'current' else 10
+                    times[tables.job_id(n, kind, point, impl, 2)] = [(ns, ns*2)] * 7
+        text = tables.tsv(raw, times)
+        rows = list(csv.DictReader(io.StringIO(text), delimiter='\t'))
+        self.assertEqual(len(rows), 60)
+
+        def get(point, kind='encode', file=''):
+            row, = (r for r in rows if r['point'] == point and r['kind'] == kind and r['file'] == file
+                    and r['implementation'] == 'current')
+            return row
+
+        split = get('split')
+        self.assertEqual((split['plain_bytes'], split['archive_bytes'], split['archive_pct_of_plain']), ('200', '60', '30.0'))
+        self.assertEqual((split['c_reference_point'], split['archive_delta_vs_c_bytes'], split['archive_delta_vs_c_pct']),
+                         ('C3', '-20', '-25.0'))
+        self.assertEqual(split['archive_delta_vs_before_bytes'], '5')
+        self.assertEqual(split['speed_vs_c'], '2.0')
+        self.assertEqual(split['wall_median_ns'], '10')
+        self.assertEqual(split['cpu_median_us'], '20')
+        self.assertEqual(get('split', file='dickens')['archive_delta_vs_before_bytes'], '15')
+        self.assertEqual(get('split', file='sao')['archive_delta_vs_before_bytes'], '-10')
+        self.assertEqual(get('dense')['archive_delta_vs_before_bytes'], '0')
+        self.assertEqual(get('dense')['c_reference_point'], '')
+        self.assertEqual(get('dense')['archive_delta_vs_c_pct'], '')
+        decode = get('current.dense', 'decode')
+        self.assertEqual((decode['workers'], decode['c_reference_point'], decode['speed_vs_c']), ('2', 'current.dense', '2.0'))
+        self.assertEqual((decode['speed_vs_one_worker'], decode['archive_delta_vs_c_bytes']), ('', ''))
+        md = tables.upstream_encode(raw, times)
+        self.assertIn('| Split | C3 | 60 | 80 | -20 B (-25.000%) |', md)
+        self.assertIn('| Dense | C3 | 50 | 80 | -30 B (-37.500%) |', md)
+
 
 class Publication(unittest.TestCase):
     """Use a twelve-member tiny ZIP and child executables that copy bytes.
@@ -160,7 +203,7 @@ class Publication(unittest.TestCase):
         new, = set(runs.iterdir()) - existing
         self.assertTrue(new.name.startswith('incomplete-'))
         self.assertIn(message, (new / 'run.log').read_text())
-        for path in ('COMPLETE', 'raw.json', 'report.md', 'scratch'):
+        for path in ('COMPLETE', 'raw.json', 'report.md', 'summary.tsv', 'scratch'):
             self.assertFalse((new / path).exists())
 
     def test_nondefault_points_and_singleton_paired(self):
@@ -170,6 +213,10 @@ class Publication(unittest.TestCase):
         self.assertEqual(len(raw['files']['sao']['archives']), 5)
         self.assertIn((base / 'report.md').read_text(), (base / 'run.log').read_text())
         self.assertEqual(tables.render(raw)[0], (base / 'report.md').read_text())
+        self.assertEqual(tables.tsv(raw), (base / 'summary.tsv').read_text())
+        report = (base / 'report.md').read_text()
+        self.assertIn('| Split | C4 |', report)
+        self.assertIn('| current.dense | separate | 1 |', report)
         self.args.levels = [2]
         self.args.before = base
         paired = runner.publish(self.args)
@@ -202,6 +249,9 @@ class Publication(unittest.TestCase):
         for o in raw['observations']:
             del o['user_us'], o['system_us']
         self.assertNotIn('CPU s/GB', tables.render(raw)[0])
+        rows = list(csv.DictReader(io.StringIO(tables.tsv(raw)), delimiter='\t'))
+        self.assertEqual(len(rows), 33)  # (5 encoders + 3 C archive sources × 2 decoders) × 3 scopes
+        self.assertTrue(all(r['cpu_median_us'] == r['cpu_s_per_gb'] == '' for r in rows))
         path.write_text(json.dumps(raw))
         (base / 'COMPLETE').write_text(scorecard.sha(path))
         self.args.before = base
@@ -274,6 +324,9 @@ class Publication(unittest.TestCase):
         raw = json.loads((base / 'raw.json').read_text())
         self.assertEqual(len(raw['jobs']), 80)
         self.assertEqual(len(raw['verification']), 72)
+        tabular = list(csv.DictReader(io.StringIO((base / 'summary.tsv').read_text()), delimiter='\t'))
+        self.assertEqual(len(tabular), 108)
+        self.assertEqual(sum(r['layout'] == 'concat' and r['scope'] == 'aggregate' for r in tabular), 24)
         for point, key in [('C1', 'c.C1'), ('C7', 'c.C7'), ('current.split', 'current.split'),
                            ('current.dense', 'current.dense')]:
             bundle = raw['bundles'][point]

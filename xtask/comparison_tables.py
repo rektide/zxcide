@@ -1,6 +1,8 @@
-"""Comparison job definitions, evidence validation and offline Markdown rendering."""
+"""Comparison job definitions, evidence validation and offline Markdown/TSV rendering."""
 import argparse
+import csv
 from dataclasses import dataclass
+import io
 import json
 import math
 from pathlib import Path
@@ -303,7 +305,7 @@ def measure(raw, times, names, kind, point, impl):
 
 
 def delta(candidate, ref):
-    return 100 * (candidate / ref - 1)
+    return 100 * (candidate - ref) / ref
 
 
 def table(raw, times, scopes, kind):
@@ -368,14 +370,24 @@ class Metrics:
     ns: int
     lo: int
     hi: int
-    cpu_us: int
+    cpu_us: int | None
+
+    @property
+    def mb_s(self):
+        return self.plain * 1000 / self.ns
+
+    @property
+    def cpu_s_gb(self):
+        return None if self.cpu_us is None else self.cpu_us * 1000 / self.plain
 
     def columns(self):
         return [f'{self.ns/1e6:.3f}', f'{self.lo/1e6:.3f}–{self.hi/1e6:.3f}',
-                f'{self.plain*1000/self.ns:.3f}', f'{self.cpu_us*1000/self.plain:.3f}']
+                f'{self.mb_s:.3f}', f'{self.cpu_s_gb:.3f}']
 
 
 def metrics(raw, times, names, kind, point, impl, workers=1, concat=False):
+    if raw.get('schema', 2) == 1:
+        return Metrics(*measure(raw, times, names, kind, point, impl), None)
     plain = sum(raw['files'][n]['bytes'] for n in names)
     key = archive_key(kind, point, impl)
     size = (raw['bundles'][point]['bytes'] if concat else
@@ -391,43 +403,104 @@ def ratio(ref, candidate):
     return f'{ref.ns/candidate.ns:.3f}' if ref else '—'
 
 
+@dataclass(frozen=True)
+class ComparisonRow:
+    point: str
+    impl: str
+    workers: int
+    value: Metrics
+    c_point: str | None
+    c: Metrics | None
+    before: Metrics | None
+    one_worker: Metrics | None
+
+
+def comparison_rows(raw, times, names, kind, concat=False):
+    enc = kind == 'encode'
+    workers = [1] if enc else raw.get('decode_workers', [1])
+    values = {(p, i, n): metrics(raw, times, names, kind, p, i, n, concat)
+              for p, i in rows(raw, kind) for n in workers}
+    for (point, impl, n), value in values.items():
+        ref = MODES.get(point, point)
+        c = values.get((ref, 'c', n))
+        yield ComparisonRow(point, impl, n, value, ref if c else None, c,
+                            values.get((point, 'before', n)) if impl == 'current' else None,
+                            None if enc else values.get((point, impl, 1)))
+
+
+def size_delta(candidate, ref):
+    if ref is None:
+        return '—'
+    return f'{candidate.archive - ref.archive:+,} B ({delta(candidate.archive, ref.archive):+.3f}%)'
+
+
+def tsv(raw, times=None):
+    """Stable tabular projection of the evidence. Missing references/metrics are empty cells."""
+    if times is None:
+        times = validate(raw)
+    out = io.StringIO(newline='')
+    writer = csv.writer(out, delimiter='\t', lineterminator='\n')
+    writer.writerow(('scope', 'file', 'kind', 'layout', 'point', 'implementation', 'workers',
+                     'plain_bytes', 'archive_bytes', 'archive_pct_of_plain', 'c_reference_point',
+                     'archive_delta_vs_c_bytes', 'archive_delta_vs_c_pct',
+                     'archive_delta_vs_before_bytes', 'archive_delta_vs_before_pct',
+                     'wall_median_ns', 'wall_min_ns', 'wall_max_ns', 'throughput_mb_s',
+                     'cpu_median_us', 'cpu_s_per_gb', 'speed_vs_c', 'speed_vs_before', 'speed_vs_one_worker'))
+    files = raw['selected_files']
+    for kind in ('encode', 'decode'):
+        enc = kind == 'encode'
+        scopes = [('aggregate', None, files, False)]
+        if not enc and raw.get('concat'):
+            scopes.append(('aggregate', None, files, True))
+        scopes.extend(('file', n, [n], False) for n in files)
+        for scope, file, names, concat in scopes:
+            for row in comparison_rows(raw, times, names, kind, concat):
+                m = row.value
+                sizes = [(m.archive - ref.archive, delta(m.archive, ref.archive)) if enc and ref else (None, None)
+                         for ref in (row.c, row.before)]
+                writer.writerow((scope, file, kind, 'concat' if concat else 'separate',
+                                 row.point, row.impl, row.workers, m.plain, m.archive, 100*m.archive/m.plain,
+                                 row.c_point, *sizes[0], *sizes[1], m.ns, m.lo, m.hi, m.mb_s, m.cpu_us, m.cpu_s_gb,
+                                 *(ref.ns/m.ns if ref else None for ref in (row.c, row.before, row.one_worker))))
+    return out.getvalue()
+
+
+def markdown_table(headers, data):
+    return '\n'.join('| ' + ' | '.join(row) + ' |' for row in [headers, ['---'] * len(headers), *data])
+
+
 def table_v2(raw, times, scopes, kind):
     enc = kind == 'encode'
     paired = 'before' in raw['binaries']
     headers = ['Scope'] if enc else ['Scope', 'Layout']
-    headers += (['Point (reference)', 'Encoder', 'Plain B', 'Archive B', 'Archive/plain %', 'Size Δ vs C %'] if enc else
+    headers += (['Point (reference)', 'Encoder', 'Plain B', 'Archive B', 'Archive/plain %', 'Size Δ vs C'] if enc else
                  ['Archive source' if raw.get('schema', 2) >= 3 else 'Level', 'Plain B', 'Fixed archive B', 'Decoder', 'Workers'])
     headers += ['Median ms', 'Min–max ms', 'MB/s', 'CPU s/GB']
     headers += ['Speed × vs C'] if enc else ['× vs own 1 worker', '× vs C at same N']
     if paired:
-        headers += ['Current/before ×'] + (['Size Δ vs before %'] if enc else [])
-    data = [headers, ['---'] * len(headers)]
+        headers += ['Current/before ×'] + (['Size Δ vs before'] if enc else [])
+    data = []
     for scope, names, concat in scopes:
         layout = '1 concatenated launch' if concat else f'{len(names)} file launch' + ('es' if len(names) != 1 else '')
-        workers = [1] if enc else raw['decode_workers']
-        values = {(p, i, n): metrics(raw, times, names, kind, p, i, n, concat)
-                  for p, i in rows(raw, kind) for n in workers}
-        for (point, impl, n), candidate in values.items():
-            ref = MODES.get(point, point)
-            c = values.get((ref, 'c', n))
+        for result in comparison_rows(raw, times, names, kind, concat):
+            point, impl, n, candidate = result.point, result.impl, result.workers, result.value
             size = [f'{candidate.plain:,}', f'{candidate.archive:,}']
             if enc:
-                label = f'{point} ({ref})' if point in MODES and c else point
+                label = f'{point} ({result.c_point})' if point in MODES and result.c else point
                 row = [scope, label, impl, *size, f'{100*candidate.archive/candidate.plain:.3f}',
-                       f'{delta(candidate.archive, c.archive):+.3f}' if c else '—']
+                       size_delta(candidate, result.c)]
             else:
                 row = [scope, layout, point, *size, impl, str(n)]
             row += candidate.columns()
             if not enc:
-                row += [ratio(values.get((point, impl, 1)), candidate)]
-            row += [ratio(c, candidate)]
+                row += [ratio(result.one_worker, candidate)]
+            row += [ratio(result.c, candidate)]
             if paired:
-                before = values.get((point, 'before', n)) if impl == 'current' else None
-                row += [ratio(before, candidate)]
+                row += [ratio(result.before, candidate)]
                 if enc:
-                    row += [f'{delta(candidate.archive, before.archive):+.3f}' if before else '—']
+                    row += [size_delta(candidate, result.before)]
             data.append(row)
-    return '\n'.join('| ' + ' | '.join(row) + ' |' for row in data)
+    return markdown_table(headers, data)
 
 
 def matrix_lines(raw):
@@ -440,28 +513,38 @@ def matrix_lines(raw):
             f'Matrix: {count:,} jobs/pass × {SAMPLES + 1} passes = {(SAMPLES + 1)*count:,} launches, plus verification.']
 
 
-def highlights(raw, times):
-    files = raw['selected_files']
-    lines = []
-    for mode, ref in MODES.items():
-        if int(ref[1:]) in raw['levels']:
-            current = metrics(raw, times, files, 'encode', mode, 'current')
-            c = metrics(raw, times, files, 'encode', ref, 'c')
-            lines.append(f'{mode.title()}/{ref} encode: {delta(current.archive, c.archive):+.3f}% archive size; '
-                         f'{ratio(c, current)}× speed.')
-    workers = raw['decode_workers']
-    point = f'C{max(raw["levels"])}'
-    for n in sorted({min(workers), max(workers)}):
-        layouts = []
-        for concat in ([False, True] if raw['concat'] else [False]):
-            values = {i: metrics(raw, times, files, 'decode', point, i, n, concat) for i in raw['binaries']}
-            current, c = values['current'], values['c']
-            speed = ratio(c, current)
-            comparison = f', {ratio(values["before"], current)}× vs before' if 'before' in values else ''
-            layouts.append(f'{"concat" if concat else "separate"}: Rust {current.plain*1000/current.ns:.3f} MB/s, '
-                           f'{current.cpu_us*1000/current.plain:.3f} CPU s/GB ({speed}× vs C{comparison})')
-        lines.append(f'{point} decode / {n} workers — ' + '; '.join(layouts) + '.')
-    return '\n'.join(lines)
+def upstream_encode(raw, times):
+    measured = list(comparison_rows(raw, times, raw['selected_files'], 'encode'))
+    c_levels = [(r.point, r.value) for r in measured if r.impl == 'c']
+    data = []
+    for row in measured:
+        if row.impl != 'current':
+            continue
+        m = row.value
+        for level, c in c_levels:
+            data.append([row.point.title(), level, f'{m.archive:,}', f'{c.archive:,}', size_delta(m, c),
+                         f'{m.mb_s:.2f}', f'{c.mb_s:.2f}', ratio(c, m)])
+    return markdown_table(['Rust mode', 'Upstream', 'Rust bytes', 'Upstream bytes', 'Size Δ',
+                           'Rust MB/s', 'Upstream MB/s', 'Rust speed / C'], data)
+
+
+def upstream_decode(raw, times, *, brief=False):
+    data = []
+    for concat in ([False, True] if raw.get('concat') else [False]):
+        for row in comparison_rows(raw, times, raw['selected_files'], 'decode', concat):
+            if row.impl != 'current' or brief and row.point != f'C{max(raw["levels"])}':
+                continue
+            m, c = row.value, row.c
+            data.append([row.point, 'concat' if concat else 'separate', str(row.workers),
+                         f'{m.mb_s:.2f}', f'{c.mb_s:.2f}', ratio(c, m)])
+    return markdown_table(['Fixed archive', 'Layout', 'Workers', 'Rust MB/s', 'Upstream MB/s', 'Rust speed / C'], data)
+
+
+def upstream_sections(raw, times, *, brief=False):
+    return ['## Encode and archive size vs upstream', upstream_encode(raw, times),
+            'Size Δ is Rust minus upstream (negative is smaller). Speed above 1 means Rust is faster. '
+            'MB/s uses plaintext bytes. Encoder settings are reference points, not equivalent levels.',
+            '## Decode vs upstream on identical bytes', upstream_decode(raw, times, brief=brief)]
 
 
 def render_v2(raw, times):
@@ -469,9 +552,9 @@ def render_v2(raw, times):
     summary = matrix_lines(raw)
     agg = (scope_label(raw), files, False)
     decode = [agg] + ([(scope_label(raw), files, True)] if raw['concat'] else [])
-    sections = ['# ' + summary[0], *summary[1:],
-                f"Verified: {len(raw['verification'])} distinct exact cross-decodes through EOF; "
-                f'one shuffled warmup + seven measured passes (seed {SEED}).']
+    verified = (f"Verified: {len(raw['verification'])} distinct exact cross-decodes through EOF; "
+                f'one shuffled warmup + seven measured passes (seed {SEED}).')
+    sections = ['# ' + summary[0], *summary[1:], verified, *upstream_sections(raw, times)]
     titles = [('encode', 'Encode + compression', [agg]), ('decode', 'Fixed-archive decode', decode)]
     sections += [part for kind, title, scopes in titles
                  for part in (f'## {title} — aggregate', table_v2(raw, times, scopes, kind))]
@@ -498,16 +581,19 @@ def render_v2(raw, times):
     for kind, title, _ in titles:
         scopes = [(n, [n], False) for n in files]
         sections += [f'## {title} — by file', table_v2(raw, times, scopes, kind)]
-    return '\n\n'.join(sections) + '\n', highlights(raw, times)
+    return '\n\n'.join(sections) + '\n', '\n\n'.join([verified, *upstream_sections(raw, times, brief=True)])
 
 
-def render(raw):
-    times = validate(raw)
+def render(raw, times=None):
+    if times is None:
+        times = validate(raw)
     return (render_v1 if raw['schema'] == 1 else render_v2)(raw, times)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Validate and re-render raw comparison evidence to stdout.')
     parser.add_argument('raw', type=Path)
-    report, _ = render(json.loads(parser.parse_args().raw.read_text()))
-    print(report, end='')
+    parser.add_argument('--format', choices=('markdown', 'tsv'), default='markdown')
+    args = parser.parse_args()
+    raw = json.loads(args.raw.read_text())
+    print(tsv(raw) if args.format == 'tsv' else render(raw)[0], end='')

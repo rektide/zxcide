@@ -19,7 +19,7 @@ import zipfile
 from comparison_build import PERF_REV, ROOT, build_current, build_reference, host, snapshot
 from comparison_tables import (QUICK, SAMPLES, SEED, archive_key, archive_path, bundle_members, bundle_path,
                                 check, decode_points, encode_argv, files_arg, jobs_v2, levels_arg, matrix_lines, render, rows, source_key,
-                                validate, verification_plan, worker_policy, workers_arg)
+                                tsv, validate, verification_plan, worker_policy, workers_arg)
 from scorecard import FILES, URL, ZIP_SHA, sha, verified_zip
 
 MANIFEST = ROOT / 'doc/profiling/scorecard/dense-full-smoke-20261120.json'
@@ -179,9 +179,12 @@ def measure(args, run, log):
     finally:
         shutil.rmtree(work)
     raw['finished_utc'] = datetime.now(timezone.utc).isoformat()
-    report, summary = render(raw)
+    times = validate(raw)
+    report, summary = render(raw, times)
+    tabular = tsv(raw, times)
     (run / 'raw.json').write_text(json.dumps(raw, indent=2) + '\n')
     (run / 'report.md').write_text(report)
+    (run / 'summary.tsv').write_text(tabular, encoding='utf-8')
     print(report, file=log)
     (run / 'COMPLETE').write_text(sha(run / 'raw.json') + '\n')
     return summary
@@ -201,7 +204,8 @@ def publish(args):
             raise
     dest = runs / rid
     run.rename(dest)
-    print(f'{summary}\n\nReport: {dest}/report.md\nLog: {dest}/run.log')
+    print(f'{summary}\n\nReport: {dest}/report.md\nTable: {dest}/summary.tsv\n'
+          f'Raw: {dest}/raw.json\nLog: {dest}/run.log')
     return dest
 
 

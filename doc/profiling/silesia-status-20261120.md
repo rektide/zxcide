@@ -6,7 +6,7 @@ resource: /doc/profiling/silesia-status-20261120.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-20 }
 sources:
-  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Ran and analyzed the full Silesia comparison with eight decode-worker points }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Ran the eight-point Silesia sweep and reformatted the upstream comparisons side by side }
   - { resource: /doc/profiling/pipeline-comparison.sol.md, title: Corrected two-file baseline and Rust/C pipeline map }
   - { resource: /doc/profiling/pivco-worker.md, title: Isolated buffer-reuse effect and retention costs }
   - { resource: /doc/profiling/decode-waits.md, title: Four-worker input-side and ordered-delivery evidence }
@@ -19,13 +19,12 @@ sources:
 
 ## Encode: 12 files, 211,938,580 plaintext bytes
 
-| Encoder | Archive bytes | Archive / plain | Wall s | CPU s/GB |
-| --- | ---: | ---: | ---: | ---: |
-| C1 | 129,792,391 | 61.24% | 0.405 | 2.302 |
-| C3 | 99,494,620 | 46.95% | 1.112 | 5.736 |
-| Rust Split | 97,412,320 | 45.96% | 1.247 | 4.850 |
-| C7 | 70,113,423 | 33.08% | 29.864 | 126.596 |
-| Rust Dense | 70,459,885 | 33.25% | 15.519 | 71.121 |
+| Rust mode | Upstream | Rust archive bytes | Upstream archive bytes | Rust size Δ | Rust / C wall s | Rust / C CPU s/GB |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Split | C3 | 97,412,320 | 99,494,620 | −2,082,300 (−2.09%) | 1.247 / 1.112 | 4.850 / 5.736 |
+| Dense | C7 | 70,459,885 | 70,113,423 | +346,462 (+0.49%) | 15.519 / 29.864 | 71.121 / 126.596 |
+
+These are reference points, not equivalent modes. C1 is the fast/large end of this sweep: **129,792,391 B** in **0.405 s** (61.24% of input). The generated report compares both Rust modes against **all** selected C levels.
 
 - **Dense versus C7:** 1.92× the throughput by median wall, with 44% less child CPU per GB. Dense took less wall and less CPU in all seven matched passes. The earlier [`dickens` + `sao` result](pipeline-comparison.sol.md#what-the-corrected-run-establishes) was only 1.13× and 0.78% smaller. Those two files are still 0.78% smaller and 1.19× as fast in this run; they weren't representative of the full-corpus gap. The largest size deficits are still `webster` (+151,370 B) and `mozilla` (+129,936 B).
 - **Split versus C3:** 2.09% smaller and 15% lower median CPU cost. Separate wall medians favor C3 (1.11 s vs 1.25 s), but Split won four of seven matched passes and both ranges were wide: 1.03–2.39 s for C3 and 1.00–2.69 s for Split. No stable wall winner here.
@@ -91,11 +90,12 @@ Ryzen 7 5800X, Linux `7.1.0-debplus.1`, 8 physical cores / 16 logical CPUs, all 
 
 One shuffled warmup and seven measured passes, 18,144 total timed/warmup launches. Separate-file figures sum all 12 launches **within each pass**, then take the median. CPU cost is median child user+system CPU seconds per decimal GB of plaintext, summed over all CLI threads separately from wall time. Range is observed min–max, not a confidence interval. All 2,184 decode combinations passed exact output verification through EOF before timing; timed runs discard stdout and require successful exit. The concatenated control appends those same frames in manifest order; it changes launch, input-open, and pool lifetime effects together, so it cannot isolate startup or diagnose order stalls.
 
-Run `20261120T234306Z-edf3ff614784` (23:43–00:01 UTC). Full per-file tables, saved binaries and raw observations are in the local run directory. `raw.json` SHA-256: `e77db0e7edc6076a5a33c5bcc80a346163509025b9a767030d07417cdb0c03f1`. Re-render without building or measuring:
+Run `20261120T234306Z-edf3ff614784` (23:43–00:01 UTC). Full per-file tables, saved binaries and raw observations are in the local run directory, with regenerated upstream tables in `report-upstream.md` and tabular data in `summary.tsv`. `raw.json` SHA-256: `e77db0e7edc6076a5a33c5bcc80a346163509025b9a767030d07417cdb0c03f1`. Re-render without building or measuring:
 
 ```sh
 RUN=target/profiling-status-20261120/comparison-report/runs/20261120T234306Z-edf3ff614784
 python3 -B xtask/comparison_tables.py "$RUN/raw.json"
+python3 -B xtask/comparison_tables.py --format tsv "$RUN/raw.json" > summary.tsv
 ```
 
 To repeat the sweep from the measured source, substitute the trusted [completed baseline run](pipeline-comparison.sol.md#what-the-corrected-run-establishes) for `BASELINE_RUN`. Omit `--before` if only comparing against C. This is an explicit sweep, not a change to benchmark or CLI defaults.

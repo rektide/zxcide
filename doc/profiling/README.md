@@ -20,7 +20,7 @@ sources:
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
   - { resource: 'opencode://ses_e04ef8b0cffeJahvs500cwmoBM', title: Checked four-worker ordered-head and credit exposure on fixed archives }
-  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Added a full-corpus status report and expanded decode-worker sweep }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Measured the full-corpus worker sweep and added upstream comparison tables and TSV export }
 ---
 
 # Profile a codec change
@@ -49,12 +49,24 @@ First use on native Linux needs Cargo/Rust, Python 3.11+ (stdlib), Git, CMake 3.
 
 The runner prints the matrix size and CPU budget before acquiring inputs. The default is 420 jobs per pass, or 3,360 launches including warmup, plus verification. To iterate faster, narrow `--files`, `--levels`, or `--decode-workers`. Worker settings are not a count of available cores: the runner reports inherited logical CPU affinity and the tightest discoverable cgroup CPU quota, warning `CONSTRAINED` if either is below the largest requested count. Neither the affinity nor the worker count changes automatically. Use a quiet host; an affinity mask can be set with `taskset`, and logical CPUs may be SMT siblings.
 
-Stdout gives aggregate highlights and paths. `run.log` and `report.md` contain the full aggregate and **per-file** tables. Wall time includes CLI startup, file input and output to `/dev/null`. The separate-file aggregate sums matching samples within each pass before taking the median across seven measured passes after one shuffled warmup. CPU cost is the independently medianed child user+system CPU time per decimal plaintext GB, summed across CLI threads (not wall × workers). Min–max is observed wall spread, not a confidence interval. Decode speed ratios use the same workload against the decoder's own 1-worker run (if selected) and C at the same worker count. See the [worker scaling design](../../design/comparison-report/report1.astra.md) for arithmetic and evidence details, or the [separate scorecard study](scorecard/README.md) for preloaded buffer API timings.
+### Read or export the results
 
-Each completed `<Cargo target>/comparison-report/runs/<id>/` contains the saved executables, build and verification identities, timing order and all samples in `raw.json`. Copy that directory to keep it across `cargo clean`. Re-render any supported schema without building or running either codec; schema 1 does not contain CPU measurements:
+| Output | Use it for |
+| --- | --- |
+| Terminal | Side-by-side archive bytes, size delta and encode speed for each Rust mode against **every selected C level**. The decode table shows every requested worker count on the highest selected C level's archives. |
+| `report.md` | Head-to-head tables for all measured archive sources and worker counts, then the full aggregate and **per-file** detail, including CPU, timing ranges and saved Rust comparisons. Also in `run.log`. |
+| `summary.tsv` | Spreadsheet or script input: one row per measured configuration and scope, with numeric size and timing fields. |
+| `raw.json` | Full evidence: archive hashes, binary/build identities, exact output verification, timing order and individual samples. |
+
+Size Δ is Rust archive bytes minus reference archive bytes; negative is smaller, and percentages divide by the reference size. A zero size delta does not certify identical bytes (check SHA-256). Throughput uses decimal MB of **plaintext** per second; speed ratios over 1 favor the candidate. Wall time includes CLI startup, file input and output to `/dev/null`. The separate-file aggregate sums matching samples within each pass before taking the median. CPU cost is the independently medianed child user+system CPU time per decimal plaintext GB (not wall × workers). Min–max is observed wall spread, not a confidence interval. See the [worker scaling design](../../design/comparison-report/report1.astra.md) for arithmetic, or the [separate scorecard study](scorecard/README.md) for preloaded buffer API timings.
+
+**TSV contract:** UTF-8 with a header, decimal numeric cells without display rounding or thousands separators, empty cells for unavailable or inapplicable values. The row key is `scope`, `file`, `kind`, `layout`, `point`, `implementation`, `workers`. `scope` is `aggregate` (empty `file`) or `file`; `layout` is `separate` or `concat`; `implementation` is `c`, `current` or `before`. For encode, `point` names a mode or C level; for decode, it names the fixed archive source. `archive_pct_of_plain` is `100 * archive_bytes / plain_bytes`. The normalized encode rows use C3 for Split and C7 for Dense when present (`c_reference_point`); compare other levels by joining encode rows on the same scope and file. Decode compares only the same source and worker count across implementations; it has no size delta. `speed_vs_before` compares current to saved Rust when present; `speed_vs_one_worker` applies only to decode with worker 1 measured. `wall_*_ns` are integer nanoseconds and `cpu_median_us` is integer child CPU microseconds.
+
+Each completed `<Cargo target>/comparison-report/runs/<id>/` contains these outputs and the saved executables. Copy the directory to keep it across `cargo clean`. Re-render any supported evidence schema without running either codec; schema 1 omits CPU measurements:
 
 ```sh
 python3 -B xtask/comparison_tables.py PATH/TO/RUN/raw.json
+python3 -B xtask/comparison_tables.py --format tsv PATH/TO/RUN/raw.json > summary.tsv
 ```
 
 Failures leave `incomplete-*/run.log`, never a published report. If a cached checkout or ZIP is corrupt, inspect the named path and move it aside before retrying.
