@@ -1,0 +1,49 @@
+perf version 7.3.4
+
+c (clean binary, single.zxc, 32 measured-loop replays + startup/warmup, taskset -c 3)
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles:u'
+# Event count (approx.): 9823782379
+#
+# Overhead  Shared Object     Symbol                                 IPC   [IPC Coverage]
+# ........  ................  .....................................  ....................
+#
+    64.50%  replay-c          [.] zxc_decode_block_spl_entropy.cold  -      -
+    23.25%  replay-c          [.] zxc_pivco_decode_core              -      -
+    10.14%  replay-c          [.] zxc_decompress_chunk_wrapper_avx2  -      -
+     1.26%  replay-c          [.] zxc_pivco_tree_build               -      -
+
+
+#
+# (Tip: For tracepoint events, try: perf report -s trace_fields)
+#
+
+rust (clean binary, single.zxc, 32 measured-loop replays + startup/warmup, taskset -c 3)
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 2K of event 'cycles:u'
+# Event count (approx.): 15454388360
+#
+# Overhead  Shared Object         Symbol                                                                                                                                                                                                                                   IPC   [IPC Coverage]
+# ........  ....................  .......................................................................................................................................................................................................................................  ....................
+#
+    51.16%  replay-rust           [.] zxc_codec::block::reconstruct::<15, zxc_codec::block::Spl16>                                                                                                                                                                         -      -
+    18.29%  replay-rust           [.] <fearless_simd::generated::avx2::Avx2 as fearless_simd::generated::simd_trait::Simd>::vectorize::vectorize_avx2::<zxc_codec::entropy::merge::simd::{closure#2}, ()>                                                                  -      -
+    11.94%  replay-rust           [.] zxc_codec::entropy::flat::unpack                                                                                                                                                                                                     -      -
+     5.47%  replay-rust           [.] rapidhash::v3::rapid_const::rapidhash_core_cold::<true, false, false>                                                                                                                                                                -      -
+     4.45%  libc.so.6             [.] __memmove_avx_unaligned_erms                                                                                                                                                                                                         -      -
+     3.45%  replay-rust           [.] <zxc_codec::entropy::Tree>::new                                                                                                                                                                                                      -      -
+     1.32%  replay-rust           [.] <zxc_codec::entropy::Tree>::decode_into                                                                                                                                                                                              -      -
+     1.13%  replay-rust           [.] zxc_codec::block::extra                                                                                                                                                                                                              -      -
+
+
+#
+# (Tip: Boolean options have negative forms, e.g.: perf report --no-children)
+#
