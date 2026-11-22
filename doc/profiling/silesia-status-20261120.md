@@ -15,6 +15,8 @@ sources:
 
 # Silesia profiling status — 2026-11-20
 
+This sweep predates [Crossbeam worker reuse](decode-pool.md); see that follow-up for the current concatenated-decode comparison.
+
 **Decode is closest on separate files.** On fixed C7 archives, the best Rust median was 1,859 MB/s vs upstream's 2,384 MB/s across the measured counts. On the concatenated frames, it was 3,416 vs 8,446 MB/s. This was a busy host; treat the exact worker rankings as tentative.
 
 ## Decode throughput by worker count

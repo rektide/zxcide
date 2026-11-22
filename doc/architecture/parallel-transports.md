@@ -9,6 +9,7 @@ sources:
   - { resource: 'opencode://ses_e0b4ca850ffe4VaTbUv0wsGqWz', title: Parallel execution and testing requirements }
   - { resource: /doc/architecture/indexed-execution.md, title: Verified block boundary, admission invariant and candidate libraries }
   - { resource: /doc/testing/generated-interop.md, title: Independent reference and replay contract }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Recorded the measured Crossbeam worker lifetime change }
 ---
 
 # Parallel block execution
@@ -22,6 +23,8 @@ Keep frame metadata in the codec. Extract small shared helpers for serial/parall
 Use a bounded sliding window and a sequenced result buffer. The invariant is `admitted - committed ≤ K`; take a credit **before** reading a data block and keep it until ordered commit. Out-of-order completion is not a credit. Use bounded queues for jobs and results; carry unique sequence numbers, never duplicate payloads just to reorder. An unfilled final window must drain too. With all K jobs live the coordinator must be able to receive completions, including one not yet at the head. Do not wait for workers to join while they are blocked sending to a live receiver. Worker panic, source error or writer error must close channel endpoints and join all spawned workers. Synchronous `Read` and `Write` themselves cannot be forcibly interrupted; distinguish external I/O stalls from internal deadlocks.
 
 Crossbeam, flume, kanal and crossfire provide blocking adapters to the same scheduling loop. Pick the adapter once per operation, not per byte/token. Use a local Rayon pool and at most K jobs per ordered batch as a different scheduler under the same outer contract. Keep the baseline's batch barrier visible in measurements. CLI stream commands accept `--threads`, `--slots`, `--backend` (backend names reported by the compiled binary); default to serial until the performance evidence supports changing it. Do not add threading semantics to range/info in this landing.
+
+Crossbeam decode retains its channels, window and worker scratch until the operation ends or the frame block limit changes. No jobs cross the drain-and-footer barrier; dictionaries, checksum indices and frame accounting are resolved anew. The [paired worker-lifetime study](../profiling/decode-pool.md) distinguishes this gain from single-frame throughput. The other backends retain their existing lifetimes.
 
 ## Gates
 

@@ -31,6 +31,8 @@ For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledge
 
 The [2026-11-20 status report](silesia-status-20261120.md) compares all 12 Silesia files against pinned C and the saved Rust baseline at `1,2,3,4,6,8,12,16` decode workers, and summarizes which profiling experiments shipped.
 
+The [persistent worker follow-up](decode-pool.md) measures current Crossbeam reuse against that earlier frame-local pipeline, including a single-long-frame control to distinguish boundary costs from sustained decode throughput.
+
 The [Rust/C pipeline comparison](pipeline-comparison.sol.md) maps these end-to-end timings to source stages, worker lifetimes and archive section counts. Use it to choose counters before attributing a CLI gap to a codec routine. The [Huffman worker-buffer study](pivco-worker.md) applies that method to a retained decoder change and reports its per-worker memory cost as well as fixed-archive timings. The [Dense literal savings sweep](dense-literal-savings.sol.md) instead varies the encoder's archives while holding both decoders fixed.
 
 ```sh

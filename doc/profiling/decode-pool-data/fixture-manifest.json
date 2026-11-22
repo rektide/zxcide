@@ -1,0 +1,272 @@
+{
+  "c": {
+    "path": "bin/c",
+    "sha256": "21f4e94add22d98dae206e1c4d9ec003a6bc2bdcda16a8a7c8e70cdb03787589",
+    "build": {
+      "revision": "5719a96f778226868b29dba621a8c4e302b74d7c",
+      "url": "https://github.com/hellobertrand/zxc",
+      "cached_source": true,
+      "source": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source",
+      "toolchain": {
+        "cc": "/usr/bin/cc",
+        "compiler": "cc (Debian 16.2.0-3) 16.2.0\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+        "cmake": "cmake version 4.3.4\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+        "options": [
+          "-G",
+          "Unix Makefiles",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DZXC_BUILD_TESTS=OFF",
+          "-DZXC_NATIVE_ARCH=ON",
+          "-DBUILD_SHARED_LIBS=OFF",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_C_COMPILER=/usr/bin/cc",
+          "-DCMAKE_C_FLAGS=",
+          "-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG"
+        ],
+        "host": {
+          "platform": "Linux-7.1.0-debplus.1-x86_64-with-glibc2.43",
+          "arch": "x86_64",
+          "cpu": "AMD Ryzen 7 5800X 8-Core Processor",
+          "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibrs ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local user_shstk clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip pku ospke vaes vpclmulqdq rdpid overflow_recov succor smca fsrm debug_swap",
+          "hostname": "workhorse.hosts.voodoowarez.com"
+        }
+      },
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source",
+          "-B",
+          "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "-G",
+          "Unix Makefiles",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DZXC_BUILD_TESTS=OFF",
+          "-DZXC_NATIVE_ARCH=ON",
+          "-DBUILD_SHARED_LIBS=OFF",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_C_COMPILER=/usr/bin/cc",
+          "-DCMAKE_C_FLAGS=",
+          "-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "--parallel",
+          "2"
+        ]
+      ],
+      "compile_commands": [
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_default -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -o CMakeFiles/zxc_compress_default.dir/src/lib/zxc_compress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "output": "CMakeFiles/zxc_compress_default.dir/src/lib/zxc_compress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_default -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -o CMakeFiles/zxc_decompress_default.dir/src/lib/zxc_decompress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "output": "CMakeFiles/zxc_decompress_default.dir/src/lib/zxc_decompress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_default -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -o CMakeFiles/zxc_huffman_default.dir/src/lib/zxc_huffman.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "output": "CMakeFiles/zxc_huffman_default.dir/src/lib/zxc_huffman.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx2 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_compress_avx2.dir/src/lib/zxc_compress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "output": "CMakeFiles/zxc_compress_avx2.dir/src/lib/zxc_compress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx2 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_decompress_avx2.dir/src/lib/zxc_decompress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "output": "CMakeFiles/zxc_decompress_avx2.dir/src/lib/zxc_decompress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx2 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_huffman_avx2.dir/src/lib/zxc_huffman.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "output": "CMakeFiles/zxc_huffman_avx2.dir/src/lib/zxc_huffman.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx512 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vbmi2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_compress_avx512.dir/src/lib/zxc_compress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_compress.c",
+          "output": "CMakeFiles/zxc_compress_avx512.dir/src/lib/zxc_compress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx512 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vbmi2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_decompress_avx512.dir/src/lib/zxc_decompress.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_decompress.c",
+          "output": "CMakeFiles/zxc_decompress_avx512.dir/src/lib/zxc_decompress.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_FUNCTION_SUFFIX=_avx512 -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vbmi2 -mbmi -mbmi2 -mlzcnt -o CMakeFiles/zxc_huffman_avx512.dir/src/lib/zxc_huffman.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_huffman.c",
+          "output": "CMakeFiles/zxc_huffman_avx512.dir/src/lib/zxc_huffman.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_common.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_common.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_common.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_common.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_pivco_tables.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_pivco_tables.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_pivco_tables.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_pivco_tables.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_dict.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_dict.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_dict.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_dict.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_driver.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_driver.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_driver.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_driver.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_dispatch.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_dispatch.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_dispatch.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_dispatch.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_pstream.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_pstream.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_pstream.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_pstream.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -Wconversion -Wsign-conversion -march=native -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -o CMakeFiles/zxc_lib.dir/src/lib/zxc_seekable.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_seekable.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/zxc_seekable.c",
+          "output": "CMakeFiles/zxc_lib.dir/src/lib/zxc_seekable.c.o"
+        },
+        {
+          "directory": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/build-ca6539478cf4c31058a8",
+          "command": "/usr/bin/cc -DZXC_STATIC_DEFINE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/lib/vendors -I/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/include -O3 -DNDEBUG -std=c17 -Wall -Wextra -Wshadow -Wformat=2 -Wundef -Wpointer-arith -Wvla -Wcast-qual -Wdouble-promotion -Wimplicit-fallthrough -Wmissing-prototypes -Wstrict-prototypes -march=native -o CMakeFiles/zxc.dir/src/cli/main.c.o -c /home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/cli/main.c",
+          "file": "/home/rektide/src/zxc-rs/target/profiling-status-20261120/comparison-report/cache/5719a96f778226868b29dba621a8c4e302b74d7c/source/src/cli/main.c",
+          "output": "CMakeFiles/zxc.dir/src/cli/main.c.o"
+        }
+      ]
+    }
+  },
+  "members": [
+    {
+      "file": "dickens.zxc",
+      "plain_bytes": 10192446,
+      "plain_sha256": "b24c37886142e11d0ee687db6ab06f936207aa7f2ea1fd1d9a36763c7a507e6a",
+      "bytes": 3745574,
+      "sha256": "faf9f08e78358d6e6128c9e750f60d24e35b9881f8f8aed415b984940c345e72"
+    },
+    {
+      "file": "mozilla.zxc",
+      "plain_bytes": 51220480,
+      "plain_sha256": "657fc3764b0c75ac9de9623125705831ebbfbe08fed248df73bc2dc66e2a963b",
+      "bytes": 21073891,
+      "sha256": "54c6cd65f688d06391697c4e9d6127821c7a4fa654b4b425f2ea029f9a774c95"
+    },
+    {
+      "file": "mr.zxc",
+      "plain_bytes": 9970564,
+      "plain_sha256": "68637ed52e3e4860174ed2dc0840ac77d5f1a60abbcb13770d5754e3774d53e6",
+      "bytes": 3514794,
+      "sha256": "2f473c173e631ac87bb13a9a50dc5d33a83e6745a95ff15ffe16bff789441411"
+    },
+    {
+      "file": "nci.zxc",
+      "plain_bytes": 33553445,
+      "plain_sha256": "fc63a31770947b8c2062d3b19ca94c00485a232bb91b502021948fee983e1635",
+      "bytes": 3058522,
+      "sha256": "0f8ddba75b130d39c70f25ebb8b2b90204f3d01da0eb8e3ab1bc318db4aab69b"
+    },
+    {
+      "file": "ooffice.zxc",
+      "plain_bytes": 6152192,
+      "plain_sha256": "e7ee013880d34dd5208283d0d3d91b07f442e067454276095ded14f322a656eb",
+      "bytes": 3399525,
+      "sha256": "b223d21cbd036c9efb936046a74f883e42b7bc1063f2b836b1cb897fe572bd25"
+    },
+    {
+      "file": "osdb.zxc",
+      "plain_bytes": 10085684,
+      "plain_sha256": "60f027179302ca3ad87c58ac90b6be72ec23588aaa7a3b7fe8ecc0f11def3fa3",
+      "bytes": 3572729,
+      "sha256": "715ba0bf82e8bf550db11becfff5972ef303eb2c743e6eced5d1008d69e4134e"
+    },
+    {
+      "file": "reymont.zxc",
+      "plain_bytes": 6627202,
+      "plain_sha256": "0eac0114a3dfe6e2ee1f345a0f79d653cb26c3bc9f0ed79238af4933422b7578",
+      "bytes": 1837882,
+      "sha256": "2e585b0c3d01167f2bf3558c0b2497b178e93e82626ae8545ade4578bd170b33"
+    },
+    {
+      "file": "samba.zxc",
+      "plain_bytes": 21606400,
+      "plain_sha256": "93ba07bc44d8267789c1d911992f40b089ffa2140b4a160fac11ccae9a40e7b2",
+      "bytes": 5616856,
+      "sha256": "cefe62753fe2b4e2fba9e263a400e3242c249d6f1d0d9b7f3c762d2a3d84d85e"
+    },
+    {
+      "file": "sao.zxc",
+      "plain_bytes": 7251944,
+      "plain_sha256": "c2d0ea2cc59d4c21b7fe43a71499342a00cbe530a1d5548770e91ecd6214adcc",
+      "bytes": 5587854,
+      "sha256": "158c5860be145687202be26441998ef926f8e35e939728793c8a4701df4d39be"
+    },
+    {
+      "file": "webster.zxc",
+      "plain_bytes": 41458703,
+      "plain_sha256": "6a68f69b26daf09f9dd84f7470368553194a0b294fcfa80f1604efb11143a383",
+      "bytes": 11906496,
+      "sha256": "6653e6221776fa3eb772993d1c83f5c0180cca2af4f743e46adf9f02dfefa76b"
+    },
+    {
+      "file": "xml.zxc",
+      "plain_bytes": 5345280,
+      "plain_sha256": "0e82e54e695c1938e4193448022543845b33020c8be6bf3bf3ead2224903e08c",
+      "bytes": 668876,
+      "sha256": "087c41d4ea4c9fb4497fd5eb190c287b850f831b2d860b927fa286c56bdd76d9"
+    },
+    {
+      "file": "x-ray.zxc",
+      "plain_bytes": 8474240,
+      "plain_sha256": "7de9fce1405dc44ae5e6813ed21cd5751e761bd4265655a005d39b9685d1c9ad",
+      "bytes": 6130424,
+      "sha256": "da9372884a8f902084301d25ccab8d441b40fd722edc3b93ac51ee3163af919c"
+    }
+  ],
+  "plain": {
+    "bytes": 211938580,
+    "sha256": "cc3b55db1901a40a0de1c6ad5a3fdd469c487b626a5359279d4e201a552bf45b"
+  },
+  "concat": {
+    "bytes": 70113423,
+    "sha256": "0b85cbe69d423646318fe2cb10e97a078c691d5909fccaa7b13eb689e6db41fc"
+  },
+  "single": {
+    "bytes": 70139019,
+    "sha256": "32608ad174575d9e7563bcc9f535a94ba32033480c34deb6d9cbe972c40f0843"
+  },
+  "single_blocks": 405,
+  "single_encode_argv": [
+    "/home/rektide/src/zxc-rs/.test-agent/decode-pool/fixtures/c",
+    "-qzc",
+    "-T1",
+    "-7",
+    "/home/rektide/src/zxc-rs/.test-agent/decode-pool/fixtures/plain"
+  ]
+}
