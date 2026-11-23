@@ -5,8 +5,9 @@ description: What landed, what failed, the current Rust–C comparison, and the 
 resource: /design/decode-throughput/handoff0.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-23 }
+updated: { by: 'model:zai-coding-plan/glm-5.4', at: 2026-11-23 }
 sources:
-  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Integrated the trial decisions, verified the landed decoder, measured the original concat, and wrote this handoff }
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Integrated the trial decisions, verified the landed decoder, measured the original concat, wrote this handoff, and linked the commit account after publication }
   - { resource: /design/decode-throughput/next0.sol.md, title: Original shortlist and historical decision rules }
   - { resource: /doc/profiling/decode-next0.sol.md, title: SPL16 eligibility and paired copy-width and Huffman bucket trials }
   - { resource: /doc/profiling/decode-positioned0.sol.md, title: Correctness and timing of positioned input that did not land }
@@ -21,7 +22,7 @@ sources:
 
 **Refresh the Rust–C profile on the landed decoder, then tackle match reconstruction.** The widest measured win in this round came from doing less work in the mixed-bitmap merge, not from moving file reads to workers. The historic multi-gigabyte throughput deficit on the 12-frame bundle did not reproduce, but eight-worker Rust still uses more CPU per GB. The highest-upside next bet is a bounds-proven SPL16 bulk loop if the new profile supports it. The most developed smaller candidate is the compact Huffman table: retest it on current code, including small blocks and Wasm, rather than reject it solely for being below 5% on one workload.
 
-This closes the experiments tracked from [the original `next0` shortlist](next0.sol.md), with earlier work included where it explains the baseline. `0cdb6270` is the last measurement checkpoint; `7209e2d9` is the latest timed code pin (merge `45415859` plus a test-only lint fix). Landed here means committed in the local tree, not pushed or released. No new code or measurements were made for this handoff.
+This closes the experiments tracked from [the original `next0` shortlist](next0.sol.md), with earlier work included where it explains the baseline. `0cdb6270` is the last measurement checkpoint; `7209e2d9` is the latest timed code pin (merge `45415859` plus a test-only lint fix). Landed here means committed in the tree. `main` was then pushed to Tangled at `809b5faa`, not to GitHub `origin`, so these commit IDs are published. The [commit account](commit-account0.glm54.md) speaks to every commit in the pass and holds the deferred long-form messages. No new code or measurements were made for this handoff.
 
 ## Where we stand
 
@@ -80,3 +81,13 @@ All landed decoder changes preserve the wire format, checksum verification, and 
 - **Ship useful improvements with the right claim.** A fixed 5% is not a minimum for accepting a real, low-risk gain. The width-six example is a verified section win with lower checked instructions; the mixed gather is a verified whole-decode win. For a complex change require credible evidence on the actual workload and no meaningful control loss; don't waive correctness or promote a noisy favorable point estimate. Keep independent patches and retest on the landed baseline rather than summing their gains.
 
 Start a fresh comparison with the [landed CLI recipe](../../doc/profiling/bitmap-merge-landed0.sol.md#conditions-and-verification), or reassemble the [checked replay and profiling setup](../../doc/profiling/decode-replay0.sol.md#reproduce) at a new Rust pin. The [profiling guide](../../doc/profiling/README.md) indexes the raw measurements, archived trial patches, and diagnostics. `.test-agent/` holds local scratch and is not required to retain the recorded results.
+
+## Deferred outside this repository
+
+Retitling these commits waits on tooling that belongs in Rekon. `main` is published, 13 of the pass's commit IDs are pinned, and a force-push is not wanted. The operator's direction, as I understand it:
+
+- **Named bookmarks for commits worth commemorating.** A reference to a name survives renumbering, which would spare most of the pinned IDs in these reports.
+- **An `rkt` command that rewrites references from old to new across a wiki**, independently usable and able to print the diff it would make, wired into the ToC subsystem and on by default.
+- **A praxis for commit naming and renumbering.** A rewrite is a point-in-time rebuild with good links, never a force-push: the published `main` stays as the record and the rebuilt line is offered under its own name.
+
+Until that exists, new commits here carry full bodies and the published IDs stay as they are.
