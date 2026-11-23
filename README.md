@@ -97,6 +97,8 @@ Install nextest with `cargo install --locked cargo-nextest`, or use `cargo test 
 
 The [upstream corpus](https://github.com/hellobertrand/zxc/tree/2992c28e6e1df07feec0cb39678a6d4a9665c6bb/tests/conformance) is vendored under its [BSD-3-Clause license](LICENSE). Tests compare all 18 valid archives to reference plaintext and check all 35 invalid fixtures against sequential-reader expectations. `sek_forged_entry` is expected to decode sequentially; its defect is visible to a range reader.
 
+See [Linux codec correctness under QEMU](doc/testing/linux-qemu.md) to repeat the ARM64 and RISC-V CI checks locally.
+
 Run `cargo xtask interop` for the same independent C cross-check as [CI](.github/workflows/check.yml). It uses Git, CMake and a C compiler to build the pinned upstream revision under `target/oracle/` (network needed on first use), and builds the Rust release CLI. It compares plaintext in both directions (180 combinations) and checks range reads against freshly generated C archives (72 combinations). To supply existing binaries, use `cargo xtask interop /path/to/c-zxc /path/to/rust-zxc`.
 
 The same command also runs a bounded suite of [generated valid-input cases](doc/testing/generated-interop.md). The seed varies the bytes within a schedule that covers block edges, long matches, dictionary frames and concatenation. Both full decoders must recover the original input; indexed reads from both encoders must match the original byte slice. To explore another seed or replay one case:

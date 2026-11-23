@@ -54,3 +54,22 @@ jobs:
           name: generated-interop-failures
           path: target/generated-interop-*/
           if-no-files-found: ignore
+  codec-linux-qemu:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-unknown-linux-gnu
+            packages: gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+          - target: riscv64gc-unknown-linux-gnu
+            packages: gcc-riscv64-linux-gnu libc6-dev-riscv64-cross
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the cross toolchain and QEMU user-mode
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user ${{ matrix.packages }}
+          rustup update stable && rustup default stable
+          rustup target add ${{ matrix.target }}
+      - run: scripts/test-linux-qemu.sh ${{ matrix.target }}
