@@ -1,6 +1,34 @@
 use super::*;
 
 #[test]
+fn flat_three_bit_groups_match_individual_wire_bits() {
+    let mut state = 0x3d09_8ac7_u32;
+    let mut byte = || {
+        state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+        (state >> 24) as u8
+    };
+    for n in (0usize..=80).chain([255, 256, 257, 4097]) {
+        for offset in 0..16 {
+            // Both slices end at their allocations, with varying alignment.
+            let src: Box<[_]> = (0..offset + (n * 3).div_ceil(8)).map(|_| byte()).collect();
+            let run = &src[offset..];
+            let table: [u8; 8] = std::array::from_fn(|_| byte());
+            let mut out = vec![0xa5; offset + n].into_boxed_slice();
+            flat::unpack(&mut out[offset..], run, &table);
+            assert!(out[..offset].iter().all(|&x| x == 0xa5));
+            for (i, &got) in out[offset..].iter().enumerate() {
+                let mut code = 0;
+                for j in 0..3 {
+                    let bit = 3 * i + j;
+                    code |= usize::from((run[bit / 8] >> (bit % 8)) & 1) << j;
+                }
+                assert_eq!(got, table[code], "n={n} offset={offset} i={i}");
+            }
+        }
+    }
+}
+
+#[test]
 fn packed_subtrees_decode_all_widths_and_tail_lengths() {
     for width in 1..=8 {
         let symbols = 1 << width;
