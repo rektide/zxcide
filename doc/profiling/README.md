@@ -6,7 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
-  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Linked the paired SPL16 and Huffman setup trials and SPL16 eligibility census }
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Linked the decode trials, landed comparisons, and consolidated handoff }
   - { resource: 'opencode://ses_df935c64bffeMLcYFZfIGlqQvI', title: Linked the paired two-group AVX2 PivCo merge trial }
   - { resource: 'opencode://ses_df9f765f0ffel0TKk8pDiPlkN2', title: Linked the checked result for the width-three shuffle }
   - { resource: 'opencode://ses_e04f22460ffeiMpWBTvOxfQzAN', title: Dense literal policy sweep using the same two decoders on candidate archives }
@@ -31,6 +31,8 @@ sources:
 For byte traffic, run `cargo xtask ledger --component`. The [byte-movement ledger](ledger.md) ranks individual sites and pairs each workload with its uninstrumented timing interval.
 
 ## Compare compression and fixed-archive CLI decode
+
+For the latest decode work, start with the [decode-throughput handoff](../../design/decode-throughput/handoff0.sol.md). It records the landed kernels, rejected trials, direct Rust–C comparisons, and the next experiments worth running.
 
 The [2026-11-20 status report](silesia-status-20261120.md) compares all 12 Silesia files against pinned C and the saved Rust baseline at `1,2,3,4,6,8,12,16` decode workers, and summarizes which profiling experiments shipped.
 
