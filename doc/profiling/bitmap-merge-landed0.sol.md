@@ -6,7 +6,7 @@ resource: /doc/profiling/bitmap-merge-landed0.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol', at: 2026-11-23 }
 sources:
-  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Integrated the AVX2 winner and measured the landed tree directly against its parent and pinned C }
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Integrated the AVX2 winner and measured the landed tree against its parent and pinned C, including a concat follow-up }
   - { resource: /doc/profiling/bitmap-merge-race0.sol.md, title: Original kernel race and checked replay }
   - { resource: /doc/profiling/flat-unpack6-landed0.gpt61t.md, title: Paired CLI protocol and prior C comparisons }
   - { resource: /doc/testing/linux-qemu.md, title: ARM64 and RISC-V baseline correctness checks }
@@ -30,6 +30,17 @@ Each cell reports two independently randomized series, with paired throughput ra
 | `sao` | 8 | +3.16% [−4.91, +8.96] / +2.08% [−0.78, +7.80] | +8.39% [+2.89, +15.80] / −4.34% [−8.63, +4.71] |
 
 The landed `single` build delivered **1.81 / 1.75 GB/s W1** and **8.70 / 8.49 GB/s W8** in the Rust parent pairs. W1 C/Rust pairs put both at about 1.8 GB/s, with no resolved throughput or CPU/GB difference; the intervals do not establish equivalence. At W8, Rust used **0.683 / 0.727 CPU s/GB** versus C's **0.572 / 0.605** (paired **+19.56% [+17.00, +21.29] / +18.06% [+14.95, +20.30]**). Against the Rust parent, landed W8 `single` used **8.03% / 7.51% less CPU** per GB, with both intervals below zero. The direct C pairs use separate samples from the parent pairs. Do not divide medians across them or splice in older throughput or checked-replay samples.
+
+### Follow-up: the original 12-frame concat
+
+This is the workload in the [old scaling sweep](silesia-status-20261120.md#decode-throughput-by-worker-count) that put C at 8.45 GB/s and Rust at 2.76 GB/s at W8, before [worker reuse across frames](decode-pool.md#confirmation-full-concat-sweep-and-regular-file-output). It is not the re-encoded long `single` frame. A fresh run used the same three binaries as above, the manifest's fixed C7 concat, and the pool harness restricted to `concat` W8 with A/B, C/B and A/A comparisons. All three exact plaintext checks passed. The mask was CPUs 0–7, output `/dev/null`, with the same 24-pair protocol and separate seeds 4173 and 8609. Load was high (one-minute averages 22.52 → 26.47 → 25.55); absolute rates varied substantially.
+
+| W8 contrast | GB/s S1 | GB/s S2 | Paired throughput Δ [interval] S1 / S2 | Paired child CPU/GB Δ [interval] S1 / S2 |
+| --- | ---: | ---: | --- | --- |
+| Parent → landed | 5.10 → 5.27 | 7.33 → 7.88 | +5.4% [−1.9, +20.9] / +8.8% [+5.5, +12.4] | −6.1% [−10.8, −4.1] / −7.5% [−9.8, −6.1] |
+| C → landed | 5.60 → 5.96 | 8.10 → 7.63 | +3.4% [−6.5, +13.6] / −5.9% [−8.7, +0.2] | +15.0% [+7.2, +18.3] / +10.4% [+6.7, +13.6] |
+
+No repeatable wall winner against C, but Rust consistently used more CPU. The merge saved Rust CPU in both series; it resolved a throughput gain against the Rust parent only in S2. The [concat pairs](bitmap-merge-landed-sol-data/concat-raw.json.gz) retain all absolute results, work order, output verification and A/A controls.
 
 ## Conditions and verification
 
