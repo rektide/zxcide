@@ -4,3 +4,11 @@
 /fuzz/target/
 /fuzz/corpus/
 /fuzz/artifacts/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+
+# Python bytecode caches from xtask scripts
+__pycache__/
