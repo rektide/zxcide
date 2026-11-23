@@ -1,0 +1,4 @@
+6360388bb1b90b7c005c31fd21fb70619e5b3b6b989162d2e9ab99b34d670ea9  .test-agent/flat6/scalar-a.text
+6360388bb1b90b7c005c31fd21fb70619e5b3b6b989162d2e9ab99b34d670ea9  .test-agent/flat6/scalar-b.text
+5999b2242e74692cedca8677e330ae4c9ccfa0dc97f021be3c619757fafef963  .test-agent/flat6/replay-scalar-a.text
+5999b2242e74692cedca8677e330ae4c9ccfa0dc97f021be3c619757fafef963  .test-agent/flat6/replay-scalar-b.text

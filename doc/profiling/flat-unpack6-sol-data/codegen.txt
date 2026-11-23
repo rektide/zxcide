@@ -1,0 +1,124 @@
+GNU objdump (GNU Binutils for Debian) 2.47
+4242f230a633f2cb0bf6f27d65ab00755be9e7dc0fdd99b79ce7fa823ed6d407  .test-agent/flat6/cli-b
+
+.test-agent/flat6/cli-b:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000088020 <_RINvNvXs2_NtNtCs91YzAnoTUvv_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCs3qOwxIIFiuG_9zxc_codec7entropy4flat10six_groups0uEB20_>:
+   88020:	48 8b 4f 18          	mov    rcx,QWORD PTR [rdi+0x18]
+   88024:	48 8b 57 20          	mov    rdx,QWORD PTR [rdi+0x20]
+   88028:	48 8b 42 08          	mov    rax,QWORD PTR [rdx+0x8]
+   8802c:	48 39 c1             	cmp    rcx,rax
+   8802f:	48 0f 42 c1          	cmovb  rax,rcx
+   88033:	48 85 c0             	test   rax,rax
+   88036:	0f 84 b1 00 00 00    	je     880ed <_RINvNvXs2_NtNtCs91YzAnoTUvv_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCs3qOwxIIFiuG_9zxc_codec7entropy4flat10six_groups0uEB20_+0xcd>
+   8803c:	48 8b 4f 10          	mov    rcx,QWORD PTR [rdi+0x10]
+   88040:	48 8b 12             	mov    rdx,QWORD PTR [rdx]
+   88043:	48 8b 77 08          	mov    rsi,QWORD PTR [rdi+0x8]
+   88047:	c4 e2 7d 5a 46 10    	vbroadcasti128 ymm0,XMMWORD PTR [rsi+0x10]
+   8804d:	c4 e2 7d 5a 0e       	vbroadcasti128 ymm1,XMMWORD PTR [rsi]
+   88052:	c4 e2 7d 5a 56 30    	vbroadcasti128 ymm2,XMMWORD PTR [rsi+0x30]
+   88058:	c4 e2 7d 5a 5e 20    	vbroadcasti128 ymm3,XMMWORD PTR [rsi+0x20]
+   8805e:	48 83 c2 08          	add    rdx,0x8
+   88062:	c5 fd 6f 25 76 2d f9 	vmovdqa ymm4,YMMWORD PTR [rip+0xfffffffffff92d76]        # 1ade0 <anon.e54b1c03d48ee8c7293d341b54e95daf.12.llvm.4133023908506797127+0x5f0>
+   88069:	ff 
+   8806a:	c4 e2 7d 59 2d 15 20 	vpbroadcastq ymm5,QWORD PTR [rip+0xfffffffffff92015]        # 1a088 <anon.e9f2b6d9fbbaf10e204b030d1515e11f.4.llvm.17175754156225878282+0x78>
+   88071:	f9 ff 
+   88073:	c4 e2 7d 59 35 34 20 	vpbroadcastq ymm6,QWORD PTR [rip+0xfffffffffff92034]        # 1a0b0 <anon.e9f2b6d9fbbaf10e204b030d1515e11f.4.llvm.17175754156225878282+0xa0>
+   8807a:	f9 ff 
+   8807c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+   88080:	c5 fa 6f 7a f8       	vmovdqu xmm7,XMMWORD PTR [rdx-0x8]
+   88085:	c4 e3 45 38 3a 01    	vinserti128 ymm7,ymm7,XMMWORD PTR [rdx],0x1
+   8808b:	c4 e2 45 00 fc       	vpshufb ymm7,ymm7,ymm4
+   88090:	c5 bd 71 d7 04       	vpsrlw ymm8,ymm7,0x4
+   88095:	c4 c3 45 0e f8 aa    	vpblendw ymm7,ymm7,ymm8,0xaa
+   8809b:	c5 45 db c5          	vpand  ymm8,ymm7,ymm5
+   8809f:	c5 c5 71 f7 02       	vpsllw ymm7,ymm7,0x2
+   880a4:	c5 c5 db fe          	vpand  ymm7,ymm7,ymm6
+   880a8:	c5 bd eb ff          	vpor   ymm7,ymm8,ymm7
+   880ac:	c5 bd 71 f7 03       	vpsllw ymm8,ymm7,0x3
+   880b1:	c5 b5 71 f7 02       	vpsllw ymm9,ymm7,0x2
+   880b6:	c4 62 7d 00 d7       	vpshufb ymm10,ymm0,ymm7
+   880bb:	c4 62 75 00 df       	vpshufb ymm11,ymm1,ymm7
+   880c0:	c4 43 25 4c d2 80    	vpblendvb ymm10,ymm11,ymm10,ymm8
+   880c6:	c4 62 6d 00 df       	vpshufb ymm11,ymm2,ymm7
+   880cb:	c4 e2 65 00 ff       	vpshufb ymm7,ymm3,ymm7
+   880d0:	c4 c3 45 4c fb 80    	vpblendvb ymm7,ymm7,ymm11,ymm8
+   880d6:	c4 e3 2d 4c ff 90    	vpblendvb ymm7,ymm10,ymm7,ymm9
+   880dc:	c5 fe 7f 39          	vmovdqu YMMWORD PTR [rcx],ymm7
+   880e0:	48 83 c2 18          	add    rdx,0x18
+   880e4:	48 83 c1 20          	add    rcx,0x20
+   880e8:	48 ff c8             	dec    rax
+   880eb:	75 93                	jne    88080 <_RINvNvXs2_NtNtCs91YzAnoTUvv_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCs3qOwxIIFiuG_9zxc_codec7entropy4flat10six_groups0uEB20_+0x60>
+   880ed:	c5 f8 77             	vzeroupper
+   880f0:	c3                   	ret
+
+Disassembly of section .init:
+
+Disassembly of section .fini:
+
+Disassembly of section .plt:
+d0ee4ad684240bfa1f6e6403093c11dc9b6a0a1fc29e45976c2b39c9737e75e1  .test-agent/flat6/replay-b
+
+.test-agent/flat6/replay-b:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000022690 <_RINvNvXs2_NtNtCs5qU3WTFi3cN_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCsaa7Ih4VnGOr_9zxc_codec7entropy4flat10six_groups0uEB20_>:
+   22690:	48 8b 4f 18          	mov    rcx,QWORD PTR [rdi+0x18]
+   22694:	48 8b 57 20          	mov    rdx,QWORD PTR [rdi+0x20]
+   22698:	48 8b 42 08          	mov    rax,QWORD PTR [rdx+0x8]
+   2269c:	48 39 c1             	cmp    rcx,rax
+   2269f:	48 0f 42 c1          	cmovb  rax,rcx
+   226a3:	48 85 c0             	test   rax,rax
+   226a6:	0f 84 b1 00 00 00    	je     2275d <_RINvNvXs2_NtNtCs5qU3WTFi3cN_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCsaa7Ih4VnGOr_9zxc_codec7entropy4flat10six_groups0uEB20_+0xcd>
+   226ac:	48 8b 4f 10          	mov    rcx,QWORD PTR [rdi+0x10]
+   226b0:	48 8b 12             	mov    rdx,QWORD PTR [rdx]
+   226b3:	48 8b 77 08          	mov    rsi,QWORD PTR [rdi+0x8]
+   226b7:	c4 e2 7d 5a 46 10    	vbroadcasti128 ymm0,XMMWORD PTR [rsi+0x10]
+   226bd:	c4 e2 7d 5a 0e       	vbroadcasti128 ymm1,XMMWORD PTR [rsi]
+   226c2:	c4 e2 7d 5a 56 30    	vbroadcasti128 ymm2,XMMWORD PTR [rsi+0x30]
+   226c8:	c4 e2 7d 5a 5e 20    	vbroadcasti128 ymm3,XMMWORD PTR [rsi+0x20]
+   226ce:	48 83 c2 08          	add    rdx,0x8
+   226d2:	c5 fd 6f 25 86 93 fe 	vmovdqa ymm4,YMMWORD PTR [rip+0xfffffffffffe9386]        # ba60 <anon.577329563f4eb85b79a24b5364b42d2f.0.llvm.1863213435070936651+0xe60>
+   226d9:	ff 
+   226da:	c4 e2 7d 59 2d cd 95 	vpbroadcastq ymm5,QWORD PTR [rip+0xfffffffffffe95cd]        # bcb0 <anon.eb62a0bc72c0e66906ad3f2259650e54.4.llvm.9242709412171734941+0xb0>
+   226e1:	fe ff 
+   226e3:	c4 e2 7d 59 35 d4 95 	vpbroadcastq ymm6,QWORD PTR [rip+0xfffffffffffe95d4]        # bcc0 <anon.eb62a0bc72c0e66906ad3f2259650e54.4.llvm.9242709412171734941+0xc0>
+   226ea:	fe ff 
+   226ec:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+   226f0:	c5 fa 6f 7a f8       	vmovdqu xmm7,XMMWORD PTR [rdx-0x8]
+   226f5:	c4 e3 45 38 3a 01    	vinserti128 ymm7,ymm7,XMMWORD PTR [rdx],0x1
+   226fb:	c4 e2 45 00 fc       	vpshufb ymm7,ymm7,ymm4
+   22700:	c5 bd 71 d7 04       	vpsrlw ymm8,ymm7,0x4
+   22705:	c4 c3 45 0e f8 aa    	vpblendw ymm7,ymm7,ymm8,0xaa
+   2270b:	c5 45 db c5          	vpand  ymm8,ymm7,ymm5
+   2270f:	c5 c5 71 f7 02       	vpsllw ymm7,ymm7,0x2
+   22714:	c5 c5 db fe          	vpand  ymm7,ymm7,ymm6
+   22718:	c5 bd eb ff          	vpor   ymm7,ymm8,ymm7
+   2271c:	c5 bd 71 f7 03       	vpsllw ymm8,ymm7,0x3
+   22721:	c5 b5 71 f7 02       	vpsllw ymm9,ymm7,0x2
+   22726:	c4 62 7d 00 d7       	vpshufb ymm10,ymm0,ymm7
+   2272b:	c4 62 75 00 df       	vpshufb ymm11,ymm1,ymm7
+   22730:	c4 43 25 4c d2 80    	vpblendvb ymm10,ymm11,ymm10,ymm8
+   22736:	c4 62 6d 00 df       	vpshufb ymm11,ymm2,ymm7
+   2273b:	c4 e2 65 00 ff       	vpshufb ymm7,ymm3,ymm7
+   22740:	c4 c3 45 4c fb 80    	vpblendvb ymm7,ymm7,ymm11,ymm8
+   22746:	c4 e3 2d 4c ff 90    	vpblendvb ymm7,ymm10,ymm7,ymm9
+   2274c:	c5 fe 7f 39          	vmovdqu YMMWORD PTR [rcx],ymm7
+   22750:	48 83 c2 18          	add    rdx,0x18
+   22754:	48 83 c1 20          	add    rcx,0x20
+   22758:	48 ff c8             	dec    rax
+   2275b:	75 93                	jne    226f0 <_RINvNvXs2_NtNtCs5qU3WTFi3cN_13fearless_simd9generated4avx2NtB8_4Avx2NtNtBa_10simd_trait4Simd9vectorize14vectorize_avx2NCNvNtNtCsaa7Ih4VnGOr_9zxc_codec7entropy4flat10six_groups0uEB20_+0x60>
+   2275d:	c5 f8 77             	vzeroupper
+   22760:	c3                   	ret
+
+Disassembly of section .init:
+
+Disassembly of section .fini:
+
+Disassembly of section .plt:
+e9bc59d55ba030d6d5021fa3369612c4482745c02367bb74e9aef21f5b66bd1f  .test-agent/flat6/cli-a
