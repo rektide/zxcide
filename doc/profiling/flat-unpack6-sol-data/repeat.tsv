@@ -1,0 +1,9 @@
+series	case	comparison	metric	base	other	paired_pct	ci_lo	ci_hi
+725977	single-block	a/b	cycles:u	2.87147	2.85442	0.15037	-4.75100	3.41194
+725977	single-block	a/b	instructions:u	8.54629	8.35271	-2.26512	-2.26514	-2.26511
+725977	single-block	a/b	thread_cpu_s/GB	0.76454	0.76211	0.11921	-4.51038	3.71544
+725977	single-block	a/b	wall_s/GB	0.88499	0.98218	4.68593	-4.24043	51.51345
+725977	single-block	a/b	MB/s	1130.94525	1019.33485	-4.47398	-33.99926	4.42820
+725977	single-cli	a/b	child_cpu_s/GB	0.70157	0.68696	-1.87888	-7.39054	3.96237
+725977	single-cli	a/b	wall_s/GB	0.70280	0.69467	-1.87175	-7.40336	4.66114
+725977	single-cli	a/b	MB/s	1422.88421	1439.70004	1.90874	-4.45355	7.99528

@@ -1,0 +1,23 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 7K of event 'cycles:u'
+# Event count (approx.): 3764500000
+#
+# Overhead       Samples  Command   Shared Object     Symbol                                                                                                                                                                                                                                 
+# ........  ............  ........  ................  .......................................................................................................................................................................................................................................
+#
+    60.90%          4585  replay-b  replay-b          [.] <fearless_simd::generated::avx2::Avx2 as fearless_simd::generated::simd_trait::Simd>::vectorize::vectorize_avx2::<zxc_codec::entropy::merge::simd::{closure#2}, ()>
+    16.30%          1227  replay-b  replay-b          [.] zxc_codec::entropy::flat::unpack
+     6.72%           506  replay-b  replay-b          [.] <zxc_codec::entropy::Tree>::new
+     5.06%           381  replay-b  libc.so.6         [.] __memmove_avx_unaligned_erms
+     4.13%           311  replay-b  replay-b          [.] <zxc_codec::entropy::Tree>::decode_into
+     2.42%           182  replay-b  replay-b          [.] <fearless_simd::generated::sse4_2::Sse4_2 as fearless_simd::generated::simd_trait::Simd>::vectorize::vectorize_sse4_2::<zxc_codec::entropy::flat::three_groups::{closure#0}, ()>
+     1.85%           139  replay-b  replay-b          [.] <fearless_simd::generated::avx2::Avx2 as fearless_simd::generated::simd_trait::Simd>::vectorize::vectorize_avx2::<zxc_codec::entropy::flat::six_groups::{closure#0}, ()>
+
+
+#
+# (Tip: To add Node.js USDT(User-Level Statically Defined Tracing): perf buildid-cache --add `which node`)
+#
