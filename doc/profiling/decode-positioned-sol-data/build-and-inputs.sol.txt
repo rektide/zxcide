@@ -1,0 +1,44 @@
+3f711434ad83b85fa191a209041777c457c6972b
+rustc 1.102.0-nightly (bdf712ee8 2026-11-21)
+binary: rustc
+commit-hash: bdf712ee87c22a2b5c60db2e1af8a63e3cfd1a2e
+commit-date: 2026-11-21
+host: x86_64-unknown-linux-gnu
+release: 1.102.0-nightly
+LLVM version: 23.1.6
+cargo 1.102.0-nightly (f93c676e3 2026-11-15)
+cargo-nextest 0.9.122 (14513ce84 2026-01-14)
+release: 0.9.122
+commit-hash: 14513ce84fbaedd42731bedf04b7685f94277467
+commit-date: 2026-01-14
+host: x86_64-unknown-linux-gnu
+CARGO_ENCODED_RUSTFLAGS=''
+Single/concat archives decoded W8 K16; named output same FS type: btrfs
+Linux 7.1.0-debplus.1 #1 SMP PREEMPT_DYNAMIC 2026-08-09T02:25:04-04:00 x86_64
+CPU CORE SOCKET ONLINE
+  0    0      0    yes
+  1    1      0    yes
+  2    2      0    yes
+  3    3      0    yes
+  4    4      0    yes
+  5    5      0    yes
+  6    6      0    yes
+  7    7      0    yes
+  8    0      0    yes
+  9    1      0    yes
+ 10    2      0    yes
+ 11    3      0    yes
+ 12    4      0    yes
+ 13    5      0    yes
+ 14    6      0    yes
+ 15    7      0    yes
+2b408402437415f88a54580572265281f72cfdebbbea05c6297bc2406efbb7e1  .test-agent/decode-positioned-sol/bin/zxc-diag
+e9bc59d55ba030d6d5021fa3369612c4482745c02367bb74e9aef21f5b66bd1f  .test-agent/decode-positioned-sol/bin/zxc-parent
+c0cb75f338e5212c4f61aa61b09b19730af9c0efccba652d545c8472ecff24ec  .test-agent/decode-positioned-sol/bin/zxc-transports
+e790e57c70b208431a61b9a0ef68f564a95bb6d0705185dcc49aa04f436bade6  .test-agent/decode-positioned-sol/bin/zxc-trial
+7116a217e954c9ba6f0c746240bf6bfd035f6eba234ee2b4b983dde5060d2276  doc/profiling/decode-positioned-sol-data/bench.sol.py
+392b6965337f461f34d77d7b5e03f00ba7ebd725f8d53744adb2b3c11bf49a61  doc/profiling/decode-positioned-sol-data/trial.sol.patch
+8909202d44d70266426fbab55cdb36fb5dcbaeb4b447d3a5a2967a0d981f41b3  doc/profiling/decode-positioned-sol-data/diag.sol.patch
+32608ad174575d9e7563bcc9f535a94ba32033480c34deb6d9cbe972c40f0843  .test-agent/decode-pool/fixtures/single.zxc
+0b85cbe69d423646318fe2cb10e97a078c691d5909fccaa7b13eb689e6db41fc  .test-agent/decode-pool/fixtures/concat.zxc
+cc3b55db1901a40a0de1c6ad5a3fdd469c487b626a5359279d4e201a552bf45b  .test-agent/decode-pool/fixtures/plain
