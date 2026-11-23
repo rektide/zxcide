@@ -1,0 +1,647 @@
+--- a/crates/codec/src/frame.rs
++++ b/crates/codec/src/frame.rs
+@@ -291,12 +291,9 @@
+     frame: FrameHeader,
+     body: &mut Vec<u8>,
+ ) -> io::Result<Option<DataBlockHeader>> {
+-    let h = read::<BLOCK_HEADER_SIZE>(r)?;
+-    if h[0] == 255 {
+-        validate_eof_header(h)?;
++    let Some(header) = classify_block_header(read(r)?, frame)? else {
+         return Ok(None);
+-    }
+-    let header = DataBlockHeader::parse(h, frame)?;
++    };
+     crate::resize_zero!(body, header.body_size());
+     zone!("read payload");
+     r.read_exact(body)?;
+@@ -304,6 +301,19 @@
+     Ok(Some(header))
+ }
+ 
++/// Validate a frame's next eight-byte header without reading its body.
++pub fn classify_block_header(
++    h: [u8; BLOCK_HEADER_SIZE],
++    frame: FrameHeader,
++) -> io::Result<Option<DataBlockHeader>> {
++    if h[0] == 255 {
++        validate_eof_header(h)?;
++        Ok(None)
++    } else {
++        DataBlockHeader::parse(h, frame).map(Some)
++    }
++}
++
+ /// Reusable input and reconstruction buffers. Each frame's integrity state is local.
+ #[derive(Default)]
+ pub struct Decoder {
+--- a/crates/codec/src/lib.rs
++++ b/crates/codec/src/lib.rs
+@@ -63,7 +63,7 @@
+ 
+ /// Frame I/O shared by the serial codec and the parallel codec driver.
+ pub mod stream {
+-    pub use crate::frame::{DecodeFrame, EncodeFrame, read_data_block, read_source_block};
++    pub use crate::frame::{DecodeFrame, EncodeFrame, classify_block_header, read_data_block, read_source_block};
+ }
+ 
+ use std::io;
+--- a/crates/parallel/src/lib.rs
++++ b/crates/parallel/src/lib.rs
+@@ -2,11 +2,14 @@
+ //! on the caller's thread; only independent data blocks are sent to workers.
+ #![forbid(unsafe_code)]
+ 
+-use std::io::{self, Read, Write};
++use std::{
++    fs::File,
++    io::{self, BufReader, Read, Write},
++};
+ use zxc_codec::{
+     BlockDecoder, BlockEncoder, DecodeOptions, Dictionary, EncodeOptions,
+     stream::{DecodeFrame, EncodeFrame, read_data_block, read_source_block},
+-    wire::FrameHeader,
++    wire::{DataBlockHeader, FrameHeader},
+ };
+ 
+ macro_rules! zone {
+@@ -17,6 +20,8 @@
+ }
+ 
+ mod channel;
++#[cfg(unix)]
++mod positioned;
+ #[cfg(feature = "rayon")]
+ mod rayon;
+ #[cfg(test)]
+@@ -198,11 +203,38 @@
+     dispatch!(config, zxc_codec::decode, decode_channel, decode_with, r, w, options)
+ }
+ 
++/// Scratch-only opt-in. The caller asserts this file's length and contents stay
++/// stable throughout decode. The same open handle is used in either mode.
++pub fn decode_file(file: File, w: impl Write, options: DecodeOptions<'_>, config: Config) -> io::Result<()> {
++    config.validate()?;
++    #[cfg(unix)]
++    if config.workers > 1 && config.backend == Backend::Crossbeam {
++        if let Ok(opening) = file.metadata() {
++            if opening.is_file() && opening.len() > 0 {
++                return positioned::decode(&file, &opening, w, options, config);
++            }
++        }
++    }
++    let r: Box<dyn Read> = Box::new(BufReader::new(file));
++    decode(r, w, options, config)
++}
++
+ fn decode_channel<Q: channel::Transport>(
+     driver: channel::Driver<Q>,
+-    mut r: impl Read,
++    r: impl Read,
++    w: impl Write,
++    options: DecodeOptions<'_>,
++) -> io::Result<()> {
++    decode_channel_from(driver, r, w, options, read_data_block, |header, buf| Ok((header, buf)))
++}
++
++fn decode_channel_from<Q: channel::Transport, R: Read, J: Send + 'static>(
++    driver: channel::Driver<Q>,
++    mut r: R,
+     mut w: impl Write,
+     options: DecodeOptions<'_>,
++    mut admit: impl FnMut(&mut R, FrameHeader, &mut Vec<u8>) -> io::Result<Option<J>>,
++    materialize: impl Fn(J, Vec<u8>) -> io::Result<(DataBlockHeader, Vec<u8>)> + Sync,
+ ) -> io::Result<()> {
+     let dicts = options.dictionaries;
+     let mut total = 0;
+@@ -211,7 +243,8 @@
+         let size = frame.header().block_size();
+         let slot = dictionary_slot(frame.header(), dicts)?;
+         next = driver.with_workers(
+-            |work: &mut BlockDecoder, index, (header, slot): (_, Option<usize>), buf| {
++            |work: &mut BlockDecoder, index, (job, slot): (_, Option<usize>), buf| {
++                let (header, buf) = materialize(job, buf)?;
+                 Ok((header, work.decode_owned(header, buf, slot.map(|i| &dicts[i]), index)?))
+             },
+             |session| {
+@@ -221,7 +254,7 @@
+                         zone!("parallel decode frame");
+                         let settings = frame.header();
+                         session.run(
+-                            |buf| Ok(read_data_block(&mut r, settings, buf)?.map(|header| (header, slot))),
++                            |buf| Ok(admit(&mut r, settings, buf)?.map(|job| (job, slot))),
+                             |(header, block)| {
+                                 frame.commit(&mut w, header, block.as_verified(), &mut total, options.max_output)?;
+                                 Ok(block.into_buffer())
+--- a/crates/parallel/tests/streaming.rs
++++ b/crates/parallel/tests/streaming.rs
+@@ -341,6 +341,182 @@
+     }
+ }
+ 
++#[cfg(unix)]
++fn compare_file(bytes: &[u8], expected: &[u8], options: DecodeOptions<'_>, kind: Option<io::ErrorKind>) {
++    use std::io::BufReader;
++    let mut temp = tempfile::NamedTempFile::new().unwrap();
++    temp.write_all(bytes).unwrap();
++    for (workers, slots) in [(2, 1), (5, 3), (8, 16)] {
++        let config = config(Backend::Crossbeam, workers, slots);
++        let mut stream = Vec::new();
++        let mut positioned = Vec::new();
++        let a = decode(BufReader::new(temp.reopen().unwrap()), &mut stream, options, config);
++        let b = zxc_parallel::decode_file(temp.reopen().unwrap(), &mut positioned, options, config);
++        assert_eq!(a.err().map(|e| e.kind()), kind, "stream W{workers}/K{slots}");
++        assert_eq!(b.err().map(|e| e.kind()), kind, "positioned W{workers}/K{slots}");
++        assert!(
++            stream == expected,
++            "stream W{workers}/K{slots}: {} vs {}",
++            stream.len(),
++            expected.len()
++        );
++        assert!(
++            positioned == expected,
++            "positioned W{workers}/K{slots}: {} vs {}",
++            positioned.len(),
++            expected.len()
++        );
++    }
++}
++
++#[cfg(unix)]
++#[test]
++fn positioned_mixed_epochs_all_block_kinds_and_flags() {
++    let dicts = dictionaries();
++    let plain = source();
++    let mut archive = Vec::new();
++    let mut expected = Vec::new();
++    for checksum in [false, true] {
++        for seekable in [false, true] {
++            let mut kinds = 0u8;
++            for (i, mode) in [Mode::Split, Mode::Packed, Mode::Dense].into_iter().enumerate() {
++                let options = EncodeOptions {
++                    block_log: 12,
++                    checksum,
++                    seekable,
++                    mode,
++                    dictionary: Some(&dicts[i]),
++                };
++                let frame = serial(&plain, options);
++                let settings = FrameHeader::parse(frame[..16].try_into().unwrap()).unwrap();
++                let mut h = 16;
++                while frame[h] != 255 {
++                    kinds |= 1 << frame[h];
++                    h += DataBlockHeader::parse(frame[h..h + 8].try_into().unwrap(), settings)
++                        .unwrap()
++                        .disk_size();
++                }
++                archive.extend(serial(
++                    &[],
++                    EncodeOptions {
++                        block_log: if i == 1 { 13 } else { 12 },
++                        ..options
++                    },
++                ));
++                archive.extend(frame);
++                expected.extend(&plain);
++            }
++            assert_eq!(kinds, 0b111, "must actually cover RAW/SPL/PAK ({checksum}/{seekable})");
++        }
++    }
++    let options = DecodeOptions {
++        dictionaries: &dicts,
++        max_output: Some(expected.len() as u64),
++    };
++    compare_file(&archive, &expected, options, None);
++    compare_file(
++        &archive,
++        &expected[..expected.len() - 37],
++        DecodeOptions {
++            max_output: Some(expected.len() as u64 - 1),
++            ..options
++        },
++        Some(io::ErrorKind::InvalidData),
++    );
++    let opts = EncodeOptions {
++        block_log: 12,
++        dictionary: Some(&dicts[2]),
++        ..Default::default()
++    };
++    let warm = serial(
++        b"warm",
++        EncodeOptions {
++            dictionary: None,
++            ..opts
++        },
++    );
++    let empty = serial(&[], opts);
++    let missing = [&warm[..], &empty, &warm].concat();
++    compare_file(
++        &missing,
++        b"warm",
++        DecodeOptions {
++            dictionaries: &dicts[..2],
++            max_output: None,
++        },
++        Some(io::ErrorKind::InvalidData),
++    );
++}
++
++#[cfg(unix)]
++#[test]
++fn positioned_corruption_kinds_and_committed_prefix() {
++    use io::ErrorKind::{InvalidData, UnexpectedEof};
++    let options = EncodeOptions {
++        block_log: 12,
++        seekable: true,
++        ..Default::default()
++    };
++    let plain = &source()[..BLOCK * 3];
++    let warm = serial(b"warm", options);
++    let frame = serial(plain, options);
++    let settings = FrameHeader::parse(frame[..16].try_into().unwrap()).unwrap();
++    let mut eof = 16;
++    let h = std::array::from_fn::<_, 3, _>(|_| {
++        let start = eof;
++        eof += DataBlockHeader::parse(frame[eof..eof + 8].try_into().unwrap(), settings)
++            .unwrap()
++            .disk_size();
++        start
++    });
++    let prefix = |n| [&b"warm"[..], &plain[..n]].concat();
++    let opts = DecodeOptions::default();
++    for (suffix, expected, kind) in [
++        (&[][..], &[][..], UnexpectedEof),
++        (&frame[..3], &[][..], UnexpectedEof),
++        (&frame[..9], &[][..], UnexpectedEof),
++    ] {
++        compare_file(suffix, expected, opts, Some(kind));
++    }
++    for (offset, n, kind) in [
++        (h[1] + 3, BLOCK, UnexpectedEof),              // partial next header
++        (h[1] + 9, BLOCK, UnexpectedEof),              // body
++        (h[2] - 1, BLOCK, UnexpectedEof),              // checksum trailer
++        (eof + 8 + 7, plain.len(), UnexpectedEof),     // seek header
++        (eof + 16 + 3, plain.len(), InvalidData),      // table extent
++        (frame.len() - 1, plain.len(), UnexpectedEof), // footer
++    ] {
++        compare_file(&[&warm[..], &frame[..offset]].concat(), &prefix(n), opts, Some(kind));
++    }
++    for (offset, n) in [
++        (h[1] + 7, BLOCK),
++        (h[2] - 1, BLOCK),
++        (eof + 7, plain.len()),
++        (eof + 15, plain.len()),
++        (eof + 16 + 20, plain.len()),
++        (frame.len() - 1, plain.len()),
++    ] {
++        let mut bad = frame.clone();
++        bad[offset] ^= 1;
++        compare_file(&[&warm[..], &bad, &warm].concat(), &prefix(n), opts, Some(InvalidData));
++    }
++    for garbage in [&b"x"[..], &b"longer garbage"[..], &frame[..3]] {
++        compare_file(&[&warm[..], garbage].concat(), b"warm", opts, Some(InvalidData));
++    }
++    for name in [
++        "block_exceeds_block_size",
++        "bad_block_type",
++        "eof_flags_set",
++        "eof_reserved_set",
++    ] {
++        let bad = fs::read(Path::new(FIXTURES).join("invalid").join(format!("{name}.zxc"))).unwrap();
++        let archive = [&warm[..], &bad, &warm].concat();
++        let mut expected = Vec::new();
++        let e = zxc_codec::decode(&archive[..], &mut expected, opts).unwrap_err();
++        compare_file(&archive, &expected, opts, Some(e.kind()));
++    }
++}
++
+ struct Fragmented<'a>(&'a [u8], Rc<()>, bool);
+ impl Read for Fragmented<'_> {
+     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+--- a/crates/cli/src/main.rs
++++ b/crates/cli/src/main.rs
+@@ -216,15 +216,17 @@
+ }
+ fn decode(path: &Path, w: &mut dyn Write, opt: DecodeArgs) -> io::Result<()> {
+     let dicts = dictionaries(&opt.dictionary)?;
+-    zxc_parallel::decode(
+-        input(path)?,
+-        w,
+-        DecodeOptions {
+-            dictionaries: &dicts,
+-            max_output: opt.max_output,
+-        },
+-        opt.execution.config(),
+-    )
++    let options = DecodeOptions {
++        dictionaries: &dicts,
++        max_output: opt.max_output,
++    };
++    let config = opt.execution.config();
++    if path != Path::new("-")
++        && std::env::var_os("ZXC_TRIAL_INPUT").is_some_and(|mode| mode == "positioned")
++    {
++        return zxc_parallel::decode_file(File::open(path)?, w, options, config);
++    }
++    zxc_parallel::decode(input(path)?, w, options, config)
+ }
+ fn run(cli: Cli) -> io::Result<()> {
+     #[cfg(feature = "tracy")]
+--- /dev/null
++++ b/crates/parallel/src/positioned.rs
+@@ -0,0 +1,295 @@
++//! Scratch experiment: front-to-back header discovery, scoped worker body reads.
++use super::{Config, channel, decode_channel_from};
++use std::{
++    fs::{File, Metadata},
++    io::{self, Read, Write},
++    os::unix::fs::{FileExt, MetadataExt},
++};
++use zxc_codec::{
++    DecodeOptions,
++    stream::classify_block_header,
++    wire::{BLOCK_HEADER_SIZE, DataBlockHeader, FrameHeader},
++};
++
++struct Cursor<'a> {
++    file: &'a File,
++    pos: u64,
++    end: u64,
++}
++
++fn invalid(message: &'static str) -> io::Error {
++    io::Error::new(io::ErrorKind::InvalidData, message)
++}
++
++fn add(pos: u64, len: usize) -> io::Result<u64> {
++    u64::try_from(len)
++        .ok()
++        .and_then(|len| pos.checked_add(len))
++        .ok_or_else(|| invalid("positioned input range overflow"))
++}
++
++impl Read for Cursor<'_> {
++    fn read(&mut self, dst: &mut [u8]) -> io::Result<usize> {
++        let remain = self
++            .end
++            .checked_sub(self.pos)
++            .ok_or_else(|| invalid("position beyond end"))?;
++        let len = dst.len().min(usize::try_from(remain).unwrap_or(usize::MAX));
++        if len == 0 {
++            return Ok(0);
++        }
++        let next = add(self.pos, len)?;
++        self.file.read_exact_at(&mut dst[..len], self.pos)?;
++        self.pos = next;
++        Ok(len)
++    }
++}
++
++struct Job {
++    settings: FrameHeader,
++    raw: [u8; BLOCK_HEADER_SIZE],
++    offset: u64,
++    stop: u64,
++}
++
++fn body_range(offset: u64, header: DataBlockHeader, end: u64) -> io::Result<(u64, u64)> {
++    let start = add(offset, BLOCK_HEADER_SIZE)?;
++    let stop = add(start, header.body_size())?;
++    if stop > end {
++        return Err(io::Error::new(
++            io::ErrorKind::UnexpectedEof,
++            "short positioned block body",
++        ));
++    }
++    Ok((start, stop))
++}
++
++fn admit(cursor: &mut Cursor<'_>, settings: FrameHeader, _buf: &mut Vec<u8>) -> io::Result<Option<Job>> {
++    let offset = cursor.pos;
++    let mut raw = [0; BLOCK_HEADER_SIZE];
++    cursor.read_exact(&mut raw)?;
++    let Some(header) = classify_block_header(raw, settings)? else {
++        return Ok(None);
++    };
++    let (_, stop) = body_range(offset, header, cursor.end)?;
++    cursor.pos = stop;
++    Ok(Some(Job {
++        settings,
++        raw,
++        offset,
++        stop,
++    }))
++}
++
++fn materialize(file: &File, end: u64, job: Job, mut buf: Vec<u8>) -> io::Result<(DataBlockHeader, Vec<u8>)> {
++    if add(job.offset, BLOCK_HEADER_SIZE)? > end {
++        return Err(invalid("positioned block header outside input"));
++    }
++    let mut raw = [0; BLOCK_HEADER_SIZE];
++    file.read_exact_at(&mut raw, job.offset)?;
++    if raw != job.raw {
++        return Err(invalid("positioned block header changed"));
++    }
++    let header =
++        classify_block_header(raw, job.settings)?.ok_or_else(|| invalid("unexpected positioned EOF header"))?;
++    let (start, stop) = body_range(job.offset, header, end)?;
++    if stop != job.stop {
++        return Err(invalid("positioned block extent changed"));
++    }
++    zxc_codec::resize_zero!(buf, header.body_size());
++    file.read_exact_at(&mut buf, start)?;
++    Ok((header, buf))
++}
++
++fn stamp(meta: &Metadata) -> (u64, i64, i64, i64, i64) {
++    (
++        meta.len(),
++        meta.mtime(),
++        meta.mtime_nsec(),
++        meta.ctime(),
++        meta.ctime_nsec(),
++    )
++}
++
++fn check_stable(file: &File, opening: &Metadata) -> io::Result<()> {
++    if stamp(&file.metadata()?) != stamp(opening) {
++        return Err(invalid("positioned input changed during decode"));
++    }
++    Ok(())
++}
++
++pub(super) fn decode(
++    file: &File,
++    opening: &Metadata,
++    w: impl Write,
++    options: DecodeOptions<'_>,
++    config: Config,
++) -> io::Result<()> {
++    let end = opening.len();
++    decode_channel_from(
++        channel::Driver::<channel::Crossbeam>::new(config),
++        Cursor { file, pos: 0, end },
++        w,
++        options,
++        admit,
++        |job, buf| materialize(file, end, job, buf),
++    )?;
++    check_stable(file, opening)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::sync::atomic::{AtomicUsize, Ordering};
++
++    fn config(slots: usize) -> Config {
++        Config {
++            workers: 2,
++            slots,
++            ..Default::default()
++        }
++    }
++
++    fn archive(plain: &[u8]) -> Vec<u8> {
++        let mut data = Vec::new();
++        zxc_codec::encode(
++            plain,
++            &mut data,
++            zxc_codec::EncodeOptions {
++                block_log: 12,
++                ..Default::default()
++            },
++        )
++        .unwrap();
++        data
++    }
++
++    #[test]
++    fn between_admission_and_worker_read_header_mutation_and_truncate() {
++        for truncate in [false, true] {
++            let data = archive(b"raw body");
++            let mut temp = tempfile::NamedTempFile::new().unwrap();
++            temp.write_all(&data).unwrap();
++            let file = temp.as_file();
++            let end = file.metadata().unwrap().len();
++            let mut output = Vec::new();
++            // K=1 means the caller cannot read EOF before the first commit.
++            // The worker hook makes the mutation after admission and before pread.
++            let error = decode_channel_from(
++                channel::Driver::<channel::Crossbeam>::new(config(1)),
++                Cursor { file, pos: 0, end },
++                &mut output,
++                DecodeOptions::default(),
++                admit,
++                |job, buf| {
++                    if truncate {
++                        file.set_len(job.stop - 1).unwrap();
++                    } else {
++                        let mut other = job.raw;
++                        assert_eq!(other[0], 0);
++                        other[0] = 1;
++                        other[7] = 0;
++                        let gold = 0x9e3779b97f4a7c15;
++                        other[7] = ((u64::from_le_bytes(other) ^ gold).wrapping_mul(gold) >> 56) as u8;
++                        let parsed = classify_block_header(other, job.settings).unwrap().unwrap();
++                        assert_eq!(body_range(job.offset, parsed, end).unwrap().1, job.stop);
++                        file.write_all_at(&other, job.offset).unwrap();
++                    }
++                    materialize(file, end, job, buf)
++                },
++            )
++            .unwrap_err();
++            if truncate {
++                assert_eq!(error.kind(), io::ErrorKind::UnexpectedEof);
++            } else {
++                assert_eq!(error.kind(), io::ErrorKind::InvalidData);
++                assert_eq!(error.to_string(), "positioned block header changed");
++            }
++            assert!(output.is_empty());
++        }
++    }
++
++    #[test]
++    fn append_past_captured_eof_is_rejected_after_verified_prefix() {
++        let plain = b"raw body";
++        let data = archive(plain);
++        let mut temp = tempfile::NamedTempFile::new().unwrap();
++        temp.write_all(&data).unwrap();
++        let file = temp.as_file();
++        let opening = file.metadata().unwrap();
++        // Append after committed data, so logical EOF still occurs at the
++        // captured end and only the final same-fd check detects the append.
++        struct Append<'a>(&'a File, u64, Vec<u8>);
++        impl Write for Append<'_> {
++            fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
++                self.0.write_all_at(b"x", self.1)?;
++                self.2.write(bytes)
++            }
++            fn flush(&mut self) -> io::Result<()> {
++                Ok(())
++            }
++        }
++        let mut output = Append(file, opening.len(), Vec::new());
++        let e = decode(file, &opening, &mut output, DecodeOptions::default(), config(1)).unwrap_err();
++        assert_eq!(e.to_string(), "positioned input changed during decode");
++        assert_eq!(output.2, plain);
++    }
++
++    #[test]
++    fn earlier_writer_beats_later_worker_checksum_and_admission_error() {
++        let mut data = archive(&[b'x'; 4096 * 3]);
++        let settings = FrameHeader::parse(data[..16].try_into().unwrap()).unwrap();
++        let span = |p| {
++            DataBlockHeader::parse(data[p..p + 8].try_into().unwrap(), settings)
++                .unwrap()
++                .disk_size()
++        };
++        let second = 16 + span(16);
++        let third = second + span(second);
++        data[third - 1] ^= 1;
++        data[third + 7] ^= 1;
++        let mut temp = tempfile::NamedTempFile::new().unwrap();
++        temp.write_all(&data).unwrap();
++        let file = temp.as_file();
++        let opening = file.metadata().unwrap();
++        struct Reject(usize);
++        impl Write for Reject {
++            fn write(&mut self, _: &[u8]) -> io::Result<usize> {
++                self.0 += 1;
++                Err(io::Error::new(io::ErrorKind::BrokenPipe, "first block writer failure"))
++            }
++            fn flush(&mut self) -> io::Result<()> {
++                Ok(())
++            }
++        }
++        for slots in [1, 2, 16] {
++            let mut output = Reject(0);
++            let error = decode(file, &opening, &mut output, DecodeOptions::default(), config(slots)).unwrap_err();
++            assert_eq!(output.0, 1);
++            assert_eq!(error.kind(), io::ErrorKind::BrokenPipe);
++        }
++        let mut output = Vec::new();
++        let error = decode(file, &opening, &mut output, DecodeOptions::default(), config(16)).unwrap_err();
++        assert_eq!(error.to_string(), "block checksum mismatch");
++        assert_eq!(output, [b'x'; 4096]);
++    }
++
++    #[test]
++    fn checked_range_near_u64_limit_without_physical_read() {
++        let data = archive(b"raw body");
++        let settings = FrameHeader::parse(data[..16].try_into().unwrap()).unwrap();
++        let header = DataBlockHeader::parse(data[16..24].try_into().unwrap(), settings).unwrap();
++        assert_eq!(add(u64::MAX - 7, 7).unwrap(), u64::MAX);
++        assert_eq!(add(u64::MAX - 7, 8).unwrap_err().kind(), io::ErrorKind::InvalidData);
++        assert_eq!(
++            body_range(u64::MAX - 8, header, u64::MAX).unwrap_err().kind(),
++            io::ErrorKind::InvalidData
++        );
++        assert_eq!(
++            body_range(u64::MAX - header.disk_size() as u64, header, u64::MAX)
++                .unwrap()
++                .1,
++            u64::MAX
++        );
++    }
++}

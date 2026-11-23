@@ -1,0 +1,257 @@
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2321,6 +2321,7 @@
+  "flume",
+  "kanal",
+  "rayon",
++ "rustix",
+  "tempfile",
+  "tracy-client",
+  "zxc-codec",
+--- a/crates/parallel/Cargo.toml
++++ b/crates/parallel/Cargo.toml
+@@ -14,6 +14,7 @@
+ 
+ [dependencies]
+ crossbeam-channel = "0.5"
++rustix = { version = "1.1.6", features = ["time"] }
+ crossfire = { version = "3.1", default-features = false, optional = true }
+ flume = { version = "0.12", default-features = false, optional = true }
+ kanal = { version = "0.1", default-features = false, optional = true }
+--- a/crates/parallel/src/lib.rs
++++ b/crates/parallel/src/lib.rs
+@@ -26,6 +26,7 @@
+ mod rayon;
+ #[cfg(test)]
+ mod scheduler_tests;
++pub mod trial_probe;
+ 
+ /// The transport used for multi-worker operations.
+ #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+@@ -225,10 +226,10 @@
+     w: impl Write,
+     options: DecodeOptions<'_>,
+ ) -> io::Result<()> {
+-    decode_channel_from(driver, r, w, options, read_data_block, |header, buf| Ok((header, buf)))
++    decode_channel_from::<false, _, _, _>(driver, r, w, options, read_data_block, |header, buf| Ok((header, buf)))
+ }
+ 
+-fn decode_channel_from<Q: channel::Transport, R: Read, J: Send + 'static>(
++fn decode_channel_from<const POSITIONED: bool, Q: channel::Transport, R: Read, J: Send + 'static>(
+     driver: channel::Driver<Q>,
+     mut r: R,
+     mut w: impl Write,
+@@ -236,15 +237,19 @@
+     mut admit: impl FnMut(&mut R, FrameHeader, &mut Vec<u8>) -> io::Result<Option<J>>,
+     materialize: impl Fn(J, Vec<u8>) -> io::Result<(DataBlockHeader, Vec<u8>)> + Sync,
+ ) -> io::Result<()> {
++    use trial_probe::{Clock, Phase};
+     let dicts = options.dictionaries;
+     let mut total = 0;
++    let clock = Clock::start();
+     let mut next = DecodeFrame::start(&mut r, true)?;
++    clock.stop().add(Phase::Prologue);
+     while let Some(mut frame) = next {
+         let size = frame.header().block_size();
+         let slot = dictionary_slot(frame.header(), dicts)?;
+         next = driver.with_workers(
+             |work: &mut BlockDecoder, index, (job, slot): (_, Option<usize>), buf| {
+                 let (header, buf) = materialize(job, buf)?;
++                trial_probe::worker_job(POSITIONED.then(|| header.body_size()));
+                 Ok((header, work.decode_owned(header, buf, slot.map(|i| &dicts[i]), index)?))
+             },
+             |session| {
+@@ -254,7 +259,24 @@
+                         zone!("parallel decode frame");
+                         let settings = frame.header();
+                         session.run(
+-                            |buf| Ok(admit(&mut r, settings, buf)?.map(|job| (job, slot))),
++                            |buf| {
++                                let clock = Clock::start();
++                                let result = admit(&mut r, settings, buf);
++                                let sample = clock.stop();
++                                match result? {
++                                    Some(job) => {
++                                        sample.add(Phase::Data);
++                                        if !POSITIONED {
++                                            trial_probe::caller_body(buf.len());
++                                        }
++                                        Ok(Some((job, slot)))
++                                    }
++                                    None => {
++                                        sample.add(Phase::Marker);
++                                        Ok(None)
++                                    }
++                                }
++                            },
+                             |(header, block)| {
+                                 frame.commit(&mut w, header, block.as_verified(), &mut total, options.max_output)?;
+                                 Ok(block.into_buffer())
+@@ -262,9 +284,18 @@
+                         )?;
+                         // All jobs and writes precede the footer, and no input
+                         // from the next frame is read until finish succeeds.
++                        let clock = Clock::start();
+                         frame.finish(&mut r)?;
++                        clock.stop().add(Phase::Finish);
+                     }
+-                    match DecodeFrame::start(&mut r, false)? {
++                    let clock = Clock::start();
++                    let next = DecodeFrame::start(&mut r, false)?;
++                    clock.stop().add(if next.is_some() {
++                        Phase::Prologue
++                    } else {
++                        Phase::PhysicalEof
++                    });
++                    match next {
+                         Some(new) if new.header().block_size() == size => {
+                             slot = dictionary_slot(new.header(), dicts)?;
+                             frame = new;
+--- a/crates/parallel/src/positioned.rs
++++ b/crates/parallel/src/positioned.rs
+@@ -126,7 +126,7 @@
+     config: Config,
+ ) -> io::Result<()> {
+     let end = opening.len();
+-    decode_channel_from(
++    decode_channel_from::<true, _, _, _>(
+         channel::Driver::<channel::Crossbeam>::new(config),
+         Cursor { file, pos: 0, end },
+         w,
+@@ -134,7 +134,10 @@
+         admit,
+         |job, buf| materialize(file, end, job, buf),
+     )?;
+-    check_stable(file, opening)
++    let clock = crate::trial_probe::Clock::start();
++    check_stable(file, opening)?;
++    clock.stop().add(crate::trial_probe::Phase::Stable);
++    Ok(())
+ }
+ 
+ #[cfg(test)]
+--- a/crates/parallel/src/channel.rs
++++ b/crates/parallel/src/channel.rs
+@@ -155,6 +155,7 @@
+                 let rx = job_rx.clone();
+                 let tx = result_tx.clone();
+                 builder(i)?.spawn_scoped(scope, move || {
++                    let _batch = crate::trial_probe::WorkerBatch;
+                     let mut scratch = None;
+                     loop {
+                         let job = {
+--- a/crates/cli/src/main.rs
++++ b/crates/cli/src/main.rs
+@@ -291,7 +291,10 @@
+ }
+ fn main() -> ExitCode {
+     match run(Cli::parse()) {
+-        Ok(()) => ExitCode::SUCCESS,
++        Ok(()) => {
++            zxc_parallel::trial_probe::emit();
++            ExitCode::SUCCESS
++        }
+         Err(e) => {
+             eprintln!("zxc: {e}");
+             ExitCode::FAILURE
+--- /dev/null
++++ b/crates/parallel/src/trial_probe.rs
+@@ -0,0 +1,98 @@
++//! Linux diagnostic overlay only. No clock calls, TLS or atomics in clean builds.
++use rustix::time::{ClockId, clock_gettime};
++use std::{
++    cell::Cell,
++    sync::atomic::{AtomicU64, Ordering::Relaxed},
++    time::Instant,
++};
++
++#[derive(Clone, Copy)]
++pub(super) enum Phase {
++    Data,
++    Marker,
++    Finish,
++    Prologue,
++    PhysicalEof,
++    Stable,
++}
++const LABELS: [&str; 6] = ["data", "marker", "finish", "prologue", "physical_eof", "stable"];
++const ZERO: [u64; 3] = [0; 3];
++thread_local! {
++    static COORD: Cell<[[u64; 3]; 6]> = const { Cell::new([ZERO; 6]) };
++    static BODY: Cell<u64> = const { Cell::new(0) };
++    static WORK: Cell<[u64; 3]> = const { Cell::new(ZERO) };
++}
++static WORK_SUM: [AtomicU64; 3] = [const { AtomicU64::new(0) }; 3];
++
++fn cpu() -> u64 {
++    let t = clock_gettime(ClockId::ThreadCPUTime);
++    t.tv_sec as u64 * 1_000_000_000 + t.tv_nsec as u64
++}
++
++pub(super) struct Clock(Instant, u64);
++impl Clock {
++    pub(super) fn start() -> Self {
++        Self(Instant::now(), cpu())
++    }
++    pub(super) fn stop(self) -> Sample {
++        let cpu = cpu() - self.1;
++        Sample(cpu, self.0.elapsed().as_nanos() as u64)
++    }
++}
++
++pub(super) struct Sample(u64, u64);
++impl Sample {
++    pub(super) fn add(self, phase: Phase) {
++        COORD.with(|c| {
++            let mut all = c.get();
++            let t = &mut all[phase as usize];
++            t[0] += 1;
++            t[1] += self.0;
++            t[2] += self.1;
++            c.set(all);
++        });
++    }
++}
++
++pub(super) fn caller_body(size: usize) {
++    BODY.with(|n| n.set(n.get() + size as u64));
++}
++pub(super) fn worker_job(positioned_body: Option<usize>) {
++    WORK.with(|w| {
++        let [jobs, headers, body] = w.get();
++        w.set([
++            jobs + 1,
++            headers + 8 * u64::from(positioned_body.is_some()),
++            body + positioned_body.unwrap_or(0) as u64,
++        ]);
++    });
++}
++pub(super) struct WorkerBatch;
++impl Drop for WorkerBatch {
++    fn drop(&mut self) {
++        for (sum, n) in WORK_SUM.iter().zip(WORK.with(Cell::get)) {
++            sum.fetch_add(n, Relaxed);
++        }
++    }
++}
++
++/// Single CLI operation, called after the writer/transaction completed.
++pub fn emit() {
++    let all = COORD.with(Cell::get);
++    if all[Phase::Prologue as usize][0] == 0 {
++        return;
++    }
++    let data_jobs = all[Phase::Data as usize][0];
++    let frame_markers = all[Phase::Marker as usize][0];
++    let [wj, wh, wb] = WORK_SUM.each_ref().map(|n| n.load(Relaxed));
++    eprint!(
++        "ZXC_POSITIONED_PROBE jobs={data_jobs} caller_data_header_bytes={} caller_marker_bytes={} caller_body_bytes={} worker_jobs={wj} worker_header_bytes={wh} worker_body_bytes={wb}",
++        data_jobs * 8,
++        frame_markers * 8,
++        BODY.with(Cell::get)
++    );
++    for (label, [calls, cpu, wall]) in LABELS.into_iter().zip(all) {
++        eprint!(" {label}={calls},{cpu},{wall}");
++    }
++    eprintln!();
++}
