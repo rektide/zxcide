@@ -1,0 +1,115 @@
+--- a/crates/codec/src/entropy/tests.rs
++++ b/crates/codec/src/entropy/tests.rs
+@@ -264,3 +264,112 @@
+     table[0] = 0x11;
+     assert_eq!(Tree::new(&table).unwrap_err().to_string(), "incomplete Huffman tree");
+ }
++
++#[test]
++fn inline_canonical_wire_and_errors() {
++    let (mut out, mut scratch) = (Vec::new(), Vec::new());
++    let mut decode = |table: &[u8; 128], src: &[u8], count| {
++        decode_inline(table, src, count, &mut out, &mut scratch).map(<[u8]>::to_vec)
++    };
++    let mut table = [0; 128];
++    // B=10, C=110, D=111 under a uniform root; set high padding.
++    table[32..35].copy_from_slice(&[0x10, 0x32, 0x03]);
++    let wire = [0xff, 0xf6, 0xfe];
++    assert_eq!(decode(&table, &wire, 5).unwrap(), b"BCDBD");
++    for n in 0..wire.len() {
++        assert_eq!(decode(&table, &wire[..n], 5).unwrap_err().to_string(), "short section");
++    }
++    assert_eq!(
++        decode(&table, &[0xff, 0xf6, 0xfe, 0], 5).unwrap_err().to_string(),
++        "trailing Huffman data"
++    );
++    assert!(decode(&table, &[], 0).unwrap().is_empty());
++    assert_eq!(
++        decode(&table, &[0], 0).unwrap_err().to_string(),
++        "trailing Huffman data"
++    );
++
++    table.fill(0);
++    table[127] = 0x10;
++    assert_eq!(decode(&table, &[0, 0xfe], 9).unwrap(), [255; 9]);
++    assert_eq!(
++        decode(&table, &[0, 0xff], 9).unwrap_err().to_string(),
++        "Huffman run selects missing child"
++    );
++    assert_eq!(decode(&table, &[0], 9).unwrap_err().to_string(), "short section");
++    for (first, last, error) in [
++        (0, 0, "incomplete Huffman tree"),
++        (2, 0, "incomplete Huffman tree"),
++        (0x11, 0x10, "incomplete Huffman tree"),
++        (0xc1, 0, "Huffman length exceeds 11"),
++        (12, 0, "Huffman length exceeds 11"),
++    ] {
++        table[0] = first;
++        table[127] = last;
++        assert_eq!(decode(&table, &[], 0).unwrap_err().to_string(), error);
++    }
++}
++
++#[test]
++fn inline_canonical_matches_old_tree_for_generated_shapes_and_corruption() {
++    fn draw(state: &mut u32) -> usize {
++        *state = state.wrapping_mul(1664525).wrapping_add(1013904223);
++        (*state >> 8) as usize
++    }
++    let mut rng = 0x35c0_5d6b;
++    let (mut out, mut scratch) = (Vec::new(), Vec::new());
++    for shape in 0..600 {
++        let mut lengths = vec![0];
++        let n = 2 + draw(&mut rng) % 255;
++        while lengths.len() < n {
++            let i = draw(&mut rng) % lengths.len();
++            if lengths[i] < 11 {
++                lengths[i] += 1;
++                lengths.push(lengths[i]);
++            }
++        }
++        if shape < 8 {
++            lengths = vec![shape as u8 + 1; 2 << shape];
++        }
++        let mut order: Vec<_> = (0..=255u8).collect();
++        for i in (1..order.len()).rev() {
++            order.swap(i, draw(&mut rng) % (i + 1));
++        }
++        let mut table = [0u8; 128];
++        for (&sym, depth) in order.iter().zip(&lengths) {
++            table[sym as usize / 2] |= depth << (4 * (sym % 2));
++        }
++        let tree = Tree::new(&table).unwrap();
++        let count = 1 + draw(&mut rng) % 400;
++        let input: Vec<_> = (0..count)
++            .map(|i| {
++                if i < lengths.len() {
++                    order[i]
++                } else {
++                    order[draw(&mut rng) % lengths.len()]
++                }
++            })
++            .collect();
++        let mut freq = [0; 256];
++        for &s in &input {
++            freq[s as usize] += 1;
++        }
++        let bits = tree.emit(&input, &freq, &[], usize::MAX).unwrap();
++        assert_eq!(
++            decode_inline(&table, &bits, count, &mut out, &mut scratch).unwrap(),
++            input
++        );
++        let mut trailing = bits.clone();
++        trailing.push(0xff);
++        let mut changed = bits.clone();
++        let i = draw(&mut rng) % bits.len();
++        changed[i] ^= 1 << (draw(&mut rng) % 8);
++        for run in [&bits[..bits.len() - 1], &trailing, &changed] {
++            let old = tree.decode(run, count).map_err(|e| (e.kind(), e.to_string()));
++            let new = decode_inline(&table, run, count, &mut out, &mut scratch)
++                .map(<[u8]>::to_vec)
++                .map_err(|e| (e.kind(), e.to_string()));
++            assert_eq!(old, new, "shape={shape}");
++        }
++    }
++}

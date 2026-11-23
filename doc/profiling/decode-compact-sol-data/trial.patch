@@ -1,0 +1,325 @@
+--- a/crates/codec/src/block.rs
++++ b/crates/codec/src/block.rs
+@@ -1,7 +1,7 @@
++#[cfg(test)]
++use crate::entropy::Tree;
+ use crate::{
+-    Dictionary, bad,
+-    entropy::{self, Tree},
+-    require, take,
++    Dictionary, bad, entropy, require, take,
+     wire::{DataBlockHeader, checksum},
+     word,
+ };
+@@ -161,10 +161,13 @@
+     Ok(match encoding {
+         0 => Cow::Borrowed(data),
+         1 => Cow::Owned(entropy::rle(data, count)?),
+-        2 => {
+-            let tree = Tree::new(take(&mut data, 128)?)?;
+-            Cow::Borrowed(tree.decode_into(data, count, out, merge)?)
+-        }
++        2 => Cow::Borrowed(entropy::decode_inline(
++            take(&mut data, 128)?.try_into().unwrap(),
++            data,
++            count,
++            out,
++            merge,
++        )?),
+         3 => Cow::Borrowed(
+             dict.and_then(|d| d.tree.as_ref())
+                 .ok_or_else(|| bad("missing dictionary Huffman table"))?
+--- a/crates/codec/src/entropy.rs
++++ b/crates/codec/src/entropy.rs
+@@ -2,6 +2,8 @@
+ //! symbol lists bottom-up. Each subtree owns a disjoint output interval.
+ use crate::{require, take};
+ use std::{collections::VecDeque, io};
++mod canonical;
++pub(crate) use canonical::decode_inline;
+ mod flat;
+ #[cfg(any(
+     test,
+@@ -147,18 +149,7 @@
+             }
+             let run = take(&mut src, (n * usize::from(node.flat.max(1))).div_ceil(8))?;
+             if node.flat == 0 {
+-                let whole = n / 8;
+-                let (words, tail) = run[..whole].as_chunks::<8>();
+-                let ones = words
+-                    .iter()
+-                    .map(|w| u64::from_ne_bytes(*w).count_ones() as usize)
+-                    .sum::<usize>()
+-                    + tail.iter().map(|b| b.count_ones() as usize).sum::<usize>()
+-                    + if n % 8 == 0 {
+-                        0
+-                    } else {
+-                        (run[whole] & ((1 << (n % 8)) - 1)).count_ones() as usize
+-                    };
++                let ones = bitmap_ones(run, n);
+                 order.push((start, n, ones, run));
+                 for (child, (base, cnt)) in node
+                     .child
+@@ -191,31 +182,52 @@
+                 continue;
+             }
+             let region = &mut output[start..start + n];
+-            #[cfg(any(not(target_arch = "wasm32"), all(feature = "merge-simd", target_feature = "simd128")))]
+-            merge::gather(region, &mut scratch[..n], run, n - ones);
+-            // Keep the unflagged component on its original cursor. The table
+-            // build did not pass the whole-call WIT regression screen.
+-            #[cfg(all(target_arch = "wasm32", not(all(feature = "merge-simd", target_feature = "simd128"))))]
+-            {
+-                let mut cursor = [0, n - ones];
+-                for (chunk, &bits) in scratch[..n].chunks_mut(8).zip(run) {
+-                    for (j, dst) in chunk.iter_mut().enumerate() {
+-                        let side = usize::from((bits >> j) & 1);
+-                        *dst = region[cursor[side]];
+-                        cursor[side] += 1;
+-                    }
+-                }
+-            }
+-            region.copy_from_slice(&scratch[..n]);
+-            crate::probe!({
+-                add("copy:Huffman gather", n);
+-                add("copy:Huffman return", n);
+-            });
++            merge_back(region, &mut scratch[..n], run, n - ones);
+         }
+         Ok(&output[..count])
+     }
+ }
+ 
++#[inline(always)]
++fn bitmap_ones(run: &[u8], n: usize) -> usize {
++    let whole = n / 8;
++    let (words, tail) = run[..whole].as_chunks::<8>();
++    words
++        .iter()
++        .map(|w| u64::from_ne_bytes(*w).count_ones() as usize)
++        .sum::<usize>()
++        + tail.iter().map(|b| b.count_ones() as usize).sum::<usize>()
++        + if n % 8 == 0 {
++            0
++        } else {
++            (run[whole] & ((1 << (n % 8)) - 1)).count_ones() as usize
++        }
++}
++
++#[inline(always)]
++fn merge_back(region: &mut [u8], scratch: &mut [u8], run: &[u8], left: usize) {
++    #[cfg(any(not(target_arch = "wasm32"), all(feature = "merge-simd", target_feature = "simd128")))]
++    merge::gather(region, scratch, run, left);
++    // Keep the unflagged component on its original cursor. The table
++    // build did not pass the whole-call WIT regression screen.
++    #[cfg(all(target_arch = "wasm32", not(all(feature = "merge-simd", target_feature = "simd128"))))]
++    {
++        let mut cursor = [0, left];
++        for (chunk, &bits) in scratch.chunks_mut(8).zip(run) {
++            for (j, dst) in chunk.iter_mut().enumerate() {
++                let side = usize::from((bits >> j) & 1);
++                *dst = region[cursor[side]];
++                cursor[side] += 1;
++            }
++        }
++    }
++    region.copy_from_slice(scratch);
++    crate::probe!({
++        add("copy:Huffman gather", region.len());
++        add("copy:Huffman return", region.len());
++    });
++}
++
+ fn init_prefix(buffer: &mut Vec<u8>, count: usize) {
+     if count > buffer.len() {
+         // Counts are already bounded by the frame's block size. Reserve
+--- /dev/null
++++ b/crates/codec/src/entropy/canonical.rs
+@@ -0,0 +1,187 @@
++//! Inline PivCo decode without heap nodes, a FIFO or a merge-order list.
++use super::{MAX_CODE_LEN, bitmap_ones, flat, init_prefix, merge_back};
++use crate::{require, take};
++use std::io;
++
++const DEPTHS: usize = MAX_CODE_LEN as usize + 1;
++const ALPHABET: usize = 256;
++const BRANCHES: usize = ALPHABET - 1;
++
++#[derive(Clone, Copy, Default)]
++struct Level {
++    inner: usize, // first internal slot at this depth
++    leaf: usize,  // first canonical leaf at this depth
++    first: usize, // first available prefix (first leaf, if any)
++}
++
++#[derive(Clone, Copy, Default)]
++struct Run {
++    // These coordinates fit in u32: section extent and symbol count are each
++    // bounded by a frame block (at most 2 MiB) before entropy decode.
++    start: u32,
++    len: u32,
++    left: u32, // nonzero only for a mixed bitmap
++    wire: u32,
++}
++
++pub(crate) fn decode_inline<'a>(
++    table: &[u8; 128],
++    coded: &[u8],
++    count: usize,
++    output: &'a mut Vec<u8>,
++    scratch: &mut Vec<u8>,
++) -> io::Result<&'a [u8]> {
++    let mut counts = [0usize; DEPTHS];
++    let mut lengths = [0; ALPHABET];
++    for (&pair, dst) in table.iter().zip(lengths.as_chunks_mut::<2>().0) {
++        *dst = [pair & 15, pair >> 4];
++        for &depth in dst.iter() {
++            *counts
++                .get_mut(usize::from(depth))
++                .ok_or_else(|| crate::bad("Huffman length exceeds 11"))? += 1;
++        }
++    }
++    let kraft: usize = (1..DEPTHS).map(|d| counts[d] << (DEPTHS - 1 - d)).sum();
++    let singleton = counts[0] == ALPHABET - 1 && counts[1] == 1;
++    require(kraft == 1 << MAX_CODE_LEN || singleton, "incomplete Huffman tree")?;
++
++    zone!("PivCo decode");
++    init_prefix(output, count);
++    let mut src = coded;
++    if singleton {
++        let run = take(&mut src, count.div_ceil(8))?;
++        require(bitmap_ones(run, count) == 0, "Huffman run selects missing child")?;
++        output[..count].fill(lengths.iter().position(|&d| d == 1).unwrap() as u8);
++        require(src.is_empty(), "trailing Huffman data")?;
++        init_prefix(scratch, count);
++        crate::probe!({
++            add("produce:Huffman symbols", count);
++            crate::ledger::max("peak-section:Huffman auxiliary", scratch.capacity());
++        });
++        return Ok(&output[..count]);
++    }
++
++    // Valid canonical codes occupy the leftmost available prefixes at each
++    // depth. Only the remaining prefixes have children, two per internal
++    // slot. Kraft equality guarantees a full tree (at most 255 internals).
++    counts[0] = 0;
++    let mut levels = [Level::default(); DEPTHS + 1];
++    let mut width = 1;
++    let mut deepest = 0;
++    for (d, &leaves) in counts.iter().enumerate() {
++        let cur = levels[d];
++        let branches = width - leaves;
++        levels[d + 1] = Level {
++            inner: cur.inner + branches,
++            leaf: cur.leaf + leaves,
++            first: 2 * (cur.first + leaves),
++        };
++        if branches == 0 {
++            deepest = d;
++            break;
++        }
++        width = 2 * branches;
++    }
++    let mut ends = levels.map(|level| level.leaf);
++    let mut symbols = [0u8; ALPHABET];
++    for (sym, d) in lengths.into_iter().enumerate().filter(|&(_, d)| d != 0) {
++        let end = &mut ends[usize::from(d)];
++        symbols[*end] = sym as u8;
++        *end += 1;
++    }
++
++    // Height zero represents a non-flat internal slot. Paired leaves
++    // are height one; a leaf/internal pair is always non-flat.
++    let mut heights = [0u8; BRANCHES];
++    for d in (0..deepest).rev() {
++        let [cur, child, end] = levels[d..][..3] else {
++            unreachable!()
++        };
++        let (before, after) = heights.split_at_mut(child.inner);
++        let h = &mut before[cur.inner..];
++        let leaves = end.leaf - child.leaf;
++        h[..leaves / 2].fill(1);
++        for (parent, &[a, b]) in h[leaves.div_ceil(2)..]
++            .iter_mut()
++            .zip(after[..end.inner - child.inner][leaves % 2..].as_chunks::<2>().0)
++        {
++            *parent = if a == b && a != 0 { a + 1 } else { 0 };
++        }
++    }
++
++    let mut state = [Run::default(); BRANCHES];
++    state[0].len = count as u32;
++    let mut lookup = [0u8; ALPHABET];
++    for d in 0..deepest {
++        let cur = levels[d];
++        let child = levels[d + 1];
++        let leaves = levels[d + 2].leaf - child.leaf;
++        let (before, after) = state.split_at_mut(child.inner);
++        for (i, (st, &height)) in before[cur.inner..]
++            .iter_mut()
++            .zip(&heights[cur.inner..child.inner])
++            .enumerate()
++        {
++            let n = st.len as usize;
++            if n == 0 {
++                continue;
++            }
++            let start = st.start as usize;
++            let wire = coded.len() - src.len();
++            let h = usize::from(height);
++            let run = take(&mut src, (n * h.max(1)).div_ceil(8))?;
++            let first_child = i * 2;
++            if h != 0 {
++                // A perfect subtree's leaves are one contiguous interval
++                // at depth d+h, but the wire puts the root bit first (LSB).
++                let end = levels[d + h];
++                let first = end.leaf + (((cur.first + counts[d] + i) << h) - end.first);
++                let table = &mut lookup[..1 << h];
++                let leaves = &symbols[first..first + table.len()];
++                for (j, s) in table.iter_mut().enumerate() {
++                    *s = leaves[usize::from((j as u8).reverse_bits() >> (8 - h))];
++                }
++                flat::unpack(&mut output[start..start + n], run, table);
++                continue;
++            }
++
++            let ones = bitmap_ones(run, n);
++            let left = n - ones;
++            if left != 0 && ones != 0 {
++                st.left = left as u32;
++                st.wire = wire as u32;
++            }
++            for (j, base, cnt) in [(first_child, start, left), (first_child + 1, start + left, ones)] {
++                if cnt == 0 {
++                    continue;
++                }
++                if j < leaves {
++                    output[base..base + cnt].fill(symbols[child.leaf + j]);
++                } else {
++                    let next = &mut after[j - leaves];
++                    next.start = base as u32;
++                    next.len = cnt as u32;
++                }
++            }
++        }
++    }
++    require(src.is_empty(), "trailing Huffman data")?;
++    init_prefix(scratch, count);
++    crate::probe!({
++        add("produce:Huffman symbols", count);
++        crate::ledger::max(
++            "peak-section:Huffman auxiliary",
++            scratch.capacity() + std::mem::size_of_val(&state),
++        );
++    });
++    for st in state[..levels[deepest].inner].iter().rev().filter(|st| st.left != 0) {
++        let (start, len, wire) = (st.start as usize, st.len as usize, st.wire as usize);
++        merge_back(
++            &mut output[start..start + len],
++            &mut scratch[..len],
++            &coded[wire..wire + len.div_ceil(8)],
++            st.left as usize,
++        );
++    }
++    Ok(&output[..count])
++}
