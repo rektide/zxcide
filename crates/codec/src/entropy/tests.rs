@@ -161,6 +161,55 @@ fn bitmap_kernels_match_the_cursor_at_exact_child_and_output_ends() {
 }
 
 #[test]
+fn bitmap_gather_preserves_two_group_order_and_bounded_suffixes() {
+    fn check(masks: &[u8], n: usize, src_offset: usize, dst_offset: usize, mask_offset: usize) {
+        assert_eq!(masks.len(), n.div_ceil(8));
+        let expected: Vec<_> = (0..n).map(|i| (i as u8).wrapping_mul(197).wrapping_add(31)).collect();
+        // The two children are the stable partition of the expected output by
+        // the individual bitmap bits, independent of the gather implementation.
+        let went_right = |i: usize| masks[i / 8] >> (i % 8) & 1 != 0;
+        let left = (0..n).filter(|&i| !went_right(i)).count();
+        let src: Box<[u8]> = std::iter::repeat_n(0xa7, src_offset)
+            .chain((0..n).filter(|&i| !went_right(i)).map(|i| expected[i]))
+            .chain((0..n).filter(|&i| went_right(i)).map(|i| expected[i]))
+            .collect();
+        let bitmap: Box<[u8]> = std::iter::repeat_n(0xd3, mask_offset)
+            .chain(masks.iter().copied())
+            .collect();
+        let mut dst = vec![0x9e; dst_offset + n].into_boxed_slice();
+        merge::gather(&src[src_offset..], &mut dst[dst_offset..], &bitmap[mask_offset..], left);
+        assert_eq!(&dst[dst_offset..], &expected, "{masks:02x?}, n={n}, left={left}");
+        assert!(dst[..dst_offset].iter().all(|&b| b == 0x9e));
+    }
+
+    // Every ordered pair after nonzero child cursors, with enough of both
+    // children following the pair for full SIMD windows even for 00/ff.
+    for a in 0..=255 {
+        for b in 0..=255 {
+            check(&[0x55, 0xc3, a, b, 0xaa, 0x5a, 0xf0, 0x33], 64, 0, 0, 0);
+        }
+    }
+
+    // Skew left and right independently; exercise shorter-than-eight child
+    // remainders, one-group suffixes, and an unselected high-bit pattern in
+    // the final byte. All slices end at the allocation boundary.
+    for masks in [
+        [0x55, 0x55, 0x33, 0x00, 0x00, 0x01, 0x80, 0xfd],
+        [0xaa, 0xaa, 0xcc, 0xff, 0xff, 0xfe, 0x7f, 0x02],
+        [0x00, 0xff, 0xff, 0x00, 0x55, 0x33, 0x5a, 0xe4],
+        [0xff, 0x00, 0x00, 0xff, 0xaa, 0xcc, 0xa5, 0x1b],
+    ] {
+        for n in 24usize..=64 {
+            for src in 0..32 {
+                for dst in 0..32 {
+                    check(&masks[..n.div_ceil(8)], n, src, dst, (src + 3 * dst) % 32);
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn mixed_merges_under_uniform_ancestor_preserve_bitmap_tails() {
     // Canonical codes A=0 B=10 C=110 D=111. All root selections go
     // right; its child and grandchild both actually merge. Each bitmap
