@@ -194,6 +194,8 @@ The [two-group AVX2 merge trial](pivco-avx2-merge0.sol.md) holds that flat shuff
 
 The [SPL16 and Huffman setup follow-up](decode-next0.sol.md) compares a narrower match-extension copy and canonical depth bucketing independently against the same Rust parent. Its eligibility census also explains why a distance-one fill did not advance to timing.
 
+The [current Rust–C gap breakdown](decode-gap0.sol.md) profiles the retained Rust decoder, the compact-table prototype and pinned C on the same long C7 frame. It separates mixed gather, flat unpack and copy-back, then puts those costs next to reconstruction in checksum-verified blocks.
+
 For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
 
 For an arbitrary archive or encoder workload, run the client and capture manually:
