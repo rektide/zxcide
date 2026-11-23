@@ -6,7 +6,7 @@ resource: /doc/profiling/bitmap-merge-race0.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol#high', at: 2026-11-23 }
 sources:
-  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Reviewed and landed the bounded AVX2 winner on the ARM64/RISC-V-enabled tree }
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Landed the bounded AVX2 winner and linked the direct C benchmark on the integrated tree }
   - { resource: 'opencode://ses_df821dfb8ffe2ajVc5CiDVaKhO', title: Raced both bounded kernels, corrected the AVX2 suffix, verified exact output, and measured checked replay and W1 }
   - { resource: /design/decode-throughput/bitmap-merge0.astra.md, title: Bounded deposit and 32-output shuffle-and-blend design and gate }
   - { resource: /doc/profiling/decode-gap0.sol.md, title: Original mixed-run census and Rust–C cycle attribution }
@@ -17,7 +17,7 @@ sources:
 
 # Bounded bitmap merge race after width six
 
-**Landed in `45415859`.** The decoder uses these bounded tiles on the x86-64 AVX2 dispatch tier and retains the eight-output suffix. Other dispatch tiers retain the existing kernel. PDEP did not land. The results below describe the original scratch comparison.
+**Landed in `45415859`.** The decoder uses these bounded tiles on the x86-64 AVX2 dispatch tier and retains the eight-output suffix. Other dispatch tiers retain the existing kernel. PDEP did not land. The results below describe the original scratch comparison; the [landed CLI comparison](bitmap-merge-landed0.sol.md) adds W8 and directly pairs the winner with pinned C.
 
 **Promote the revised bounded 32-output AVX2 merge; drop PDEP.** On the Ryzen 7 5800X, the revised candidate cut original `single` mixed-gather cycles by **43%** for both literals and tokens. This reached checked-block replay and the full serial CLI: `single` W1 gained **5.31% and 7.81%** in independent paired series. Promote only the version that finishes with the existing eight-output path from the current cursors; a direct scalar suffix regressed when the right child ran low early. The [patch](bitmap-merge-race-sol-data/avx2.patch) is a handoff, not a production change in this measurement.
 
