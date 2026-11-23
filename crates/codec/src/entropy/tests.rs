@@ -38,8 +38,9 @@ fn packed_subtrees_decode_all_widths_and_tail_lengths() {
         // Complete canonical trees use bit-reversed symbol IDs on the wire.
         // Cover every code and every possible final partial group. Start
         // with set padding so a read of unused bits is observable.
-        let source: Vec<_> = (0..symbols + 8).map(|i| (i * 109 % symbols) as u8).collect();
-        for n in symbols..symbols + 8 {
+        let end = if width == 3 { 48 } else { symbols + 8 };
+        let source: Vec<_> = (0..end).map(|i| (i * 109 % symbols) as u8).collect();
+        for n in symbols..end {
             let mut run = vec![0xff; (n * usize::from(width)).div_ceil(8)];
             for (i, &s) in source[..n].iter().enumerate() {
                 for b in 0..width {
@@ -51,6 +52,8 @@ fn packed_subtrees_decode_all_widths_and_tail_lengths() {
             }
             assert_eq!(tree.decode(&run, n).unwrap(), source[..n]);
             assert!(tree.decode(&run[..run.len() - 1], n).is_err());
+            run.push(0);
+            assert!(tree.decode(&run, n).is_err());
         }
     }
 }
