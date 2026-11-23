@@ -36,6 +36,37 @@ fn ordered_pairs_in_each_lane_fast_and_exact_end() {
 }
 
 #[test]
+fn all_actual_pointer_alignments_in_fast_tiles() {
+    let Some(proof) = fearless_simd::Level::new().as_avx2() else { return };
+    #[repr(align(32))]
+    struct Aligned<const N: usize>([u8; N]);
+    let n = 161usize;
+    let mut region = Aligned([0u8; 193]);
+    let mut out = Aligned([0x37u8; 193]);
+    let mut bitmap = Aligned([0u8; 53]);
+    for off in 0..32 {
+        // Relative alignments vary alongside the absolute alignments.
+        let od = (3*off+5)%32;
+        let ob = (7*off+3)%32;
+        let mask = &mut bitmap.0[ob..ob+n.div_ceil(8)];
+        mask.fill(0b1101_0100);
+        let nleft = (0..n).filter(|&i| mask[i/8] & (1<<(i%8)) == 0).count();
+        let mut consumed = [off,off+nleft];
+        let expected: Vec<_> = (0..n).map(|i| {
+            let v = (i*139 + i/11) as u8;
+            let side = usize::from((mask[i/8]>>(i%8))&1);
+            region.0[consumed[side]] = v;
+            consumed[side] += 1;
+            v
+        }).collect();
+        out.0.fill(0x37);
+        assert!(ENGINE(proof,&region.0[off..off+n],&mut out.0[od..od+n],mask,nleft)>=2);
+        assert_eq!(&out.0[od..od+n], expected);
+        assert!(out.0[..od].iter().chain(&out.0[od+n..]).all(|&b| b==0x37));
+    }
+}
+
+#[test]
 fn exact_suffix_and_exhaustion_in_both_directions() {
     let Some(proof) = fearless_simd::Level::new().as_avx2() else { return };
     for n in (0usize..=129).chain([159,160,161,255,256,257,511,512,513]) {

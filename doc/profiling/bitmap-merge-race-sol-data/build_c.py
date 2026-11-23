@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from prepare import ROOT, S, CPIN, export
 from pathlib import Path
-import hashlib, shutil, subprocess as sp
+import hashlib, os, shutil, subprocess as sp
 
 src=S/'src-c'
 if not src.is_dir():
@@ -28,4 +28,4 @@ trial.write_text(orig+'\n'+bounded+(S/'kernel.c').read_text())
 cmd=['/usr/bin/cc','-std=gnu17','-O3','-DNDEBUG','-D_POSIX_C_SOURCE=200809L','-DZXC_STATIC_DEFINE',
      '-mavx2','-mbmi2','-mpopcnt','-ffunction-sections','-fdata-sections','-Wl,--gc-sections','-g',
      '-I'+str(src/'include'), '-I'+str(lib), '-I'+str(lib/'vendors'),str(trial),str(lib/'zxc_pivco_tables.c'),'-o',str(S/'kernel-c')]
-print(*cmd,flush=True); sp.run(cmd,check=True)
+print(*cmd,flush=True); sp.run(cmd,env={**os.environ,'TMPDIR':str(S/'tmp')},check=True)

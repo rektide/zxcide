@@ -1,0 +1,4 @@
+    Checking rapidhash v4.5.1
+    Checking fearless_simd v1.2.0
+    Checking zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/codec)
+    Finished `release` profile [optimized] target(s) in 3.61s

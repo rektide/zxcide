@@ -1,0 +1,112 @@
++++ dirname .test-agent/bitmap-merge-race-sol/cli-build.sh
+++ realpath .test-agent/bitmap-merge-race-sol
++ s=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol
++ export TMPDIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/tmp CARGO_BUILD_JOBS=4 CARGO_ENCODED_RUSTFLAGS= RUSTFLAGS=
++ TMPDIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/tmp
++ CARGO_BUILD_JOBS=4
++ CARGO_ENCODED_RUSTFLAGS=
++ RUSTFLAGS=
++ for arm in "$@"
++ export CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-a
++ CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-a
++ cd /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a
++ cargo build --release --locked -p zxc-cli
+   Compiling proc-macro2 v1.0.107
+   Compiling rustversion v1.0.23
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling crossbeam-utils v0.8.23
+   Compiling utf8parse v0.2.2
+   Compiling libc v0.2.191
+   Compiling anstyle-parse v1.0.0
+   Compiling fearless_simd v1.2.0
+   Compiling anstyle-query v1.1.5
+   Compiling colorchoice v1.0.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling anstyle v1.0.14
+   Compiling rapidhash v4.5.1
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.6
+   Compiling anstream v1.0.0
+   Compiling syn v3.0.10
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling bitflags v2.13.2
+   Compiling cfg-if v1.0.5
+   Compiling clap_lex v1.1.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling clap_builder v4.6.7
+   Compiling clap_derive v4.6.8
+   Compiling crossbeam-channel v0.5.17
+   Compiling fastrand v2.5.0
+   Compiling once_cell v1.21.4
+   Compiling tempfile v3.27.0
+   Compiling clap v4.6.8
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/codec)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/parallel)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/seek)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/cli)
+    Finished `release` profile [optimized] target(s) in 9.67s
++ cp /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-a/release/zxc /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a
++ cargo build --release --locked -p zxc-cli --no-default-features
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/codec)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/parallel)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/seek)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-a/crates/cli)
+    Finished `release` profile [optimized] target(s) in 2.10s
++ cp /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-a/release/zxc /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a-scalar
++ sha256sum /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a-scalar
+753f34679ddeab39e2b5d67300ad7494ff419fc47f813d5b9f269c71c622dc2f  /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a
+028f70d54f9dd56f5b156cc2500869ebdaf85c3b713fa28220cfc5583b0a4740  /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-a-scalar
++ for arm in "$@"
++ export CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-avx2
++ CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-avx2
++ cd /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2
++ cargo build --release --locked -p zxc-cli
+   Compiling proc-macro2 v1.0.107
+   Compiling rustversion v1.0.23
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling crossbeam-utils v0.8.23
+   Compiling libc v0.2.191
+   Compiling utf8parse v0.2.2
+   Compiling anstyle-parse v1.0.0
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.6
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling rapidhash v4.5.1
+   Compiling anstyle-query v1.1.5
+   Compiling fearless_simd v1.2.0
+   Compiling anstream v1.0.0
+   Compiling syn v3.0.10
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling bitflags v2.13.2
+   Compiling cfg-if v1.0.5
+   Compiling clap_lex v1.1.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling clap_builder v4.6.7
+   Compiling clap_derive v4.6.8
+   Compiling crossbeam-channel v0.5.17
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling tempfile v3.27.0
+   Compiling clap v4.6.8
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/codec)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/seek)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/parallel)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/cli)
+    Finished `release` profile [optimized] target(s) in 9.12s
++ cp /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-avx2/release/zxc /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2
++ cargo build --release --locked -p zxc-cli --no-default-features
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/codec)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/seek)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/parallel)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/src-avx2/crates/cli)
+    Finished `release` profile [optimized] target(s) in 2.28s
++ cp /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/target-avx2/release/zxc /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2-scalar
++ sha256sum /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2 /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2-scalar
+31e5cefd087b97b8525b60ac34410b40413e04a3022a7d1b53ee871faa61f9f2  /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2
+729d17c493370cf23f807bfb2da7c51fd74e9d083fc322527cb7a89cbda372ba  /home/rektide/src/zxc-rs/.test-agent/bitmap-merge-race-sol/cli-avx2-scalar
