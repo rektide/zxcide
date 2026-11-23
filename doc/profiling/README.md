@@ -20,7 +20,7 @@ sources:
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Tracy protocol compatibility investigation }
   - { resource: 'https://github.com/nagisa/rust_tracy_client', title: Rust client and bundled Tracy sources }
   - { resource: 'opencode://ses_e04ef8b0cffeJahvs500cwmoBM', title: Checked four-worker ordered-head and credit exposure on fixed archives }
-  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Measured the full-corpus worker sweep and made decode throughput the default comparison view }
+  - { resource: 'opencode://ses_e04a90c09ffeJ4gVdSQ4JhIki6', title: Measured the decode worker sweep and linked the clean perf replay and paired Rust/C Tracy workflow }
 ---
 
 # Profile a codec change
@@ -182,6 +182,8 @@ This uses the optimized `profiling` profile with line tables and asks `perf` to 
 ## Capture phases
 
 `tracy-client 0.19.0` and the locked `tracy-client-sys 0.30.1` use **Tracy 0.14.1 (protocol 82)**. Use the [matching capture tool](https://github.com/wolfpld/tracy/releases/tag/v0.14.1); 0.15.0's live protocol is incompatible. The build enables on-demand, localhost-only spans with static labels and no call stacks. Building this feature needs a C++ compiler. The profiling profile retains line tables.
+
+To compare Rust and upstream C on identical C7 archives, use the [paired Tracy workflow](decode-tracy0.sol.md#reproduce). It rebuilds the C instrumentation fork from a pinned patch, captures both CLIs separately with the same tools, and checks exact plaintext and matching decode zones. The normal C reference and Rust Release builds stay Tracy-free. The first paired captures are qualitative only: their overhead gate has not run. For CPU-cost comparisons and hot code, use the separate [clean Linux `perf` replay](decode-perf0.sol.md) instead.
 
 For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
 
