@@ -239,3 +239,28 @@ fn merge_with_one_side_empty_accepts_only_the_existing_branch() {
     assert!(tree.decode(&[0], 0).is_err());
     assert!(tree.decode(&[], 0).unwrap().is_empty());
 }
+
+#[test]
+fn huffman_buckets_preserve_table_validation() {
+    assert_eq!(
+        Tree::new(&[0; 127]).unwrap_err().to_string(),
+        "invalid Huffman table size"
+    );
+    for (first, error) in [
+        (0, "incomplete Huffman tree"),
+        (2, "incomplete Huffman tree"),
+        (12, "Huffman length exceeds 11"),
+        (0xc1, "Huffman length exceeds 11"),
+    ] {
+        let mut table = [0; 128];
+        table[0] = first;
+        assert_eq!(Tree::new(&table).unwrap_err().to_string(), error);
+    }
+    let mut table = [0; 128];
+    table[127] = 0x10;
+    assert_eq!(Tree::new(&table).unwrap().decode(&[0], 6).unwrap(), [255; 6]);
+    assert!(Tree::new(&table).unwrap().decode(&[1], 6).is_err());
+    // Three depth-one symbols oversubscribe the tree.
+    table[0] = 0x11;
+    assert_eq!(Tree::new(&table).unwrap_err().to_string(), "incomplete Huffman tree");
+}

@@ -30,24 +30,43 @@ pub(crate) struct Tree(Vec<Node>);
 impl Tree {
     pub fn new(table: &[u8]) -> io::Result<Self> {
         require(table.len() == 128, "invalid Huffman table size")?;
-        let mut symbols = Vec::new();
-        let mut kraft = 0;
-        for i in 0..256 {
-            let depth = table[i / 2] >> (4 * (i % 2)) & 15;
-            require(depth <= MAX_CODE_LEN, "Huffman length exceeds 11")?;
-            if depth > 0 {
-                symbols.push((depth, i as u8));
-                kraft += 1 << (MAX_CODE_LEN - depth);
+        let mut counts = [0usize; MAX_CODE_LEN as usize + 1];
+        let mut lengths = [0; 256];
+        for (&pair, dst) in table.iter().zip(lengths.as_chunks_mut::<2>().0) {
+            *dst = [pair & 15, pair >> 4];
+            for &depth in dst.iter() {
+                let count = counts
+                    .get_mut(usize::from(depth))
+                    .ok_or_else(|| crate::bad("Huffman length exceeds 11"))?;
+                *count += 1;
             }
         }
+        let kraft: usize = (1..=MAX_CODE_LEN)
+            .map(|depth| counts[usize::from(depth)] << (MAX_CODE_LEN - depth))
+            .sum();
         require(
-            kraft == 1 << MAX_CODE_LEN || (symbols.len() == 1 && symbols[0].0 == 1),
+            kraft == 1 << MAX_CODE_LEN || (counts[0] == 255 && counts[1] == 1),
             "incomplete Huffman tree",
         )?;
-        symbols.sort_unstable();
+        // Start each nonzero-depth bucket just after all shorter codes. Walk
+        // symbols in ascending order so ties retain their canonical order.
+        let mut ends = [0; MAX_CODE_LEN as usize + 1];
+        for depth in 2..ends.len() {
+            ends[depth] = ends[depth - 1] + counts[depth - 1];
+        }
+        let mut symbols = [0; 256];
+        for (sym, depth) in lengths.into_iter().enumerate().filter(|&(_, depth)| depth != 0) {
+            let end = &mut ends[usize::from(depth)];
+            symbols[*end] = sym as u8;
+            *end += 1;
+        }
+        let ordered = ends
+            .windows(2)
+            .enumerate()
+            .flat_map(|(i, edges)| symbols[edges[0]..edges[1]].iter().map(move |&sym| (i as u8 + 1, sym)));
         let mut nodes = vec![Node::default()];
         let (mut code, mut prev) = (0u16, 0);
-        for (depth, sym) in symbols {
+        for (depth, sym) in ordered {
             code <<= depth - prev;
             let mut pos = 0;
             for bit in (0..depth).rev() {
