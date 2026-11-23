@@ -29,6 +29,42 @@ fn flat_three_bit_groups_match_individual_wire_bits() {
 }
 
 #[test]
+fn flat_six_bit_groups_match_individual_wire_bits() {
+    let mut state = 0x87c6_5a4d_u32;
+    let mut byte = || {
+        state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+        (state >> 24) as u8
+    };
+    for n in (0usize..=96).chain([127, 128, 129, 255, 256, 257, 4097]) {
+        for src_offset in 0..32 {
+            let src: Box<[_]> = (0..src_offset + (n * 6).div_ceil(8)).map(|_| byte()).collect();
+            let run = &src[src_offset..];
+            let table_offset = (n + src_offset) % 32;
+            let table: Box<[_]> = (0..table_offset + 64).map(|_| byte()).collect();
+            let table = &table[table_offset..];
+            let expected: Vec<_> = (0..n)
+                .map(|i| {
+                    let mut code = 0;
+                    for j in 0..6 {
+                        let bit = 6 * i + j;
+                        code |= usize::from((run[bit / 8] >> (bit % 8)) & 1) << j;
+                    }
+                    table[code]
+                })
+                .collect();
+            // Vary the output alignment independently. The input, table and
+            // output all end exactly at their allocations, including SIMD ends.
+            for dst_offset in 0..32 {
+                let mut out = vec![0xa5; dst_offset + n].into_boxed_slice();
+                flat::unpack(&mut out[dst_offset..], run, table);
+                assert!(out[..dst_offset].iter().all(|&x| x == 0xa5));
+                assert_eq!(&out[dst_offset..], expected, "n={n} src={src_offset} dst={dst_offset}");
+            }
+        }
+    }
+}
+
+#[test]
 fn packed_subtrees_decode_all_widths_and_tail_lengths() {
     for width in 1..=8 {
         let symbols = 1 << width;
@@ -38,7 +74,11 @@ fn packed_subtrees_decode_all_widths_and_tail_lengths() {
         // Complete canonical trees use bit-reversed symbol IDs on the wire.
         // Cover every code and every possible final partial group. Start
         // with set padding so a read of unused bits is observable.
-        let end = if width == 3 { 48 } else { symbols + 8 };
+        let end = match width {
+            3 => 48,
+            6 => 128,
+            _ => symbols + 8,
+        };
         let source: Vec<_> = (0..end).map(|i| (i * 109 % symbols) as u8).collect();
         for n in symbols..end {
             let mut run = vec![0xff; (n * usize::from(width)).div_ceil(8)];
