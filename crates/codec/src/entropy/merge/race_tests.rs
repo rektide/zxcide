@@ -1,5 +1,9 @@
 use super::*;
 
+#[allow(
+    dead_code,
+    reason = "the harness-free Criterion benchmark also includes merge.rs with cfg(test)"
+)]
 fn check(proof: fearless_simd::Avx2, bits: &[u8], n: usize, offset: usize, min_tiles: usize) {
     let mut out = vec![0x5e; offset + n].into_boxed_slice();
     let mut bitmap = vec![0x3c; offset]
