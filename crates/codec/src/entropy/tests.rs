@@ -64,6 +64,41 @@ fn flat_six_bit_groups_match_individual_wire_bits() {
     }
 }
 
+#[cfg(all(
+    feature = "merge-simd",
+    target_arch = "aarch64",
+    target_endian = "little",
+    target_feature = "neon"
+))]
+#[test]
+fn flat_six_bit_neon_groups_decode_every_index() {
+    // Call the kernel with a real token, so scalar fallback cannot pass this
+    // test. The normal unpack test covers dispatch and all tail lengths.
+    let simd = fearless_simd::Level::new().as_neon().expect("NEON is a target feature");
+    let table: [u8; 64] = std::array::from_fn(|i| (i as u8).wrapping_mul(197).wrapping_add(31));
+    let codes: [u32; 64] = std::array::from_fn(|i| (i as u32 * 27) % 64);
+    let expected = codes.map(|code| table[code as usize]);
+    let mut wire = [0; 48];
+    for (triple, &[a, b, c, d]) in wire.as_chunks_mut::<3>().0.iter_mut().zip(codes.as_chunks::<4>().0) {
+        let bits = a | (b << 6) | (c << 12) | (d << 18);
+        triple.copy_from_slice(&bits.to_le_bytes()[..3]);
+    }
+    for offset in 0..16 {
+        let mut src = vec![0; offset + wire.len()].into_boxed_slice();
+        src[offset..].copy_from_slice(&wire);
+        let dst_offset = 15 - offset;
+        let mut dst = vec![0xa5; dst_offset + 64].into_boxed_slice();
+        flat::six_groups(
+            simd,
+            dst[dst_offset..].as_chunks_mut::<32>().0,
+            src[offset..].as_chunks::<24>().0,
+            &table,
+        );
+        assert_eq!(dst[dst_offset..], expected, "offset={offset}");
+        assert!(dst[..dst_offset].iter().all(|&b| b == 0xa5));
+    }
+}
+
 #[test]
 fn packed_subtrees_decode_all_widths_and_tail_lengths() {
     for width in 1..=8 {
