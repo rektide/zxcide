@@ -1,0 +1,34 @@
+{
+  "schema": "decode-tracy/v1",
+  "scope": "Checked, no-dictionary SPL16 CLI decodes; success census is per physical block",
+  "ids": ["block.checked", "spl.payload", "spl.reconstruct", "block.hash", "huf.inline.literal", "huf.inline.token"],
+  "cases": {
+    "sao": [14, 14, 14, 14, 6, 14],
+    "single": [405, 405, 405, 405, 380, 405],
+    "mozilla": [98, 98, 98, 98, 87, 98],
+    "bad-checksum": [14, 14, 14, 14, 6, 14],
+    "bad-reconstruct": [1, 1, 1, 0, 0, 0]
+  },
+  "c": {
+    "tree": "ad615cf857ee32b2569ab0ba555f284bd1ae2a44",
+    "sites": [
+      ["block.checked", "src/lib/zxc_driver.c", 484, "block.checked", null],
+      ["spl.payload", "src/lib/zxc_decompress.c", 1630, "spl.payload", "block.checked"],
+      ["spl.reconstruct", "src/lib/zxc_decompress.c", 993, "spl.reconstruct", "spl.payload"],
+      ["block.hash", "src/lib/zxc_decompress.c", 1661, "block.hash", "block.checked"],
+      ["huf.inline.literal", "src/lib/zxc_decompress.c", 859, "huf.inline.literal", "spl.payload"],
+      ["huf.inline.token", "src/lib/zxc_decompress.c", 986, "huf.inline.token", "spl.payload"]
+    ]
+  },
+  "rust": {
+    "revision": "72127fe966c04080065ef7b9b784ad9f6234dcd0",
+    "sites": [
+      ["block.checked", "crates/codec/src/block.rs", 82, "block.checked", null],
+      ["spl.payload", "crates/codec/src/block.rs", 187, "spl.payload", "block.checked"],
+      ["LZ reconstruct", "crates/codec/src/block.rs", 225, "spl.reconstruct", "spl.payload", "alias"],
+      ["checksum", "crates/codec/src/wire.rs", 156, "block.hash", "block.checked", "alias"],
+      ["huf.inline.literal", "crates/codec/src/block.rs", 216, "huf.inline.literal", "spl.payload"],
+      ["huf.inline.token", "crates/codec/src/block.rs", 221, "huf.inline.token", "spl.payload"]
+    ]
+  }
+}

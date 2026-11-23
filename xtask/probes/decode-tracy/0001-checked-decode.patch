@@ -1,0 +1,282 @@
+From bfbf3b050e579d643e79ca746cc7e8c34fc8f9b8 Mon Sep 17 00:00:00 2001
+From: rektide <rektide+scm@voodoowarez.com>
+Date: Mon, 23 Nov 2026 00:52:58 +0000
+Subject: [PATCH] Add opt-in Tracy probes for checked file decode
+
+---
+ CMakeLists.txt              |  8 ++++++++
+ cmake/zxcCli.cmake          |  5 ++++-
+ cmake/zxcProfileTracy.cmake | 33 +++++++++++++++++++++++++++++++++
+ cmake/zxcVariants.cmake     |  3 +++
+ src/cli/main.c              | 15 +++++++++++++++
+ src/lib/zxc_decompress.c    | 29 +++++++++++++++++++++--------
+ src/lib/zxc_driver.c        |  3 +++
+ src/lib/zxc_profile_tracy.h | 22 ++++++++++++++++++++++
+ 8 files changed, 109 insertions(+), 9 deletions(-)
+ create mode 100644 cmake/zxcProfileTracy.cmake
+ create mode 100644 src/lib/zxc_profile_tracy.h
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f580c07e6adf801b8395ac071b9c94bb6b78c056..90802a1e49c5dd9cceda2a186721ceca5b01cbd4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -27,6 +27,10 @@ include(zxcOptions)         # Build options
+ include(zxcPlatform)        # Target architecture + Emscripten/WASM overrides
+ include(zxcCompilerFlags)   # C standard, LTO/PGO, per-target flag helpers
+ include(zxcDependencies)    # Rapidhash: system-installed or vendored
++option(ZXC_PROFILE_TRACY "Local checked-decode Tracy probes (Linux only)" OFF)
++if(ZXC_PROFILE_TRACY)
++    include(zxcProfileTracy)
++endif()
+ include(zxcVariants)        # Function multi-versioning (SIMD variant objects)
+ 
+ # =============================================================================
+@@ -59,6 +63,10 @@ add_library(zxc_lib
+     ${ZXC_CORE_SOURCES}
+     ${ZXC_VARIANT_OBJECTS}
+ )
++if(ZXC_PROFILE_TRACY)
++    zxc_tracy_probes(zxc_lib)
++    target_link_libraries(zxc_lib PRIVATE zxc_tracy_client)
++endif()
+ 
+ # Carries the same name as the target exported by the installed package, so a
+ # vendored add_subdirectory() and a find_package(zxc) are interchangeable.
+diff --git a/cmake/zxcCli.cmake b/cmake/zxcCli.cmake
+index 21cca056cac6cbdb28806a59633ea20926dfc540..05fadb6f1727b4d37ff275ad671bf27a5ed87d50 100644
+--- a/cmake/zxcCli.cmake
++++ b/cmake/zxcCli.cmake
+@@ -8,6 +8,9 @@
+ if(ZXC_BUILD_CLI)
+     add_executable(zxc src/cli/main.c)
+     target_link_libraries(zxc PRIVATE zxc_lib)
++    if(ZXC_PROFILE_TRACY)
++        zxc_tracy_probes(zxc)
++    endif()
+     target_include_directories(zxc PRIVATE ${RAPIDHASH_INCLUDE_DIR})
+ 
+     # Math library on Unix
+@@ -53,7 +56,7 @@ if(ZXC_BUILD_CLI)
+     endif()
+ 
+     # Strip symbols in Release mode for smaller binary
+-    if(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
++    if(NOT ZXC_PROFILE_TRACY AND NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
+         # Set default strip command if not already set (e.g., for cross-compilation)
+         if(NOT CMAKE_STRIP)
+             set(CMAKE_STRIP strip)
+diff --git a/cmake/zxcProfileTracy.cmake b/cmake/zxcProfileTracy.cmake
+new file mode 100644
+index 0000000000000000000000000000000000000000..e291665e8b0c29fb1a9c9f152f72d6cadba60e73
+--- /dev/null
++++ b/cmake/zxcProfileTracy.cmake
+@@ -0,0 +1,33 @@
++# SPDX-License-Identifier: BSD-3-Clause
++# Local static probe build. Do not export or install this configuration.
++if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR NOT CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang)$")
++    message(FATAL_ERROR "ZXC_PROFILE_TRACY needs Linux and GCC/Clang (lexical zone cleanup)")
++endif()
++if(BUILD_SHARED_LIBS OR ZXC_INSTALL OR NOT ZXC_BUILD_CLI)
++    message(FATAL_ERROR "ZXC_PROFILE_TRACY needs a static CLI build with ZXC_INSTALL=OFF")
++endif()
++set(ZXC_TRACY_SOURCE "" CACHE PATH "Explicit local export of pinned Tracy v0.14.1")
++if(NOT IS_ABSOLUTE "${ZXC_TRACY_SOURCE}" OR NOT EXISTS "${ZXC_TRACY_SOURCE}/public/TracyClient.cpp")
++    message(FATAL_ERROR "Supply a verified local Tracy export in ZXC_TRACY_SOURCE")
++endif()
++option(ZXC_TRACY_VERIFY "Enable Tracy zone verification for error-path diagnostics" OFF)
++
++enable_language(CXX)
++find_package(Threads REQUIRED)
++set(zxc_tracy_defines TRACY_ENABLE TRACY_ON_DEMAND TRACY_ONLY_LOCALHOST
++    TRACY_NO_BROADCAST TRACY_NO_CODE_TRANSFER TRACY_NO_SAMPLING TRACY_NO_SYSTEM_TRACING
++    TRACY_NO_CONTEXT_SWITCH TRACY_NO_WAIT_STACKS TRACY_NO_CALLSTACK_INLINES
++    TRACY_NO_CRASH_HANDLER)
++if(NOT ZXC_TRACY_VERIFY)
++    list(APPEND zxc_tracy_defines TRACY_NO_VERIFY)
++endif()
++
++add_library(zxc_tracy_client STATIC "${ZXC_TRACY_SOURCE}/public/TracyClient.cpp")
++set_target_properties(zxc_tracy_client PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
++target_compile_definitions(zxc_tracy_client PRIVATE ${zxc_tracy_defines})
++target_link_libraries(zxc_tracy_client PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
++
++function(zxc_tracy_probes target)
++    target_include_directories(${target} SYSTEM PRIVATE "${ZXC_TRACY_SOURCE}/public")
++    target_compile_definitions(${target} PRIVATE ZXC_PROFILE_TRACY ${zxc_tracy_defines})
++endfunction()
+diff --git a/cmake/zxcVariants.cmake b/cmake/zxcVariants.cmake
+index 417e67789359c7adf533b70efaf0a913a1d566fa..abafcdd9de3f5d49bda11b07e9f8d90ecdd6bc68 100644
+--- a/cmake/zxcVariants.cmake
++++ b/cmake/zxcVariants.cmake
+@@ -13,6 +13,9 @@
+ macro(zxc_add_variant suffix flags)
+     foreach(_src compress decompress huffman)
+         add_library(zxc_${_src}${suffix} OBJECT src/lib/zxc_${_src}.c)
++        if(ZXC_PROFILE_TRACY AND _src STREQUAL "decompress")
++            zxc_tracy_probes(zxc_${_src}${suffix})
++        endif()
+         # Common flags first: the ISA flags below must have the last word, since
+         # a later -march= would reset the feature set they select.
+         zxc_apply_lib_flags(zxc_${_src}${suffix})
+diff --git a/src/cli/main.c b/src/cli/main.c
+index c0b47128848b85e9bd7b990803026306e44097cf..606427f2363c8ca9c09cafb1a3dbaf58c51ef6ed 100644
+--- a/src/cli/main.c
++++ b/src/cli/main.c
+@@ -27,6 +27,7 @@
+ #include "../../include/zxc_dict.h"
+ #include "../../include/zxc_error.h"
+ #include "../../include/zxc_stream.h"
++#include "../lib/zxc_profile_tracy.h"
+ 
+ #define ZXC_STDIO_BUFFER_SIZE (1024 * 1024)
+ 
+@@ -1989,6 +1990,20 @@ static int process_single_file(const char* in_path, const char* out_path_overrid
+  * Decompress modes.
+  */
+ int main(int argc, char** argv) {
++#ifdef ZXC_PROFILE_TRACY
++    const char* wait_for_tracy = getenv("ZXC_WAIT_FOR_TRACY");
++    if (wait_for_tracy && strcmp(wait_for_tracy, "1") == 0) {
++        const double deadline = zxc_now() + 30.0;
++        const struct timespec poll = {0, 10000000};
++        while (!TracyCIsConnected) {
++            if (zxc_now() >= deadline) {
++                fputs("Tracy connection timed out after 30 s\n", stderr);
++                return EXIT_FAILURE;
++            }
++            nanosleep(&poll, NULL);
++        }
++    }
++#endif
+     zxc_mode_t mode = MODE_COMPRESS;
+     int to_stdout = 0;
+     int cat_mode = 0;
+diff --git a/src/lib/zxc_decompress.c b/src/lib/zxc_decompress.c
+index 39a10b65f5c186b236b2f8fb2e224c6de027a555..18c03297eedd1a2d990f5d1f349a6eac5cf1dee3 100644
+--- a/src/lib/zxc_decompress.c
++++ b/src/lib/zxc_decompress.c
+@@ -32,6 +32,7 @@
+ 
+ #include "../../include/zxc_error.h"
+ #include "zxc_internal.h"
++#include "zxc_profile_tracy.h"
+ 
+ #if defined(ZXC_USE_NEON64) || defined(ZXC_USE_NEON32) || defined(ZXC_USE_AVX2) || \
+     defined(ZXC_USE_AVX512)
+@@ -853,10 +854,14 @@ static ZXC_ALWAYS_INLINE int zxc_decode_block_spl_impl(const zxc_cctx_t* RESTRIC
+         } else {
+             if (UNLIKELY(required_size > dst_capacity || required_size > SIZE_MAX - ZXC_PAD_SIZE))
+                 return ZXC_ERROR_DST_TOO_SMALL;
+-            const int rc =
+-                (gh.enc_lit == ZXC_SECTION_ENCODING_HUFFMAN)
+-                    ? zxc_decode_lit_pivco(ctx, p_curr, lit_stream_size, required_size)
+-                    : zxc_decode_lit_pivco_dict(ctx, p_curr, lit_stream_size, required_size);
++            int rc;
++            if (gh.enc_lit == ZXC_SECTION_ENCODING_HUFFMAN) {
++                ZXC_ZONE_BEGIN(literal, "huf.inline.literal")
++                rc = zxc_decode_lit_pivco(ctx, p_curr, lit_stream_size, required_size);
++                ZXC_ZONE_END(literal)
++            } else {
++                rc = zxc_decode_lit_pivco_dict(ctx, p_curr, lit_stream_size, required_size);
++            }
+             if (UNLIKELY(rc != ZXC_OK)) return rc;
+             l_ptr = ctx->lit_buffer;
+             l_end = ctx->lit_buffer + required_size;
+@@ -978,11 +983,14 @@ static ZXC_ALWAYS_INLINE int zxc_decode_block_spl_impl(const zxc_cctx_t* RESTRIC
+         t_ptr = p_curr;
+     } else {
+         if (UNLIKELY(gh.enc_tok != ZXC_SECTION_ENCODING_HUFFMAN)) return ZXC_ERROR_CORRUPT_DATA;
++        ZXC_ZONE_BEGIN(token, "huf.inline.token")
+         const int rc = zxc_decode_tok_pivco(ctx, p_curr, sz_tokens, gh.n_sequences);
++        ZXC_ZONE_END(token)
+         if (UNLIKELY(rc != ZXC_OK)) return rc;
+         t_ptr = ctx->tok_buffer;
+     }
+ 
++    ZXC_ZONE_SCOPE(reconstruct, "spl.reconstruct")
+     uint8_t* d_ptr = dst;
+     const uint8_t* const d_end = dst + dst_capacity;
+     // Lowest address a match may reach: the dictionary prefix if any, else dst.
+@@ -1618,11 +1626,14 @@ static ZXC_ALWAYS_INLINE int zxc_decompress_chunk_wrapper_body(
+     int decoded_sz = ZXC_ERROR_BAD_BLOCK_TYPE;
+ 
+     switch (type) {
+-        case ZXC_BLOCK_SPL:
++        case ZXC_BLOCK_SPL: {
++            ZXC_ZONE_BEGIN(payload, "spl.payload")
+             decoded_sz = safe       ? zxc_decode_block_spl_safe(ctx, data, comp_sz, dst, dst_cap)
+                          : has_dict ? zxc_decode_block_spl_dict(ctx, data, comp_sz, dst, dst_cap)
+                                     : zxc_decode_block_spl(ctx, data, comp_sz, dst, dst_cap);
++            ZXC_ZONE_END(payload)
+             break;
++        }
+         case ZXC_BLOCK_PAK:
+             decoded_sz = safe       ? zxc_decode_block_pak_safe(ctx, data, comp_sz, dst, dst_cap)
+                          : has_dict ? zxc_decode_block_pak_dict(ctx, data, comp_sz, dst, dst_cap)
+@@ -1647,9 +1658,11 @@ static ZXC_ALWAYS_INLINE int zxc_decompress_chunk_wrapper_body(
+ 
+     if (has_checksum && LIKELY(decoded_sz >= 0)) {
+         const uint32_t stored = zxc_le32(data + comp_sz);
+-        if (UNLIKELY(stored !=
+-                     zxc_checksum(dst, (size_t)decoded_sz, block_index, ZXC_CHECKSUM_RAPIDHASH)))
+-            return ZXC_ERROR_BAD_CHECKSUM;
++        ZXC_ZONE_BEGIN(hash, "block.hash")
++        const uint32_t computed =
++            zxc_checksum(dst, (size_t)decoded_sz, block_index, ZXC_CHECKSUM_RAPIDHASH);
++        ZXC_ZONE_END(hash)
++        if (UNLIKELY(stored != computed)) return ZXC_ERROR_BAD_CHECKSUM;
+     }
+ 
+     return decoded_sz;
+diff --git a/src/lib/zxc_driver.c b/src/lib/zxc_driver.c
+index b798f54391f7e5bdfaaf8e92a700073e8a971202..269c756902498407574527018e2be1245d8cb5be 100644
+--- a/src/lib/zxc_driver.c
++++ b/src/lib/zxc_driver.c
+@@ -37,6 +37,7 @@
+ #include "../../include/zxc_seekable.h"
+ #include "../../include/zxc_stream.h"
+ #include "zxc_internal.h"
++#include "zxc_profile_tracy.h"
+ #include "zxc_threads.h"
+ 
+ // ============================================================================
+@@ -480,9 +481,11 @@ static int zxc_stream_decode_job(const zxc_stream_ctx_t* ctx, zxc_cctx_t* cctx,
+         const uint64_t block_sz = (uint64_t)ZXC_BLOCK_HEADER_SIZE + bh.comp_size + checksum_sz;
+         if (UNLIKELY(block_sz > rem || job->out_cap - op < room)) return ZXC_ERROR_CORRUPT_DATA;
+ 
++        ZXC_ZONE_BEGIN(checked, "block.checked")
+         const int res =
+             zxc_stream_process(ctx, cctx, in + ip, (size_t)block_sz,
+                                scratch ? scratch : job->out_buf + op, room, block_index++);
++        ZXC_ZONE_END(checked)
+         if (UNLIKELY(res < 0)) return res;
+         if (scratch) ZXC_MEMCPY(job->out_buf + op, scratch, (size_t)res);
+         ip += (size_t)block_sz;
+diff --git a/src/lib/zxc_profile_tracy.h b/src/lib/zxc_profile_tracy.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..d592d1f40be965b63ebb5a19740772d27ff5b3b0
+--- /dev/null
++++ b/src/lib/zxc_profile_tracy.h
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: BSD-3-Clause */
++#ifndef ZXC_PROFILE_TRACY_H
++#define ZXC_PROFILE_TRACY_H
++
++#ifdef ZXC_PROFILE_TRACY
++#include <tracy/TracyC.h>
++
++#define ZXC_ZONE_BEGIN(ctx, label) TracyCZoneNS(ctx, label, 0, 1);
++#define ZXC_ZONE_END(ctx) TracyCZoneEnd(ctx);
++
++static inline void zxc_zone_cleanup(TracyCZoneCtx* ctx) { TracyCZoneEnd(*ctx); }
++
++/* Transfer the context to its sole end owner. No manual end for this zone. */
++#define ZXC_ZONE_SCOPE(ctx, label) \
++    ZXC_ZONE_BEGIN(ctx, label) \
++    TracyCZoneCtx ctx##_guard __attribute__((cleanup(zxc_zone_cleanup))) = ctx;
++#else
++#define ZXC_ZONE_BEGIN(ctx, label)
++#define ZXC_ZONE_END(ctx)
++#define ZXC_ZONE_SCOPE(ctx, label)
++#endif
++#endif

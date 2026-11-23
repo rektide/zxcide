@@ -1,0 +1,33 @@
+{
+  "schema": "decode-tracy/v1",
+  "c": {
+    "url": "https://github.com/hellobertrand/zxc",
+    "base": "5719a96f778226868b29dba621a8c4e302b74d7c",
+    "base_tree": "5fd04aa19027db94fc20ee6d9bbd624b025237e6",
+    "tip": "bfbf3b050e579d643e79ca746cc7e8c34fc8f9b8",
+    "tree": "ad615cf857ee32b2569ab0ba555f284bd1ae2a44",
+    "license": "BSD-3-Clause",
+    "patches": [{"file": "0001-checked-decode.patch", "sha256": "aacc4b5e5daff891d2bb85234db0ac0e4e22a4c61d08c6bd3f76b9b76f22a93c"}]
+  },
+  "tracy": {
+    "url": "https://github.com/wolfpld/tracy",
+    "revision": "30997d5ca6bb632cc10807a1da8a6d3de0aeeb3c",
+    "tree": "3b409c7240b60b618468282d8e81ad364b087faf",
+    "version": "0.14.1",
+    "protocol": 82,
+    "license": "BSD-3-Clause",
+    "tool_release": "https://github.com/wolfpld/tracy/releases/tag/v0.14.1",
+    "tools_linux_x86_64": {
+      "tracy-capture": "6263989b21a483d61c3502ddbdfe8c5caad1883d3b5cc76302d1df8f3ab9e0e1",
+      "tracy-csvexport": "adc5e27cd124e31918bbb06ba4643ed9b01530f6c10b9875c347794cb554190a"
+    }
+  },
+  "rust": {
+    "spans_revision": "72127fe966c04080065ef7b9b784ad9f6234dcd0",
+    "stock_revision": "cde286158020f71413cf76f4553eb0c04a30e06e",
+    "tracy-client": {"version": "0.19.0", "checksum": "d93fd676d8946eaeaff4881d26d2240a8d106fcaccbd47cb9f1389e3561ba490", "license": "MIT OR Apache-2.0"},
+    "tracy-client-sys": {"version": "0.30.1", "checksum": "08f4b6d2481c5e266e9def4c10e1680dbdfdd69523ed555a83d6675953a2785e", "license": "(MIT OR Apache-2.0) AND BSD-3-Clause"}
+  },
+  "fixture_manifest_sha256": "947166addec38dcdb63d6f4212a3ccaecf74f9102f3cd97bdc9c575691b3a10c",
+  "invalid_reconstruct_sha256": "17507a25ce12fa963ed5eebe1190880b524da6b65b5fb9196388218c9c7a95de"
+}
