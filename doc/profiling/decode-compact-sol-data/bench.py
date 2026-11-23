@@ -143,10 +143,14 @@ def run(a):
                 plain = {k: exp['plain_'+k] for k in arc}
                 blocks, indexes = capture(archive, a.out)
                 kinds = dict(zip(('block', 'lit', 'tok', 'cli'), (*REPEATS[fixture], 1)))
+            if a.repeat:
+                if fixture != 'single':
+                    continue
+                kinds = {k: kinds[k] for k in ('block', 'cli')}
             raw['fixtures'][fixture] = {'path': str(archive), 'archive': arc, 'plain': plain}
             scalar = '-scalar' if fixture == 'small' else ''
             for kind, reps in kinds.items():
-                labels = ['b', 'aa'] + (['c'] if fixture != 'small' and kind != 'cli' else [])
+                labels = ['b', 'aa'] + (['c'] if fixture != 'small' and kind != 'cli' and not a.repeat else [])
                 index = indexes.get(kind)
                 units = index['units'] if index else plain['bytes']
                 case = dict(kind=kind, count=index['count'] if index else blocks, units=units,
@@ -167,7 +171,7 @@ def run(a):
                     raw['binaries'][str(exe)] = identity(exe)
                 raw['cases'][f'{fixture}-{kind}'] = case
         path = a.out / 'pairs.json.gz'
-        for seed in SEEDS:
+        for seed in (502661,) if a.repeat else SEEDS:
             rng = random.Random(seed)
             order = list(raw['cases'])
             rng.shuffle(order)
@@ -214,6 +218,7 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--cpu', type=int, default=3)
     p.add_argument('--summary', type=Path)
+    p.add_argument('--repeat', action='store_true', help='single targeted 24-pair repeat of Rust single checked and W1')
     for name in ('fixtures', 'small', 'build', 'out'):
         p.add_argument(name, nargs='?', type=lambda arg: Path(arg).resolve())
     args = p.parse_args()
