@@ -6,6 +6,7 @@ resource: /doc/profiling/flat-unpack6.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol#high', at: 2026-11-23 }
 sources:
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Reviewed and landed the measured width-six patch without changing the throughput claim }
   - { resource: 'opencode://ses_df8354d7bffe7oEH9IvCGwWGfN', title: Implemented, audited and measured the width-six kernel against the shipping codec }
   - { resource: /doc/profiling/decode-gap0.sol.md, title: Attribution and original run-shape count that identify width six }
   - { resource: /doc/profiling/flat-unpack0.astra.md, title: Width-three dispatch, bounded access and replay precedent }
@@ -14,6 +15,8 @@ sources:
 ---
 
 # Exact-run AVX2 unpack for width-six PivCo leaves
+
+**Landed in `0d68cb82`.** The production decoder now selects this kernel on AVX2. The decision is based on the repeatable literal-section win and lower checked-block instruction count, not a demonstrated one-worker CLI gain. The rest of this report records the original scratch trial.
 
 **Keep this kernel as a promotion candidate.** It used **82.9% fewer cycles per symbol** on the original width-six runs and **6.7–7.0% fewer cycles per symbol** in two whole-literal series on `single`. The checksum-verified block path consistently retired **2.27% fewer instructions per plaintext byte**, but its cycle intervals all crossed zero. W1 throughput rose **4.77%** in one `sao` series; on `single`, three series favored the candidate by **1.0–3.1%** but did not resolve a gain. No production files changed in this trial.
 

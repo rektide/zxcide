@@ -196,6 +196,8 @@ The [SPL16 and Huffman setup follow-up](decode-next0.sol.md) compares a narrower
 
 The [current Rust–C gap breakdown](decode-gap0.sol.md) profiles the retained Rust decoder, the compact-table prototype and pinned C on the same long C7 frame. It separates mixed gather, flat unpack and copy-back, then puts those costs next to reconstruction in checksum-verified blocks.
 
+The [width-six AVX2 trial](flat-unpack6.sol.md) followed that attribution and landed a bounded 32-symbol unpack. The [bitmap-merge design](../../design/decode-throughput/bitmap-merge0.astra.md) proposes a separate race between BMI2 byte deposit and a C-style AVX2 shuffle-and-blend kernel.
+
 For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
 
 For an arbitrary archive or encoder workload, run the client and capture manually:
