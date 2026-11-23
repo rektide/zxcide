@@ -6,6 +6,7 @@ resource: /design/decode-throughput/next0.sol.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-sol#medium', at: 2026-11-23 }
 sources:
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Linked the results of the copy split, Huffman buckets, and distance-one census }
   - { resource: 'opencode://ses_df9002daaffeCoZtzEZ6GpcGlj', title: Verified the merge disposition and wrote the ranked handoff }
   - { resource: /doc/profiling/pivco-avx2-merge0.sol.md, title: Rejected two-group merge and paired controls }
   - { resource: /doc/profiling/flat-unpack0.astra.md, title: Retained three-bit shuffle and exact-output method }
@@ -15,6 +16,8 @@ sources:
 ---
 
 # Next decode throughput trials
+
+**Follow-up:** The [SPL16/Huffman trial report](../../doc/profiling/decode-next0.sol.md) records measured results for #1 and #3 and the eligibility screen for #4. The ranking below records the plan before those results.
 
 **Start with one SPL16 copy change. Nothing needs reverting.** The rejected two-group AVX2 merge used 12.5% more long-literal cycles and 6.5% more checked-block cycles. In the working tree at handoff, `merge.rs` and `flat.rs` matched the trial parent `3ce5ff5b`, and the only codec diff from that pin was the retained [bitmap differential test](../../crates/codec/src/entropy/tests.rs). The candidate remains scratch/evidence only. Keep the one-group merge and the three-bit unpack (`845a76c6`: −8.1% long literals, −4.4% checked-block cycles, CLI unresolved).
 

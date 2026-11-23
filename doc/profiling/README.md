@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_df8fd29afffepXs04yCk9DZsqv', title: Linked the paired SPL16 and Huffman setup trials and SPL16 eligibility census }
   - { resource: 'opencode://ses_df935c64bffeMLcYFZfIGlqQvI', title: Linked the paired two-group AVX2 PivCo merge trial }
   - { resource: 'opencode://ses_df9f765f0ffel0TKk8pDiPlkN2', title: Linked the checked result for the width-three shuffle }
   - { resource: 'opencode://ses_e04f22460ffeiMpWBTvOxfQzAN', title: Dense literal policy sweep using the same two decoders on candidate archives }
@@ -190,6 +191,8 @@ To compare Rust and upstream C on identical C7 archives, use the [paired Tracy w
 That replay identified width-three flat runs as an optimization candidate. The [paired shuffle trial](flat-unpack0.astra.md) records the retained kernel, checked-block gains and inconclusive eight-worker CLI timings.
 
 The [two-group AVX2 merge trial](pivco-avx2-merge0.sol.md) holds that flat shuffle and the copy-back layout fixed, and compares exact Huffman sections, checked blocks and eight-worker CLI decode before considering another kernel change.
+
+The [SPL16 and Huffman setup follow-up](decode-next0.sol.md) compares a narrower match-extension copy and canonical depth bucketing independently against the same Rust parent. Its eligibility census also explains why a distance-one fill did not advance to timing.
 
 For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
 
