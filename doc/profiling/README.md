@@ -6,6 +6,7 @@ resource: /doc/profiling/README.md
 status: draft
 generated: { by: 'model:openai/gpt-6.2-astra', at: 2026-11-19 }
 sources:
+  - { resource: 'opencode://ses_df9f765f0ffel0TKk8pDiPlkN2', title: Linked the checked result for the width-three shuffle }
   - { resource: 'opencode://ses_e04f22460ffeiMpWBTvOxfQzAN', title: Dense literal policy sweep using the same two decoders on candidate archives }
   - { resource: 'opencode://ses_e055e0d34ffe9jui9j3JSrIqMx', title: Fixed-archive timing and retention study for the retained Huffman buffers }
   - { resource: 'opencode://ses_e0867fb1fffeYLtmeIXhQF2Q0W', title: Extended default decoder timing matrix to Rust-produced archives }
@@ -184,6 +185,8 @@ This uses the optimized `profiling` profile with line tables and asks `perf` to 
 `tracy-client 0.19.0` and the locked `tracy-client-sys 0.30.1` use **Tracy 0.14.1 (protocol 82)**. Use the [matching capture tool](https://github.com/wolfpld/tracy/releases/tag/v0.14.1); 0.15.0's live protocol is incompatible. The build enables on-demand, localhost-only spans with static labels and no call stacks. Building this feature needs a C++ compiler. The profiling profile retains line tables.
 
 To compare Rust and upstream C on identical C7 archives, use the [paired Tracy workflow](decode-tracy0.sol.md#reproduce). It rebuilds the C instrumentation fork from a pinned patch, captures both CLIs separately with the same tools, and checks exact plaintext and matching decode zones. The normal C reference and Rust Release builds stay Tracy-free. The first paired captures are qualitative only: their overhead gate has not run. For CPU-cost comparisons and hot code, use the separate [clean Linux `perf` replay](decode-perf0.sol.md) instead.
+
+That replay identified width-three flat runs as an optimization candidate. The [paired shuffle trial](flat-unpack0.astra.md) records the retained kernel, checked-block gains and inconclusive eight-worker CLI timings.
 
 For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path/to/tracy-capture`. This builds the profiled CLI, writes 1,000 concatenated reference frames, attaches the capture process and prints the trace path. `repeated.zxc` and `decode.tracy` stay together under `target/tracy-*/`. Override `--repeats` or `--port` when needed. Use `tracy-csvexport` on the trace to compare phases.
 
