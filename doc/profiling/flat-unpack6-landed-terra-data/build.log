@@ -1,0 +1,126 @@
++ root=/home/rektide/src/zxc-rs
++ out=/home/rektide/src/zxc-rs/.test-agent/flat6-terra
++ export TMPDIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/tmp CARGO_BUILD_JOBS=4 CARGO_ENCODED_RUSTFLAGS= RUSTFLAGS=
++ TMPDIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/tmp
++ CARGO_BUILD_JOBS=4
++ CARGO_ENCODED_RUSTFLAGS=
++ RUSTFLAGS=
++ rustc -Vv
+rustc 1.102.0-nightly (bdf712ee8 2026-11-21)
+binary: rustc
+commit-hash: bdf712ee87c22a2b5c60db2e1af8a63e3cfd1a2e
+commit-date: 2026-11-21
+host: x86_64-unknown-linux-gnu
+release: 1.102.0-nightly
+LLVM version: 23.1.6
++ cargo -V
+cargo 1.102.0-nightly (f93c676e3 2026-11-15)
++ for spec in a:2fd99c21 b:0d68cb82
++ label=a
++ rev=2fd99c21
++ mkdir /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a
++ git archive 2fd99c21
++ tar -x -C /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a
++ cd /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a
++ export CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-a
++ CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-a
++ cargo build --locked --release -p zxc-cli
+   Compiling proc-macro2 v1.0.107
+   Compiling rustversion v1.0.23
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling utf8parse v0.2.2
+   Compiling libc v0.2.191
+   Compiling crossbeam-utils v0.8.23
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling colorchoice v1.0.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.6
+   Compiling rapidhash v4.5.1
+   Compiling fearless_simd v1.2.0
+   Compiling anstyle v1.0.14
+   Compiling syn v3.0.10
+   Compiling anstream v1.0.0
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling bitflags v2.13.2
+   Compiling cfg-if v1.0.5
+   Compiling clap_lex v1.1.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling clap_builder v4.6.7
+   Compiling clap_derive v4.6.8
+   Compiling crossbeam-channel v0.5.17
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling tempfile v3.27.0
+   Compiling clap v4.6.8
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a/crates/codec)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a/crates/parallel)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a/crates/seek)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-a/crates/cli)
+    Finished `release` profile [optimized] target(s) in 9.02s
++ cp /home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-a/release/zxc /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-a
++ [[ a == b ]]
++ cd /home/rektide/src/zxc-rs
++ for spec in a:2fd99c21 b:0d68cb82
++ label=b
++ rev=0d68cb82
++ mkdir /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b
++ git archive 0d68cb82
++ tar -x -C /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b
++ cd /home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b
++ export CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-b
++ CARGO_TARGET_DIR=/home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-b
++ cargo build --locked --release -p zxc-cli
+   Compiling proc-macro2 v1.0.107
+   Compiling rustversion v1.0.23
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling crossbeam-utils v0.8.23
+   Compiling libc v0.2.191
+   Compiling utf8parse v0.2.2
+   Compiling anstyle-parse v1.0.0
+   Compiling fearless_simd v1.2.0
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling rapidhash v4.5.1
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.6
+   Compiling anstream v1.0.0
+   Compiling syn v3.0.10
+   Compiling strsim v0.11.1
+   Compiling heck v0.5.0
+   Compiling bitflags v2.13.2
+   Compiling cfg-if v1.0.5
+   Compiling clap_lex v1.1.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling clap_builder v4.6.7
+   Compiling clap_derive v4.6.8
+   Compiling crossbeam-channel v0.5.17
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling tempfile v3.27.0
+   Compiling clap v4.6.8
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/codec)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/parallel)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/seek)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/cli)
+    Finished `release` profile [optimized] target(s) in 9.10s
++ cp /home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-b/release/zxc /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b
++ [[ b == b ]]
++ cargo build --locked --release -p zxc-cli --no-default-features
+   Compiling zxc-codec v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/codec)
+   Compiling zxc-parallel v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/parallel)
+   Compiling zxc-seek v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/seek)
+   Compiling zxc-cli v0.1.0 (/home/rektide/src/zxc-rs/.test-agent/flat6-terra/src-b/crates/cli)
+    Finished `release` profile [optimized] target(s) in 2.04s
++ cp /home/rektide/src/zxc-rs/.test-agent/flat6-terra/target-b/release/zxc /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b-scalar
++ cd /home/rektide/src/zxc-rs
++ sha256sum /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-a /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b-scalar
+e9bc59d55ba030d6d5021fa3369612c4482745c02367bb74e9aef21f5b66bd1f  /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-a
+4242f230a633f2cb0bf6f27d65ab00755be9e7dc0fdd99b79ce7fa823ed6d407  /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b
+0e3f908a485565f55b52661e8ce1fbd7b7e097a2c8e766410f54857ba8c5a521  /home/rektide/src/zxc-rs/.test-agent/flat6-terra/cli-b-scalar

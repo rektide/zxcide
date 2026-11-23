@@ -1,0 +1,118 @@
+    Finished `release` profile [optimized] target(s) in 0.11s
+────────────
+ Nextest run ID 5cbbd7e6-6048-4302-a363-01d9065e1322 with nextest profile: default
+    Starting 70 tests across 13 binaries
+        PASS [   0.008s] ( 1/70) xtask::bin/xtask interop::generated::tests::known_recipe_and_plaintext
+        PASS [   0.007s] ( 2/70) xtask::bin/xtask interop::generated::tests::differences_use_global_plaintext_offsets
+        PASS [   0.008s] ( 3/70) zxc-codec block::tests::maximum_match_distance_requires_enough_history
+        PASS [   0.008s] ( 4/70) zxc-codec block::tests::dictionary_block_is_verified_and_bounded_before_write
+        PASS [   0.009s] ( 5/70) xtask::bin/xtask interop::generated::tests::accepts_existing_positionals_and_replay_arguments
+        PASS [   0.008s] ( 6/70) zxc-codec block::tests::malformed_lengths_and_offsets_cannot_use_scratch
+        PASS [   0.010s] ( 7/70) zxc-cli::threads parallel_limit_failure_never_publishes_a_partial_file
+        PASS [   0.010s] ( 8/70) zxc-cli::ranges rejects_offset_wrap_without_emitting_bytes
+        PASS [   0.010s] ( 9/70) zxc-codec block::tests::dictionary_match_respects_block_budget
+        PASS [   0.014s] (10/70) xtask::bin/xtask interop::generated::tests::default_schedule_covers_structures_and_stays_bounded
+        PASS [   0.013s] (11/70) zxc-codec block::tests::owned_block_does_not_transfer_stale_scratch_bytes
+        PASS [   0.006s] (12/70) zxc-codec block::tests::spl16_short_match_extensions_preserve_following_extensions_and_limits
+        PASS [   0.015s] (13/70) zxc-codec block::tests::dictionary_match_crosses_into_overlapping_output
+        PASS [   0.007s] (14/70) zxc-codec block::tests::spl16_batch_keeps_inline_prefix_when_second_token_needs_fallback
+        PASS [   0.005s] (15/70) zxc-codec encode::tests::dense_parse_can_shorten_a_match_to_start_the_next_one
+        PASS [   0.015s] (16/70) zxc-cli::threads bad_footer_after_a_compatible_frame_does_not_publish
+        PASS [   0.006s] (17/70) zxc-codec block::tests::spl16_short_runs_and_fallbacks_match_bytewise_history
+        PASS [   0.007s] (18/70) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+        PASS [   0.011s] (19/70) zxc-codec block::tests::spl16_rejects_malformed_runs_after_inline_prefix
+        PASS [   0.007s] (20/70) zxc-codec encode::tests::dense_search_can_use_an_older_longer_match
+        PASS [   0.021s] (21/70) xtask::bin/xtask interop::generated::tests::case_address_is_independent_of_order_and_supports_full_u64
+        PASS [   0.022s] (22/70) zxc-cli::ranges indexed_cli_uses_plaintext_offsets_and_frame_local_dictionaries
+        PASS [   0.013s] (23/70) zxc-codec encode::tests::dense_history_includes_dictionary_join_and_exact_window_limit
+        PASS [   0.015s] (24/70) zxc-codec block::tests::reconstruct_matches_bytewise_history
+        PASS [   0.009s] (25/70) zxc-codec entropy::tests::emit_prices_and_packs_mixed_branch_and_flat_runs
+        PASS [   0.011s] (26/70) zxc-codec encode::tests::seed_replays_all_boundary_hashes_and_last_collision_wins
+        PASS [   0.025s] (27/70) zxc-cli::files failed_decode_never_publishes_or_clobbers_output
+        PASS [   0.010s] (28/70) zxc-codec entropy::tests::entropy_still_falls_back_when_wire_cost_does_not_win
+        PASS [   0.011s] (29/70) zxc-codec entropy::tests::flat_three_bit_groups_match_individual_wire_bits
+        PASS [   0.006s] (30/70) zxc-codec entropy::tests::mixed_merges_under_uniform_ancestor_preserve_bitmap_tails
+        PASS [   0.013s] (31/70) zxc-codec entropy::tests::bitmap_kernels_match_the_cursor_at_exact_child_and_output_ends
+        PASS [   0.009s] (32/70) zxc-codec entropy::tests::skewed_histogram_uses_length_limited_huffman_for_either_section
+        PASS [   0.011s] (33/70) zxc-codec entropy::tests::merge_with_one_side_empty_accepts_only_the_existing_branch
+        PASS [   0.007s] (34/70) zxc-codec wire::tests::footer_widths_handle_self_inclusive_size_boundaries
+        PASS [   0.010s] (35/70) zxc-codec entropy::tests::packed_subtrees_decode_all_widths_and_tail_lengths
+        PASS [   0.013s] (36/70) zxc-codec entropy::tests::huffman_buckets_preserve_table_validation
+        PASS [   0.007s] (37/70) zxc-codec::streaming concatenation_resets_dictionary_and_index
+        PASS [   0.018s] (38/70) zxc-codec encode::tests::seeded_encoder_matches_unseeded_across_dictionary_switches
+        PASS [   0.008s] (39/70) zxc-codec::conformance reference_rejections
+        PASS [   0.008s] (40/70) zxc-codec::streaming density_sections_roundtrip
+        PASS [   0.011s] (41/70) zxc-codec::conformance reference_decoding
+        PASS [   0.010s] (42/70) zxc-codec::streaming verification_precedes_block_write
+        PASS [   0.024s] (43/70) zxc-codec entropy::tests::flat_six_bit_groups_match_individual_wire_bits
+        PASS [   0.011s] (44/70) zxc-parallel channel::tests::coordinator_unwind_joins_with_a_full_window
+        PASS [   0.008s] (45/70) zxc-parallel channel::tests::partial_spawn_failure_closes_idle_workers_without_running_coordinator
+        PASS [   0.011s] (46/70) zxc-parallel channel::tests::session_reuses_worker_scratch_and_preserves_eof_credit
+        PASS [   0.007s] (47/70) zxc-parallel::streaming rejects_invalid_configuration_without_io_even_in_serial
+        PASS [   0.024s] (48/70) zxc-codec::streaming boundaries_and_fragmented_io
+        PASS [   0.016s] (49/70) zxc-parallel scheduler_tests::fails_cleanly_with_partial_sink_writes
+        PASS [   0.040s] (50/70) zxc-codec encode::tests::dense_long_match_extends_past_parse_spans_and_roundtrips
+        PASS [   0.015s] (51/70) zxc-parallel::streaming corruption_and_read_failure_report_in_order
+        PASS [   0.022s] (52/70) zxc-parallel channel::tests::out_of_order_completion_does_not_return_credit
+        PASS [   0.005s] (53/70) zxc-seek::archive decoded_size_must_match_footer_before_writing
+        PASS [   0.004s] (54/70) zxc-seek::archive open_rejects_invalid_frame_structure_and_unindexed_frames
+        PASS [   0.006s] (55/70) zxc-seek::archive frame_local_dictionaries_checksums_and_empty_frames
+        PASS [   0.024s] (56/70) zxc-parallel channel::tests::decode_epochs_split_only_on_block_size_changes
+        PASS [   0.007s] (57/70) zxc-seek::archive checksums_are_verified_with_local_index_but_digest_is_not_checked
+        PASS [   0.011s] (58/70) zxc-parallel::streaming warm_pool_still_resolves_dictionary_for_empty_frames
+        PASS [   0.028s] (59/70) zxc-parallel channel::tests::later_worker_panic_stops_admission_but_earlier_write_error_wins
+        PASS [   0.027s] (60/70) zxc-parallel::streaming compatible_frames_reset_integrity_and_dictionary_on_non_send_io
+        PASS [   0.007s] (61/70) zxc-seek::archive seek_entries_are_checked_only_for_the_touched_group
+        PASS [   0.006s] (62/70) zxc-seek::archive upstream_group_and_frame_boundaries_touch_only_their_own_data
+        PASS [   0.017s] (63/70) zxc-parallel::streaming warm_pool_does_not_cross_malformed_frame_boundaries
+        PASS [   0.021s] (64/70) zxc-parallel::streaming short_non_send_io_and_single_worker_and_partial_windows
+        PASS [   0.008s] (65/70) zxc-seek::archive positioned_files_never_change_the_cursor_and_can_be_shared
+        PASS [   0.027s] (66/70) zxc-parallel::streaming frame_boundaries_dictionary_changes_and_cumulative_limit
+        PASS [   0.034s] (67/70) zxc-parallel scheduler_tests::stress_windows_and_shutdown
+        PASS [   0.030s] (68/70) zxc-parallel::streaming matches_reference_vectors_and_serial_rejections
+        PASS [   0.128s] (69/70) zxc-parallel::streaming byte_identical_to_serial_for_all_frame_settings
+        PASS [   0.167s] (70/70) zxc-codec entropy::tests::bitmap_gather_preserves_two_group_order_and_bounded_suffixes
+────────────
+     Summary [   0.183s] 70 tests run: 70 passed, 0 skipped
+    Finished `release` profile [optimized] target(s) in 0.04s
+────────────
+ Nextest run ID 590c46ff-5f89-4f24-9e95-51e1545b785e with nextest profile: default
+    Starting 36 tests across 3 binaries
+        PASS [   0.004s] ( 1/36) zxc-codec block::tests::dictionary_match_respects_block_budget
+        PASS [   0.004s] ( 2/36) zxc-codec block::tests::malformed_lengths_and_offsets_cannot_use_scratch
+        PASS [   0.004s] ( 3/36) zxc-codec block::tests::spl16_batch_keeps_inline_prefix_when_second_token_needs_fallback
+        PASS [   0.004s] ( 4/36) zxc-codec block::tests::owned_block_does_not_transfer_stale_scratch_bytes
+        PASS [   0.004s] ( 5/36) zxc-codec encode::tests::dense_parse_can_shorten_a_match_to_start_the_next_one
+        PASS [   0.004s] ( 6/36) zxc-codec block::tests::dictionary_block_is_verified_and_bounded_before_write
+        PASS [   0.005s] ( 7/36) zxc-codec block::tests::dictionary_match_crosses_into_overlapping_output
+        PASS [   0.005s] ( 8/36) zxc-codec block::tests::spl16_short_match_extensions_preserve_following_extensions_and_limits
+        PASS [   0.005s] ( 9/36) zxc-codec block::tests::spl16_rejects_malformed_runs_after_inline_prefix
+        PASS [   0.005s] (10/36) zxc-codec encode::tests::dense_search_can_use_an_older_longer_match
+        PASS [   0.006s] (11/36) zxc-codec encode::tests::dense_history_includes_dictionary_join_and_exact_window_limit
+        PASS [   0.008s] (12/36) zxc-codec block::tests::maximum_match_distance_requires_enough_history
+        PASS [   0.004s] (13/36) zxc-codec entropy::tests::emit_prices_and_packs_mixed_branch_and_flat_runs
+        PASS [   0.004s] (14/36) zxc-codec entropy::tests::merge_with_one_side_empty_accepts_only_the_existing_branch
+        PASS [   0.005s] (15/36) zxc-codec entropy::tests::flat_three_bit_groups_match_individual_wire_bits
+        PASS [   0.005s] (16/36) zxc-codec entropy::tests::entropy_still_falls_back_when_wire_cost_does_not_win
+        PASS [   0.005s] (17/36) zxc-codec encode::tests::seed_replays_all_boundary_hashes_and_last_collision_wins
+        PASS [   0.005s] (18/36) zxc-codec entropy::tests::huffman_buckets_preserve_table_validation
+        PASS [   0.005s] (19/36) zxc-codec entropy::tests::mixed_merges_under_uniform_ancestor_preserve_bitmap_tails
+        PASS [   0.011s] (20/36) zxc-codec block::tests::reconstruct_matches_bytewise_history
+        PASS [   0.004s] (21/36) zxc-codec entropy::tests::packed_subtrees_decode_all_widths_and_tail_lengths
+        PASS [   0.007s] (22/36) zxc-codec entropy::tests::bitmap_kernels_match_the_cursor_at_exact_child_and_output_ends
+        PASS [   0.003s] (23/36) zxc-codec wire::tests::footer_widths_handle_self_inclusive_size_boundaries
+        PASS [   0.004s] (24/36) zxc-codec entropy::tests::skewed_histogram_uses_length_limited_huffman_for_either_section
+        PASS [   0.003s] (25/36) zxc-codec::conformance reference_rejections
+        PASS [   0.004s] (26/36) zxc-codec::streaming concatenation_resets_dictionary_and_index
+        PASS [   0.003s] (27/36) zxc-codec::streaming verification_precedes_block_write
+        PASS [   0.005s] (28/36) zxc-codec::conformance reference_decoding
+        PASS [   0.004s] (29/36) zxc-codec::streaming density_sections_roundtrip
+        PASS [   0.010s] (30/36) zxc-codec encode::tests::seeded_encoder_matches_unseeded_across_dictionary_switches
+        PASS [   0.016s] (31/36) zxc-codec entropy::tests::flat_six_bit_groups_match_individual_wire_bits
+        PASS [   0.015s] (32/36) zxc-codec::streaming boundaries_and_fragmented_io
+        PASS [   0.003s] (33/36) zxc-codec block::tests::spl16_short_runs_and_fallbacks_match_bytewise_history
+        PASS [   0.029s] (34/36) zxc-codec block::tests::section_buffers_survive_entropy_errors_and_release_on_smaller_raw_block
+        PASS [   0.040s] (35/36) zxc-codec encode::tests::dense_long_match_extends_past_parse_spans_and_roundtrips
+        PASS [   0.127s] (36/36) zxc-codec entropy::tests::bitmap_gather_preserves_two_group_order_and_bounded_suffixes
+────────────
+     Summary [   0.132s] 36 tests run: 36 passed, 0 skipped
