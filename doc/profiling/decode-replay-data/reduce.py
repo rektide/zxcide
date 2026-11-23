@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reduce a clean or stage paired-run JSON (optionally gzip-compressed)."""
+"""Reduce a clean, stage or perf paired-run JSON (optionally gzip-compressed)."""
 import gzip
 import json
 from math import comb
@@ -19,8 +19,31 @@ def fmt_range(v):
     return f'{v[0]:+.2f}% [{v[1]:+.2f}, {v[2]:+.2f}]'
 
 
+def reduce_perf(raw):
+    for name, row in raw['cases'].items():
+        rounds = row['rounds']
+        volume = row['repeats'] * row['units']
+        print(f'{name} ({len(rounds)} rounds; {row["count"]} sections/blocks; {row["units"]} output bytes/pass):')
+        for label in ('c', 'rust', 'rust-native'):
+            r = [r[label] for r in rounds]
+            cyc, ins, cpu = (median(float(p[k]) / volume for p in r)
+                             for k in ('cycles:u', 'instructions:u', 'thread_cpu_ns'))
+            wall = median(volume * 1000 / p['wall_ns'] for p in r)
+            off = median(100 * (1 - p['thread_cpu_ns'] / p['wall_ns']) for p in r)
+            ghz = median(p['cycles:u'] / p['thread_cpu_ns'] for p in r)
+            print(f'  {label:<12} {cyc:.4f} cyc/B {ins:.4f} ins/B {wall:.0f} MB/s {cpu:.4f} s/GB'
+                  f' {off:.2f}% off-core {ghz:.2f} user cyc/thread ns')
+        for label in ('c', 'rust-native'):
+            deltas = [median_ci([100 * (r[label][k] / r['rust'][k] - 1) for r in rounds])
+                      for k in ('cycles:u', 'instructions:u', 'thread_cpu_ns')]
+            print(f'  {label}/rust: ' + ' | '.join(map(fmt_range, deltas)))
+
+
 p = Path(sys.argv[1])
 raw = json.loads(gzip.decompress(p.read_bytes()) if p.suffix == '.gz' else p.read_bytes())
+if 'cases' in raw:
+    reduce_perf(raw)
+    sys.exit(0)
 for series, s in enumerate(raw['series'], 1):
     for g in s['groups']:
         name = g['name']
