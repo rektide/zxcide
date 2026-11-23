@@ -1,3 +1,37 @@
+#[cfg(all(feature = "merge-simd", target_arch = "x86_64"))]
+#[path = "merge/avx.rs"]
+mod avx;
+
+#[cfg(all(feature = "merge-simd", target_arch = "x86_64"))]
+// The counted bitmap ensures l <= left <= r and that only the logical
+// bytes in each window are selected. A left load can cross into the right
+// child, but neither load can cross the initialized node end.
+#[inline(always)]
+fn tiles32(
+    region: &[u8],
+    dst: &mut [u8],
+    bitmap: &[u8],
+    left: usize,
+    mut tile: impl FnMut(&mut [u8; 32], &[u8; 32], &[u8; 32], u32),
+) -> (usize, usize, usize) {
+    let (mut l, mut r, mut groups) = (0, left, 0);
+    for (out, ctrl) in dst.as_chunks_mut::<32>().0.iter_mut().zip(bitmap.as_chunks::<4>().0) {
+        let (Some(a), Some(b)) = (
+            region.get(l..).and_then(|s| s.first_chunk()),
+            region.get(r..).and_then(|s| s.first_chunk()),
+        ) else {
+            break;
+        };
+        let bits = u32::from_le_bytes(*ctrl);
+        tile(out, a, b, bits);
+        let ones = bits.count_ones() as usize;
+        l += 32 - ones;
+        r += ones;
+        groups += 1;
+    }
+    (groups, l, r)
+}
+
 // The caller decoded and counted the whole bitmap, masking unused tail bits.
 // Its children occupy `region[..left]` and `region[left..]` in that order.
 #[inline]
@@ -52,10 +86,11 @@ fn packed(
     dst: &mut [u8],
     bitmap: &[u8],
     left: usize,
+    [mut i, mut j]: [usize; 2],
     mut select: impl FnMut(&mut [u8; 8], &[u8; 8], &[u8; 8], &Mask),
 ) {
     let (a, b) = region.split_at(left);
-    let (mut i, mut j, mut groups) = (0, 0, 0);
+    let mut groups = 0;
     for (chunk, &bits) in dst.as_chunks_mut::<8>().0.iter_mut().zip(bitmap) {
         let (Some(x), Some(y)) = (
             a.get(i..).and_then(|s| s.first_chunk()),
@@ -74,7 +109,7 @@ fn packed(
 
 #[inline]
 pub(super) fn table(region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) {
-    packed(region, dst, bitmap, left, |out, a, b, mask| {
+    packed(region, dst, bitmap, left, [0, 0], |out, a, b, mask| {
         let mut window = [0; 16];
         window[..8].copy_from_slice(a);
         window[8..].copy_from_slice(b);
@@ -85,28 +120,46 @@ pub(super) fn table(region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) {
 }
 
 #[cfg(feature = "merge-simd")]
-pub(super) fn simd(region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) {
-    use fearless_simd::{Level, Simd, SimdBase, u8x16};
+#[inline(always)]
+fn simd_packed<S: fearless_simd::Simd>(
+    simd: S,
+    region: &[u8],
+    dst: &mut [u8],
+    bitmap: &[u8],
+    left: usize,
+    cursors: [usize; 2],
+) {
+    use fearless_simd::{SimdBase, u8x16};
+    packed(region, dst, bitmap, left, cursors, |out, a, b, mask| {
+        let mut src = [0; 16];
+        src[..8].copy_from_slice(a);
+        src[8..].copy_from_slice(b);
+        let x = u8x16::from_slice(simd, &src);
+        let control = u8x16::from_slice(simd, &mask.index);
+        let result = simd.swizzle_dyn_u8x16(x, control);
+        out.copy_from_slice(&result.as_slice()[..8]);
+    });
+}
 
-    #[inline(always)]
-    fn kernel<S: Simd>(simd: S, region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) {
-        packed(region, dst, bitmap, left, |out, a, b, mask| {
-            let mut src = [0; 16];
-            src[..8].copy_from_slice(a);
-            src[8..].copy_from_slice(b);
-            let x = u8x16::from_slice(simd, &src);
-            let control = u8x16::from_slice(simd, &mask.index);
-            let result = simd.swizzle_dyn_u8x16(x, control);
-            out.copy_from_slice(&result.as_slice()[..8]);
-        });
-    }
+#[cfg(feature = "merge-simd")]
+pub(super) fn simd(region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) {
+    use fearless_simd::Level;
 
     let level = Level::new();
+
+    #[cfg(target_arch = "x86_64")]
+    if dst.len() >= 128
+        && region.len() - left >= 32
+        && let Some(proof) = if let Level::Avx2(p) = level { Some(p) } else { None }
+    {
+        avx::merge32_avx(proof, region, dst, bitmap, left);
+        return;
+    }
     if level.is_fallback() || cfg!(any(target_arch = "x86", target_arch = "x86_64")) && matches_sse2(level) {
         table(region, dst, bitmap, left);
         return;
     }
-    fearless_simd::dispatch!(level, token => kernel(token, region, dst, bitmap, left));
+    fearless_simd::dispatch!(level, token => simd_packed(token, region, dst, bitmap, left, [0,0]));
 }
 
 #[cfg(feature = "merge-simd")]
@@ -133,3 +186,7 @@ pub(super) fn gather(region: &[u8], dst: &mut [u8], bitmap: &[u8], left: usize) 
     #[cfg(not(feature = "merge-simd"))]
     table(region, dst, bitmap, left);
 }
+
+#[cfg(all(test, feature = "merge-simd", target_arch = "x86_64"))]
+#[path = "merge/race_tests.rs"]
+mod race_tests;
