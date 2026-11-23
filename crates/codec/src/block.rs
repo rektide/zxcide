@@ -79,6 +79,7 @@ impl BlockDecoder {
         index: u64,
         expected_size: Option<usize>,
     ) -> io::Result<VerifiedBlock<'a>> {
+        zone!("block.checked");
         require(body.len() == header.body_size(), "incorrect data block body size")?;
         require(
             dictionary.map(Dictionary::id) == header.frame.dictionary_id(),
@@ -182,6 +183,8 @@ fn unpack_with_sections<'a>(
     out: &'a mut Vec<u8>,
     sections: &mut Sections,
 ) -> io::Result<&'a [u8]> {
+    #[cfg(feature = "tracy")]
+    let _payload = (kind == 1).then(|| tracy_client::span!("spl.payload"));
     let n = word(&mut data)?;
     let nl = word(&mut data)?;
     require(nl <= limit && n <= (limit - nl) / 5, "decoded counts exceed block size")?;
@@ -208,8 +211,16 @@ fn unpack_with_sections<'a>(
     let seq_data = take(&mut data, seq_size)?;
     let width = if enc[3] == 1 { 1 } else { 2 };
     let offsets = take(&mut data, if packed { 0 } else { n * width })?;
-    let literals = section(enc[0], lit_data, nl, dict, &mut sections.literals, &mut sections.merge)?;
-    let sequences = section(enc[1], seq_data, n, None, &mut sections.tokens, &mut sections.merge)?;
+    let literals = {
+        #[cfg(feature = "tracy")]
+        let _literal = (enc[0] == 2).then(|| tracy_client::span!("huf.inline.literal"));
+        section(enc[0], lit_data, nl, dict, &mut sections.literals, &mut sections.merge)?
+    };
+    let sequences = {
+        #[cfg(feature = "tracy")]
+        let _token = (enc[1] == 2).then(|| tracy_client::span!("huf.inline.token"));
+        section(enc[1], seq_data, n, None, &mut sections.tokens, &mut sections.merge)?
+    };
 
     zone!("LZ reconstruct");
     let history = dict.map_or(&[][..], |d| d.content.as_slice());
