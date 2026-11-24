@@ -8,15 +8,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/rektide/zxc-rs.git"
+		"url": "git+https://github.com/rektide/zxcide.git"
 	},
 	"keywords": [],
 	"author": "rektide de la faye",
 	"license": "MIT",
 	"type": "module",
 	"bugs": {
-		"url": "https://github.com/rektide/zxc-rs/issues"
+		"url": "https://github.com/rektide/zxcide/issues"
 	},
-	"homepage": "https://github.com/rektide/zxc-rs#readme",
+	"homepage": "https://github.com/rektide/zxcide#readme",
 	"module": "zxcide.js"
 }

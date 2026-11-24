@@ -11,7 +11,7 @@ sources:
   - { resource: /doc/profiling/decode-pool.md, title: Eight-worker fixed-byte CLI evidence and output controls }
   - { resource: /doc/profiling/pipeline-comparison.sol.md, title: Which file and worker paths the CLIs exercise }
   - { resource: /doc/profiling/README.md, title: Existing Rust capture workflow }
-  - { resource: 'https://github.com/rektide/zxc-rs/tree/7c2eae8392f864331d6ee77a4a6aa526405fe9f1', title: Rust source audited for this wave }
+  - { resource: 'https://github.com/rektide/zxcide/tree/7c2eae8392f864331d6ee77a4a6aa526405fe9f1', title: Rust source audited for this wave }
   - { resource: 'https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c', title: Exact C performance source inspected in the comparison cache }
   - { resource: 'https://github.com/wolfpld/tracy/tree/30997d5ca6bb632cc10807a1da8a6d3de0aeeb3c', title: Matching Tracy v0.14.1 source and tool interfaces }
 ---

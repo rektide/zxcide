@@ -1,6 +1,6 @@
 # zxcide
 
-[![Codec checks](https://github.com/rektide/zxc-rs/actions/workflows/check.yml/badge.svg)](https://github.com/rektide/zxc-rs/actions/workflows/check.yml)
+[![Codec checks](https://github.com/rektide/zxcide/actions/workflows/check.yml/badge.svg)](https://github.com/rektide/zxcide/actions/workflows/check.yml)
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-brightgreen.svg)](crates/codec/src/lib.rs)
 

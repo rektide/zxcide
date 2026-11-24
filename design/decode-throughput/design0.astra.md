@@ -12,7 +12,7 @@ sources:
   - { resource: /doc/profiling/decode-waits.md, title: Measured intersections of input service and worker starvation }
   - { resource: /doc/profiling/pivco-worker.md, title: Scope and memory cost of retained Huffman buffers }
   - { resource: 'https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c', title: Upstream performance pin, inspected locally }
-  - { resource: 'https://github.com/rektide/zxc-rs/tree/956e0000a963e0e43aec749793fc6dfd235e21f5', title: Rust source of the measured CLI }
+  - { resource: 'https://github.com/rektide/zxcide/tree/956e0000a963e0e43aec749793fc6dfd235e21f5', title: Rust source of the measured CLI }
 ---
 
 # Fast decode across independent frames

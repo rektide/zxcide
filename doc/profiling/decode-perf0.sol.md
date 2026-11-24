@@ -10,7 +10,7 @@ sources:
   - { resource: /doc/profiling/decode-replay0.sol.md, title: Checked block baseline and separate elapsed-clock section-prep measurements }
   - { resource: /doc/profiling/decode-pool-data/fixture-manifest.json, title: Fixed corpus, archive and plaintext identities }
   - { resource: 'https://github.com/hellobertrand/zxc/tree/5719a96f778226868b29dba621a8c4e302b74d7c', title: Upstream C performance pin }
-  - { resource: 'https://github.com/rektide/zxc-rs/tree/8b3b88974f40b46808ce13e2f5f2306c11a1bc19', title: Rust performance pin with pool and buffer reuse }
+  - { resource: 'https://github.com/rektide/zxcide/tree/8b3b88974f40b46808ce13e2f5f2306c11a1bc19', title: Rust performance pin with pool and buffer reuse }
 ---
 
 # Linux perf replay of the C7 Huffman section gap
