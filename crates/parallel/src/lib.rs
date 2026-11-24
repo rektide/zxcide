@@ -3,7 +3,7 @@
 #![forbid(unsafe_code)]
 
 use std::io::{self, Read, Write};
-use zxc_codec::{
+use zxcide::{
     BlockDecoder, BlockEncoder, DecodeOptions, Dictionary, EncodeOptions,
     stream::{DecodeFrame, EncodeFrame, read_data_block, read_source_block},
     wire::FrameHeader,
@@ -158,7 +158,7 @@ macro_rules! dispatch {
 
 /// Encode one frame. The caller owns flushing and output-file publication.
 pub fn encode(r: impl Read, w: impl Write, options: EncodeOptions<'_>, config: Config) -> io::Result<()> {
-    dispatch!(config, zxc_codec::encode, encode_with, encode_with, r, w, options)
+    dispatch!(config, zxcide::encode, encode_with, encode_with, r, w, options)
 }
 
 fn encode_with(
@@ -195,7 +195,7 @@ fn encode_with(
 /// read or write that blocks externally cannot be interrupted by the driver.
 /// The caller owns flushing and output-file publication.
 pub fn decode(r: impl Read, w: impl Write, options: DecodeOptions<'_>, config: Config) -> io::Result<()> {
-    dispatch!(config, zxc_codec::decode, decode_channel, decode_with, r, w, options)
+    dispatch!(config, zxcide::decode, decode_channel, decode_with, r, w, options)
 }
 
 fn decode_channel<Q: channel::Transport>(

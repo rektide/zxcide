@@ -1,6 +1,6 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
-use zxc_codec::{DecodeOptions, Dictionary, decode};
+use zxcide::{DecodeOptions, Dictionary, decode};
 
 fuzz_target!(|data: &[u8]| {
     let _ = Dictionary::from_bytes(data);

@@ -14,13 +14,13 @@ sources:
 
 # Indexed reads first
 
-`cli → seek → codec`. The existing component and sequential stream consumers depend on `codec` alone. Keep wire/header validation and the verified data-block decoder in the codec; share them across sequential and positioned I/O. Only the new `zxc-seek` crate needs to know how to locate a block. A caller with a block's header, payload, frame settings and frame-local index shouldn't need to synthesize a temporary archive to decode it.
+`cli → seek → codec`. The existing component and sequential stream consumers depend on `codec` alone. Keep wire/header validation and the verified data-block decoder in the codec; share them across sequential and positioned I/O. Only the new `zxcide-seek` crate needs to know how to locate a block. A caller with a block's header, payload, frame settings and frame-local index shouldn't need to synthesize a temporary archive to decode it.
 
 `Archive::open(source)` takes a source with a length and exact positioned reads. Support memory and files; avoid a shared file cursor. Walk minimal-width footers backwards and validate the frame bounds, headers, EOF and SEK layout before exposing metadata. Require every frame to be indexed. Keep O(frames) descriptors, bound the number of frames, and keep group entries on disk. Opening and inspecting descriptors don't require dictionaries. Callers must keep the source contents stable while the archive is in use.
 
 `copy_range(start..end, dictionaries, writer)` takes **uncompressed**, archive-relative, half-open byte offsets, including across concatenated frames. Reject reversed and out-of-bounds ranges; EOF..EOF succeeds. Binary-search frames, load only the touched 64-block groups, check their anchors/sizes against that frame, and compare each accessed block header to its entry. Decode a full touched block with its frame-local dictionary and checksum seed; require the expected decoded size before handing the overlap to the writer. Scratch belongs to a read, not the shared index. No allocation proportional to the requested length. A range read verifies touched checksums but cannot vouch for the whole-frame digest. A named CLI output is published only on success.
 
-CLI: `zxc range ARCHIVE START LENGTH [-D DICT] [-o OUTPUT]` and `zxc info ARCHIVE` (indexed frame metadata, not an integrity test). Prove the data path with upstream fixtures and a counting source that forbids reads of unrelated payloads, including a 63→64 boundary and a range crossing frames. Reject `sek_forged_entry` on access.
+CLI: `zxcide range ARCHIVE START LENGTH [-D DICT] [-o OUTPUT]` and `zxcide info ARCHIVE` (indexed frame metadata, not an integrity test). Prove the data path with upstream fixtures and a counting source that forbids reads of unrelated payloads, including a 63→64 boundary and a range crossing frames. Reject `sek_forged_entry` on access.
 
 ## Next landing: interchangeable parallel drivers
 

@@ -1,16 +1,16 @@
 [package]
-name = "zxc-parallel"
+name = "zxcide-parallel"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [features]
-ledger = ["zxc-codec/ledger"]
+ledger = ["zxcide/ledger"]
 flume = ["dep:flume"]
 kanal = ["dep:kanal"]
 crossfire = ["dep:crossfire"]
 rayon = ["dep:rayon"]
-tracy = ["dep:tracy-client", "zxc-codec/tracy"]
+tracy = ["dep:tracy-client", "zxcide/tracy"]
 
 [dependencies]
 crossbeam-channel = "0.5"
@@ -19,10 +19,10 @@ flume = { version = "0.12", default-features = false, optional = true }
 kanal = { version = "0.1", default-features = false, optional = true }
 rayon = { version = "1.12", optional = true }
 tracy-client = { workspace = true, optional = true }
-zxc-codec = { path = "../codec" }
+zxcide = { path = "../codec" }
 
 [dev-dependencies]
-zxc-seek = { path = "../seek" }
+zxcide-seek = { path = "../seek" }
 tempfile = "3"
 criterion = { version = "0.8", default-features = false }
 

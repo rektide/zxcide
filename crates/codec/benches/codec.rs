@@ -1,6 +1,6 @@
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use std::hint::black_box;
-use zxc_codec::{DecodeOptions, Decoder, EncodeOptions, Encoder};
+use zxcide::{DecodeOptions, Decoder, EncodeOptions, Encoder};
 
 #[path = "../../../tests/bench_inputs.rs"]
 mod inputs;
@@ -61,7 +61,7 @@ fn bench_roundtrip(c: &mut Criterion, name: &str, plain: &[u8], opt: EncodeOptio
     group.bench_function("encode", |b| {
         b.iter(|| {
             let mut archive = Vec::new();
-            zxc_codec::encode(black_box(plain), &mut archive, opt).unwrap();
+            zxcide::encode(black_box(plain), &mut archive, opt).unwrap();
             archive
         })
     });
@@ -72,7 +72,7 @@ fn bench_roundtrip(c: &mut Criterion, name: &str, plain: &[u8], opt: EncodeOptio
 
 fn decode_once(archive: &[u8], len: usize) -> Vec<u8> {
     let mut plain = Vec::new();
-    zxc_codec::decode(
+    zxcide::decode(
         archive,
         &mut plain,
         DecodeOptions {

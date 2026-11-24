@@ -1,4 +1,4 @@
-package zxc:codec@0.1.0;
+package zxcide:codec@0.1.0;
 
 interface buffers {
     enum mode { split, packed, dense }

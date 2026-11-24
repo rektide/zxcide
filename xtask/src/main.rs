@@ -94,7 +94,7 @@ enum Task {
     Interop {
         /// Existing C executable. By default fetch and build the pinned reference.
         c_cli: Option<PathBuf>,
-        /// Existing Rust executable. By default build zxc-cli in release mode.
+        /// Existing Rust executable. By default build zxcide-cli in release mode.
         rust_cli: Option<PathBuf>,
         /// Run the generated gate using 3 Rust workers and 4 in-flight slots.
         #[arg(long, value_parser=["crossbeam","flume","kanal","crossfire","rayon"])]
@@ -149,8 +149,8 @@ enum Task {
 fn main() -> Result<()> {
     let task = Task::parse();
     let sh = Shell::new()?;
-    if let Some(path) = env::var_os("ZXC_BENCH_INPUT") {
-        sh.set_var("ZXC_BENCH_INPUT", std::path::absolute(path)?);
+    if let Some(path) = env::var_os("ZXCIDE_BENCH_INPUT") {
+        sh.set_var("ZXCIDE_BENCH_INPUT", std::path::absolute(path)?);
     }
     if let Some(path) = env::var_os("CARGO_TARGET_DIR") {
         sh.set_var("CARGO_TARGET_DIR", std::path::absolute(path)?);
@@ -215,8 +215,10 @@ fn main() -> Result<()> {
                     } else {
                         &[]
                     };
-                    cmd!(sh, "cargo build --locked --release -p zxc-cli {features...}").run()?;
-                    target.join("release").join(format!("zxc{}", env::consts::EXE_SUFFIX))
+                    cmd!(sh, "cargo build --locked --release -p zxcide-cli {features...}").run()?;
+                    target
+                        .join("release")
+                        .join(format!("zxcide{}", env::consts::EXE_SUFFIX))
                 }
             };
             let indices = if let Some(index) = case {
@@ -284,10 +286,10 @@ fn main() -> Result<()> {
 fn build_component(sh: &Shell, target: &Path, dwarf: bool, guest: Guest) -> Result<PathBuf> {
     let profile = if dwarf { "profiling" } else { "release" };
     let (filename, features, validation) = match guest {
-        Guest::Scalar => ("zxc-codec.wasm", "-simd128,-relaxed-simd", "-simd,-relaxed-simd"),
-        Guest::Simd128 => ("zxc-codec-simd128.wasm", "+simd128,-relaxed-simd", "simd,-relaxed-simd"),
+        Guest::Scalar => ("zxcide.wasm", "-simd128,-relaxed-simd", "-simd,-relaxed-simd"),
+        Guest::Simd128 => ("zxcide-simd128.wasm", "+simd128,-relaxed-simd", "simd,-relaxed-simd"),
         Guest::RelaxedSimd => (
-            "zxc-codec-relaxed-simd.wasm",
+            "zxcide-relaxed-simd.wasm",
             "+simd128,+relaxed-simd",
             "simd,relaxed-simd",
         ),
@@ -295,18 +297,18 @@ fn build_component(sh: &Shell, target: &Path, dwarf: bool, guest: Guest) -> Resu
     let extra = if guest == Guest::Scalar {
         &[][..]
     } else {
-        &["--features", "zxc-codec/merge-simd"][..]
+        &["--features", "zxcide/merge-simd"][..]
     };
     cmd!(
         sh,
-        "cargo build --locked --profile {profile} -p zxc-component --target wasm32-unknown-unknown {extra...}"
+        "cargo build --locked --profile {profile} -p zxcide-component --target wasm32-unknown-unknown {extra...}"
     )
     .env("CARGO_ENCODED_RUSTFLAGS", format!("-Ctarget-feature={features}"))
     .run()?;
     let core = target
         .join("wasm32-unknown-unknown")
         .join(profile)
-        .join("zxc_component.wasm");
+        .join("zxcide_component.wasm");
     let out = sh.create_dir(target.join(if dwarf { "profiling/component" } else { "component" }))?;
     let component = out.join(filename);
     cmd!(sh, "wasm-tools component new {core} -o {component}").run()?;
@@ -344,12 +346,12 @@ fn build_bench_variant(sh: &Shell, target: &Path, backend: Backend, mode: BenchM
         build = build.args(["--profile", "profiling"]);
     }
     build = match backend {
-        Backend::Native => build.args(["-p", "zxc-codec"]),
+        Backend::Native => build.args(["-p", "zxcide"]),
         Backend::Component => {
-            sh.set_var("ZXC_COMPONENT", build_component(sh, target, dwarf, guest)?);
+            sh.set_var("ZXCIDE_COMPONENT", build_component(sh, target, dwarf, guest)?);
             build.args([
                 "-p",
-                "zxc-component",
+                "zxcide-component",
                 "--features",
                 match mode {
                     BenchMode::Perf { .. } => "host-perf",
@@ -376,7 +378,7 @@ fn check_case(sh: &Shell, bench: &Path, case: &str) -> Result<()> {
     let cases = cmd!(sh, "{bench} --bench --exact {case} --list").read()?;
     ensure!(
         cases.lines().any(|line| line.strip_suffix(": benchmark") == Some(case)),
-        "no such case: {case} (check ZXC_BENCH_MODE and ZXC_BENCH_BLOCK_LOG)"
+        "no such case: {case} (check ZXCIDE_BENCH_MODE and ZXCIDE_BENCH_BLOCK_LOG)"
     );
     Ok(())
 }
@@ -406,7 +408,7 @@ fn perf(sh: &Shell, target: &Path, backend: Backend, case: &str, seconds: NonZer
             "perf.data"
         }
         Backend::Component => {
-            record.env("ZXC_JITDUMP", if dwarf { "dwarf" } else { "1" }).run()?;
+            record.env("ZXCIDE_JITDUMP", if dwarf { "dwarf" } else { "1" }).run()?;
             cmd!(sh, "perf inject --jit -i perf.data -o perf.jit.data").run()?;
             "perf.jit.data"
         }

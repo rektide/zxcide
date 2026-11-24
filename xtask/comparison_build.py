@@ -83,10 +83,10 @@ def snapshot(source, run, label, build):
 def build_current(run, log):
     # Explicit empty rustflags overrides Cargo config/env target-cpu tuning.
     env = {**os.environ, 'CARGO_ENCODED_RUSTFLAGS': ''}
-    argv = ['cargo', 'build', '--locked', '--release', '-p', 'zxc-cli', '--message-format=json-render-diagnostics']
+    argv = ['cargo', 'build', '--locked', '--release', '-p', 'zxcide-cli', '--message-format=json-render-diagnostics']
     messages = command(log, *argv, capture=True, env=env)
     artifacts = [obj for obj in map(json.loads, messages.splitlines()) if obj['reason'] == 'compiler-artifact']
-    cli, = [a for a in artifacts if a['target']['name'] == 'zxc' and a['executable']]
+    cli, = [a for a in artifacts if a['target']['name'] == 'zxcide' and a['executable']]
     status = command(log, 'git', 'status', '--porcelain=v1', '--untracked-files=normal', capture=True)
     build = dict(revision=command(log, 'git', 'rev-parse', 'HEAD', capture=True), dirty=bool(status),
                  status=status, command=argv, rustc=command(log, 'rustc', '-vV', capture=True),

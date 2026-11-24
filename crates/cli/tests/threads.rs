@@ -8,7 +8,7 @@ fn parallel_limit_failure_never_publishes_a_partial_file() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../tests/conformance/v9/valid/multiblock_checksum.zxc"
     );
-    let res = Command::new(env!("CARGO_BIN_EXE_zxc"))
+    let res = Command::new(env!("CARGO_BIN_EXE_zxcide"))
         .args([
             "decode",
             archive,
@@ -37,7 +37,7 @@ fn bad_footer_after_a_compatible_frame_does_not_publish() {
     let mut concat = [frame.as_slice(), frame, frame].concat();
     concat[2 * frame.len() - 1] ^= 1;
     fs::write(&source, concat).unwrap();
-    let res = Command::new(env!("CARGO_BIN_EXE_zxc"))
+    let res = Command::new(env!("CARGO_BIN_EXE_zxcide"))
         .arg("decode")
         .arg(&source)
         .args(["--threads", "3", "--slots", "2", "-o"])

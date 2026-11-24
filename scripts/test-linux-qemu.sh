@@ -23,6 +23,6 @@ export QEMU_LD_PREFIX="${QEMU_LD_PREFIX:-/usr/$triplet}"
 
 cd -- "$(dirname -- "$0")/.."
 sha256sum --quiet -c tests/conformance/v9/vectors.sha256
-args=(--locked --release --target "$1" -p zxc-codec --lib --tests --no-default-features)
+args=(--locked --release --target "$1" -p zxcide --lib --tests --no-default-features)
 cargo test "${args[@]}" --features merge-simd
 cargo test "${args[@]}"

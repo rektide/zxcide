@@ -1,5 +1,5 @@
 use std::{fs, io, path::Path};
-use zxc_codec::{DecodeOptions, Dictionary, decode};
+use zxcide::{DecodeOptions, Dictionary, decode};
 
 const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/conformance/v9");
 

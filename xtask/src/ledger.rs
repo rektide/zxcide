@@ -33,10 +33,14 @@ pub(super) fn run(sh: &Shell, target: &Path, component: bool) -> Result<()> {
     sh.set_var("CRITERION_HOME", &home);
     let counts = cmd!(
         sh,
-        "cargo bench --locked -p zxc-parallel --features ledger --bench ledger"
+        "cargo bench --locked -p zxcide-parallel --features ledger --bench ledger"
     )
     .read()?;
-    cmd!(sh, "cargo bench --locked -p zxc-parallel --bench ledger -- {TIMING...}").run()?;
+    cmd!(
+        sh,
+        "cargo bench --locked -p zxcide-parallel --bench ledger -- {TIMING...}"
+    )
+    .run()?;
     let mut report = String::from("case\tplaintext_B\tsite\tbytes\tB_per_B\tCI95_low_us\tCI95_high_us\n");
     for line in counts.lines().filter_map(|s| s.strip_prefix("site\t")) {
         let id = line.split('\t').next().unwrap();

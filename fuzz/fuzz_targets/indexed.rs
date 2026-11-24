@@ -1,6 +1,6 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
-use zxc_seek::Archive;
+use zxcide_seek::Archive;
 
 // Keep inputs in wire format so the frozen C corpus seeds the target directly.
 fuzz_target!(|data: &[u8]| {

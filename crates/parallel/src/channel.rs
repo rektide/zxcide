@@ -127,7 +127,9 @@ impl<Q: Transport> Driver<Q> {
         work: impl Fn(&mut S, u64, J, Vec<u8>) -> io::Result<O> + Sync,
         operation: impl FnOnce(&mut Session<Q, J, O>) -> io::Result<T>,
     ) -> io::Result<T> {
-        self.with_workers_using(work, operation, |_| Ok(thread::Builder::new().name("zxc block".into())))
+        self.with_workers_using(work, operation, |_| {
+            Ok(thread::Builder::new().name("zxcide block".into()))
+        })
     }
 
     fn with_workers_using<S: Default + Send, J: Send + 'static, O: Send + 'static, T>(
@@ -419,10 +421,10 @@ mod tests {
             ] {
                 let plain = vec![size as u8; size];
                 expected.extend_from_slice(&plain);
-                zxc_codec::encode(
+                zxcide::encode(
                     &plain[..],
                     &mut archive,
-                    zxc_codec::EncodeOptions {
+                    zxcide::EncodeOptions {
                         block_log,
                         seekable,
                         checksum,

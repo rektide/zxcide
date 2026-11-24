@@ -178,12 +178,12 @@ fn exercise(driver: &impl Scheduler, slots: usize) {
 #[test]
 fn fails_cleanly_with_partial_sink_writes() {
     let plain = Arc::new(vec![b'x'; 4096 * 32]);
-    let options = zxc_codec::EncodeOptions {
+    let options = zxcide::EncodeOptions {
         block_log: 12,
         ..Default::default()
     };
     let mut archive = Vec::new();
-    zxc_codec::encode(&plain[..], &mut archive, options).unwrap();
+    zxcide::encode(&plain[..], &mut archive, options).unwrap();
     let archive = Arc::new(archive);
 
     struct Sink(usize);
@@ -213,7 +213,7 @@ fn fails_cleanly_with_partial_sink_writes() {
             };
             // Header + one byte of the first block header, ensuring encode
             // fails inside ordered commit, not before workers are started.
-            let sink = Sink(zxc_codec::wire::FRAME_HEADER_SIZE + 1);
+            let sink = Sink(zxcide::wire::FRAME_HEADER_SIZE + 1);
             let error = crate::encode(&plain[..], sink, options, cfg).unwrap_err();
             assert_eq!(error.kind(), io::ErrorKind::BrokenPipe);
             let error = crate::decode(&archive[..], Sink(4097), Default::default(), cfg).unwrap_err();

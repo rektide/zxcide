@@ -52,6 +52,7 @@ def main():
         export_tree(['git', '-C', ROOT], revision, stock_src)
         target = out / 'target'
         with perf_lock():
+            # The stock export predates the zxcide rename, so it still builds zxc-cli.
             run('rust-stock-build.log', ['cargo', 'build', '--locked', '--offline', '--profile', 'profiling',
                                         '-j', a.jobs, '-p', 'zxc-cli'], cwd=stock_src,
                 CARGO_TARGET_DIR=str(target), RUSTFLAGS='')
@@ -104,11 +105,11 @@ def main():
         dest = out / 'rust-target'
         updates = {'CARGO_TARGET_DIR': str(dest), 'RUSTFLAGS': ''}
         run(f'{flavor}-features.log', ['cargo', 'tree', '--locked', '--offline', '-e', 'features',
-                                     '-p', 'zxc-cli', *flags], **updates)
+                                     '-p', 'zxcide-cli', *flags], **updates)
         run(f'{flavor}-build.log', ['cargo', 'build', '--locked', '--offline', '-vv', '--profile', profile,
-                                   '-j', a.jobs, '-p', 'zxc-cli', *flags], **updates)
+                                   '-j', a.jobs, '-p', 'zxcide-cli', *flags], **updates)
         binary = out / flavor
-        shutil.copy2(dest / profile / 'zxc', binary)
+        shutil.copy2(dest / profile / 'zxcide', binary)
         run(f'{flavor}-deps.log', ['ldd', binary])
         run(f'{flavor}-nm.log', ['nm', '-A', binary])
         return binary

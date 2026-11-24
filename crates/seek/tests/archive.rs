@@ -1,6 +1,6 @@
 use std::{cell::RefCell, fs, io, ops::Range};
-use zxc_codec::{Dictionary, EncodeOptions, Mode, decode, encode};
-use zxc_seek::{Archive, ReadAt};
+use zxcide::{Dictionary, EncodeOptions, Mode, decode, encode};
+use zxcide_seek::{Archive, ReadAt};
 
 const VALID: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/conformance/v9/valid");
 const INVALID: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/conformance/v9/invalid");

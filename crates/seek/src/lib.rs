@@ -7,7 +7,7 @@ use std::{
     ops::Range,
     path::Path,
 };
-use zxc_codec::{
+use zxcide::{
     BlockDecoder, Dictionary,
     wire::{
         BLOCK_HEADER_SIZE, DIGEST_SIZE, DataBlockHeader, FRAME_HEADER_SIZE, FooterWidths, FrameHeader,
@@ -243,10 +243,10 @@ impl<S: ReadAt> Archive<S> {
                         header.disk_size() as u64 == spans[i + 1] - offset,
                         "seek entry disagrees with block header",
                     )?;
-                    zxc_codec::resize_zero!(body, header.body_size());
+                    zxcide::resize_zero!(body, header.body_size());
                     self.source
                         .read_exact_at(offset + BLOCK_HEADER_SIZE as u64, &mut body)?;
-                    zxc_codec::probe!({ add("input:positioned body", body.len()) });
+                    zxcide::probe!({ add("input:positioned body", body.len()) });
                     let plain_offset = index * block_size;
                     let expected = (frame.plain_size - plain_offset).min(block_size);
                     let verified = decoder.decode(header, &body, dictionary, index, Some(expected as usize))?;

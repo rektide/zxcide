@@ -1,6 +1,6 @@
 #![no_main]
 use libfuzzer_sys::fuzz_target;
-use zxc_codec::{EncodeOptions, Mode, decode, encode};
+use zxcide::{EncodeOptions, Mode, decode, encode};
 
 fuzz_target!(|data: &[u8]| {
     let Some((&flags, bytes)) = data.split_first() else {

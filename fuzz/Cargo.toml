@@ -1,5 +1,5 @@
 [package]
-name = "zxc-fuzz"
+name = "zxcide-fuzz"
 version = "0.0.0"
 edition = "2024"
 publish = false
@@ -9,8 +9,8 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-zxc-codec = { path = "../crates/codec" }
-zxc-seek = { path = "../crates/seek" }
+zxcide = { path = "../crates/codec" }
+zxcide-seek = { path = "../crates/seek" }
 
 [[bin]]
 name = "indexed"

@@ -11,16 +11,16 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: wasm-tools@1.245.1
-      - run: cargo clippy --locked -p zxc-component --target wasm32-unknown-unknown -- -D warnings
+      - run: cargo clippy --locked -p zxcide-component --target wasm32-unknown-unknown -- -D warnings
       - name: Exercise all release variants through the same WIT API
         run: |
           for variant in scalar simd128 relaxed-simd; do
-            ZXC_BENCH_MODE=all cargo xtask bench component --variant "$variant" -- --test
+            ZXCIDE_BENCH_MODE=all cargo xtask bench component --variant "$variant" -- --test
           done
           (cd target/component && sha256sum *.wasm > SHA256SUMS)
       - uses: actions/upload-artifact@v4
         with:
-          name: zxc-codec-component
+          name: zxcide-component
           path: target/component/
           if-no-files-found: error
   codec:
@@ -39,7 +39,7 @@ jobs:
           cargo nextest run --locked --all-features
           cargo test --doc --locked --all-features
       - name: Exercise all benchmark cases once
-        run: ZXC_BENCH_MODE=all cargo xtask bench native -- --test
+        run: ZXCIDE_BENCH_MODE=all cargo xtask bench native -- --test
       - name: Cross-check with the pinned upstream C binary
         run: cargo xtask interop
       - name: Check generated archives with each parallel backend

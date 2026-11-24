@@ -4,11 +4,11 @@ use std::{
     path::Path,
     rc::Rc,
 };
-use zxc_codec::{
+use zxcide::{
     DecodeOptions, Dictionary, EncodeOptions, Mode,
     wire::{BLOCK_HEADER_SIZE, DataBlockHeader, FRAME_HEADER_SIZE, FrameHeader},
 };
-use zxc_parallel::{Backend, Config, decode, encode};
+use zxcide_parallel::{Backend, Config, decode, encode};
 
 const FIXTURES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/conformance/v9");
 const BLOCK: usize = 4096;
@@ -31,7 +31,7 @@ fn dictionaries() -> [Dictionary; 3] {
 
 fn serial(plain: &[u8], options: EncodeOptions<'_>) -> Vec<u8> {
     let mut archive = Vec::new();
-    zxc_codec::encode(plain, &mut archive, options).unwrap();
+    zxcide::encode(plain, &mut archive, options).unwrap();
     archive
 }
 
@@ -112,7 +112,7 @@ fn matches_reference_vectors_and_serial_rejections() {
                 expected = fs::read(path.with_extension("expected")).unwrap();
                 Ok(())
             } else {
-                zxc_codec::decode(&archive[..], &mut expected, options).map_err(|e| (e.kind(), e.to_string()))
+                zxcide::decode(&archive[..], &mut expected, options).map_err(|e| (e.kind(), e.to_string()))
             };
             for &backend in Backend::available() {
                 let mut output = Vec::new();
@@ -186,9 +186,9 @@ fn compatible_frames_reset_integrity_and_dictionary_on_non_send_io() {
             ..Default::default()
         };
         for _ in 0..5 {
-            zxc_codec::encode(&[][..], &mut archive, opts).unwrap();
+            zxcide::encode(&[][..], &mut archive, opts).unwrap();
         }
-        zxc_codec::encode(bytes, &mut archive, opts).unwrap();
+        zxcide::encode(bytes, &mut archive, opts).unwrap();
         if i == 3 {
             boundary = expected.len();
         }
@@ -282,7 +282,7 @@ fn warm_pool_does_not_cross_malformed_frame_boundaries() {
         let bytes = [warm.as_slice(), &bad, &warm].concat();
         let mut input = bytes.as_slice();
         let mut expected = Vec::new();
-        let err = zxc_codec::decode(&mut input, &mut expected, Default::default()).unwrap_err();
+        let err = zxcide::decode(&mut input, &mut expected, Default::default()).unwrap_err();
         assert_eq!(err.to_string(), message);
         let mut output = Vec::new();
         let mut parallel_input = bytes.as_slice();

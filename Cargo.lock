@@ -2280,19 +2280,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
 
 [[package]]
-name = "zxc-cli"
-version = "0.1.0"
-dependencies = [
- "clap",
- "tempfile",
- "tracy-client",
- "zxc-codec",
- "zxc-parallel",
- "zxc-seek",
-]
-
-[[package]]
-name = "zxc-codec"
+name = "zxcide"
 version = "0.1.0"
 dependencies = [
  "criterion",
@@ -2302,17 +2290,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "zxc-component"
+name = "zxcide-cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "tempfile",
+ "tracy-client",
+ "zxcide",
+ "zxcide-parallel",
+ "zxcide-seek",
+]
+
+[[package]]
+name = "zxcide-component"
 version = "0.1.0"
 dependencies = [
  "criterion",
  "wasmtime",
  "wit-bindgen",
- "zxc-codec",
+ "zxcide",
 ]
 
 [[package]]
-name = "zxc-parallel"
+name = "zxcide-parallel"
 version = "0.1.0"
 dependencies = [
  "criterion",
@@ -2323,14 +2323,14 @@ dependencies = [
  "rayon",
  "tempfile",
  "tracy-client",
- "zxc-codec",
- "zxc-seek",
+ "zxcide",
+ "zxcide-seek",
 ]
 
 [[package]]
-name = "zxc-seek"
+name = "zxcide-seek"
 version = "0.1.0"
 dependencies = [
  "tracy-client",
- "zxc-codec",
+ "zxcide",
 ]

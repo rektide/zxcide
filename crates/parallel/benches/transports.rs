@@ -1,7 +1,7 @@
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use std::hint::black_box;
-use zxc_codec::{DecodeOptions, EncodeOptions};
-use zxc_parallel::{Backend, Config};
+use zxcide::{DecodeOptions, EncodeOptions};
+use zxcide_parallel::{Backend, Config};
 
 fn bench(c: &mut Criterion) {
     // Alternate repeatable structured and noisy 4 KiB spans. At the small
@@ -19,15 +19,15 @@ fn bench(c: &mut Criterion) {
             }
         })
         .collect();
-    let workers = std::env::var("ZXC_BENCH_THREADS").map_or(4, |s| s.parse::<usize>().unwrap());
-    let slots = std::env::var("ZXC_BENCH_SLOTS").map_or(2 * workers, |s| s.parse().unwrap());
+    let workers = std::env::var("ZXCIDE_BENCH_THREADS").map_or(4, |s| s.parse::<usize>().unwrap());
+    let slots = std::env::var("ZXCIDE_BENCH_SLOTS").map_or(2 * workers, |s| s.parse().unwrap());
     for log in [12, 19] {
         let opt = EncodeOptions {
             block_log: log,
             ..Default::default()
         };
         let mut archive = Vec::new();
-        zxc_codec::encode(&plain[..], &mut archive, opt).unwrap();
+        zxcide::encode(&plain[..], &mut archive, opt).unwrap();
         let mut group = c.benchmark_group(format!("transports/b{log}"));
         group.throughput(Throughput::Bytes(plain.len() as u64));
         for (name, backend, n, k) in [
@@ -48,22 +48,22 @@ fn bench(c: &mut Criterion) {
                 backend,
             };
             let mut dst = Vec::with_capacity(plain.len());
-            zxc_parallel::encode(&plain[..], &mut dst, opt, config()).unwrap();
+            zxcide_parallel::encode(&plain[..], &mut dst, opt, config()).unwrap();
             assert_eq!(dst, archive);
             dst.clear();
-            zxc_parallel::decode(&archive[..], &mut dst, DecodeOptions::default(), config()).unwrap();
+            zxcide_parallel::decode(&archive[..], &mut dst, DecodeOptions::default(), config()).unwrap();
             assert_eq!(dst, plain);
             group.bench_function(format!("encode/{name}-w{n}-k{k}"), |b| {
                 b.iter(|| {
                     dst.clear();
-                    zxc_parallel::encode(black_box(&plain[..]), &mut dst, opt, config()).unwrap();
+                    zxcide_parallel::encode(black_box(&plain[..]), &mut dst, opt, config()).unwrap();
                     black_box(&dst);
                 })
             });
             group.bench_function(format!("decode/{name}-w{n}-k{k}"), |b| {
                 b.iter(|| {
                     dst.clear();
-                    zxc_parallel::decode(black_box(&archive[..]), &mut dst, Default::default(), config()).unwrap();
+                    zxcide_parallel::decode(black_box(&archive[..]), &mut dst, Default::default(), config()).unwrap();
                     black_box(&dst);
                 })
             });

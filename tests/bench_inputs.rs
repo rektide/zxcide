@@ -1,5 +1,5 @@
 //! Workloads and tuning controls shared by the native and component benches.
-use zxc_codec::Mode;
+use zxcide::Mode;
 
 pub const UPSTREAM: &[u8] = include_bytes!("conformance/v9/valid/spl_pivco_wide_l7.zxc");
 pub const EXPECTED: &[u8] = include_bytes!("conformance/v9/valid/spl_pivco_wide_l7.expected");
@@ -21,7 +21,7 @@ pub fn corpora() -> Vec<(String, Vec<u8>)> {
         ("noise".to_owned(), noise),
         ("mixed".to_owned(), mixed),
     ];
-    if let Some(path) = std::env::var_os("ZXC_BENCH_INPUT") {
+    if let Some(path) = std::env::var_os("ZXCIDE_BENCH_INPUT") {
         let path = std::path::PathBuf::from(path);
         corpora.push((
             path.file_name().unwrap().to_string_lossy().into_owned(),
@@ -32,8 +32,8 @@ pub fn corpora() -> Vec<(String, Vec<u8>)> {
 }
 
 pub fn settings() -> (u8, &'static [Mode]) {
-    let block_log = std::env::var("ZXC_BENCH_BLOCK_LOG").map_or(19, |s| s.parse().unwrap());
-    let modes: &[Mode] = match std::env::var("ZXC_BENCH_MODE").as_deref() {
+    let block_log = std::env::var("ZXCIDE_BENCH_BLOCK_LOG").map_or(19, |s| s.parse().unwrap());
+    let modes: &[Mode] = match std::env::var("ZXCIDE_BENCH_MODE").as_deref() {
         Ok("all") => &[Mode::Split, Mode::Packed, Mode::Dense],
         Ok("dense") => &[Mode::Dense],
         Ok("packed") => &[Mode::Packed],

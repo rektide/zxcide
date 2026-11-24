@@ -83,7 +83,7 @@ Failures leave `incomplete-*/run.log`, never a published report. If a cached che
 ## Compare parallel transports
 
 ```sh
-ZXC_BENCH_THREADS=4 ZXC_BENCH_SLOTS=8 cargo bench --locked -p zxc-parallel \
+ZXCIDE_BENCH_THREADS=4 ZXCIDE_BENCH_SLOTS=8 cargo bench --locked -p zxcide-parallel \
   --features flume,kanal,crossfire,rayon --bench transports
 ```
 
@@ -100,7 +100,7 @@ Use Criterion for speed and ratio comparisons; use Tracy to find which phase is 
 ```sh
 cargo bench --locked --bench codec
 # Compare a real corpus with the same block size and mode each time:
-ZXC_BENCH_INPUT=/path/to/silesia/dickens ZXC_BENCH_BLOCK_LOG=19 ZXC_BENCH_MODE=dense \
+ZXCIDE_BENCH_INPUT=/path/to/silesia/dickens ZXCIDE_BENCH_BLOCK_LOG=19 ZXCIDE_BENCH_MODE=dense \
   cargo bench --locked --bench codec -- dickens
 ```
 
@@ -120,7 +120,7 @@ On a quiet machine, save a baseline before editing, then compare against it in t
 
 ```sh
 cargo nextest run --locked --workspace
-export ZXC_BENCH_MODE=dense
+export ZXCIDE_BENCH_MODE=dense
 cargo bench --locked --bench codec -- mixed/Dense/b19/encode --save-baseline before
 # Apply the change, run the correctness tests again, then:
 cargo bench --locked --bench codec -- mixed/Dense/b19/encode --baseline before
@@ -128,11 +128,11 @@ cargo bench --locked --bench codec -- mixed/Dense/b19/encode --baseline before
 
 Criterion reports the estimated change and its confidence interval. Repeat the comparison on unchanged code to see how much the machine varies. Keep CPU power settings, build flags, and corpus fixed; check archive size alongside throughput so a speedup from writing a larger archive is visible. For decode-only changes the fixed upstream archive also isolates decoder speed from changes in encoder output.
 
-For a full sweep, set `ZXC_BENCH_MODE=all` and omit the filter in both commands. For a block-size experiment set `ZXC_BENCH_BLOCK_LOG` (12–21); the size is part of the benchmark ID. CI uses Criterion's `--test` mode to exercise every case once. Use a quiet, consistent host for timing decisions; nextest's parallel test durations are for diagnosing slow tests.
+For a full sweep, set `ZXCIDE_BENCH_MODE=all` and omit the filter in both commands. For a block-size experiment set `ZXCIDE_BENCH_BLOCK_LOG` (12–21); the size is part of the benchmark ID. CI uses Criterion's `--test` mode to exercise every case once. Use a quiet, consistent host for timing decisions; nextest's parallel test durations are for diagnosing slow tests.
 
 ## Compare native and component
 
-Use the same unprefixed case ID to measure three API paths sequentially. The `upstream-l7/decode` fixture holds compressed bytes fixed across builds. For encode, select a corpus, mode and block size, e.g. `ZXC_BENCH_MODE=dense cargo xtask compare mixed/Dense/b19/encode`.
+Use the same unprefixed case ID to measure three API paths sequentially. The `upstream-l7/decode` fixture holds compressed bytes fixed across builds. For encode, select a corpus, mode and block size, e.g. `ZXCIDE_BENCH_MODE=dense cargo xtask compare mixed/Dense/b19/encode`.
 
 ```sh
 cargo xtask compare upstream-l7/decode -- --save-baseline before
@@ -147,16 +147,16 @@ The bare ID measures native Rust with reused workspace and output capacity. `one
 Install the [component build prerequisites](../../README.md#webassembly-component) first. The wrapper rebuilds the release component and runs Criterion on the host using Wasmtime's typed bindings to the shipped WIT interface. For example:
 
 ```sh
-ZXC_BENCH_MODE=all cargo xtask bench component -- --test
-export ZXC_BENCH_MODE=dense ZXC_BENCH_BLOCK_LOG=19
+ZXCIDE_BENCH_MODE=all cargo xtask bench component -- --test
+export ZXCIDE_BENCH_MODE=dense ZXCIDE_BENCH_BLOCK_LOG=19
 cargo xtask bench component -- component/mixed/Dense/b19/encode --save-baseline wasm-before
 # Change the codec or guest build flags, then repeat with the same workload:
 cargo xtask bench component -- component/mixed/Dense/b19/encode --baseline wasm-before
 ```
 
-The component and native suites use the same inputs (including `ZXC_BENCH_INPUT`), mode selection and uncompressed-byte throughput. Each component case verifies the output before measurement. The timer covers one call on an existing instance, including byte-list transfers, per-call codec workspaces, and output allocation and disposal. Component loading, JIT compilation, instantiation, and preparing the decode archive are outside the loop. The native suite reuses workspaces and buffers, so the difference between suites is not solely the cost of WebAssembly execution.
+The component and native suites use the same inputs (including `ZXCIDE_BENCH_INPUT`), mode selection and uncompressed-byte throughput. Each component case verifies the output before measurement. The timer covers one call on an existing instance, including byte-list transfers, per-call codec workspaces, and output allocation and disposal. Component loading, JIT compilation, instantiation, and preparing the decode archive are outside the loop. The native suite reuses workspaces and buffers, so the difference between suites is not solely the cost of WebAssembly execution.
 
-Keep the host runtime and input fixed while tuning the guest. For example, set `CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUSTFLAGS='-C target-feature=+simd128'` for a comparison on SIMD-capable runtimes. Record flags, component size, archive size, and component SHA-256 with the Criterion result. To measure an already distributed artifact, set `ZXC_COMPONENT` to its **absolute path** and run `cargo bench --locked -p zxc-component --features host-bench --bench component` directly.
+Keep the host runtime and input fixed while tuning the guest. For example, set `CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUSTFLAGS='-C target-feature=+simd128'` for a comparison on SIMD-capable runtimes. Record flags, component size, archive size, and component SHA-256 with the Criterion result. To measure an already distributed artifact, set `ZXCIDE_COMPONENT` to its **absolute path** and run `cargo bench --locked -p zxcide-component --features host-bench --bench component` directly.
 
 ### Locate component hotspots with Linux perf
 
@@ -165,10 +165,10 @@ Use the [Rust xtask](../../xtask/src/main.rs) to sample one exact Criterion case
 ```sh
 cargo xtask perf native upstream-l7/decode
 cargo xtask perf component upstream-l7/decode
-ZXC_BENCH_MODE=dense cargo xtask perf component mixed/Dense/b19/encode --seconds 10
+ZXCIDE_BENCH_MODE=dense cargo xtask perf component mixed/Dense/b19/encode --seconds 10
 # In the upstream decode component capture directory:
 perf report --stdio --percent-limit 1 -i perf.jit.data
-perf annotate --stdio -i perf.jit.data --symbol '<zxc_codec::entropy::Tree>::decode'
+perf annotate --stdio -i perf.jit.data --symbol '<zxcide::entropy::Tree>::decode'
 ```
 
 Following [Wasmtime's perf guide](https://github.com/bytecodealliance/wasmtime/blob/main/docs/examples-profiling-perf.md), the helper enables `ProfilingStrategy::JitDump` in the Rust host (`host-perf` enables `wasmtime/profiling` in 46.0.3). It builds first, then runs the benchmark executable under `perf record -k mono -e cycles:u` for a Criterion `--profile-time` loop. Startup, JIT and correctness checks are also sampled; increase `--seconds` when those obscure the loop. `perf inject --jit` resolves guest code addresses into named functions for reporting and assembly annotation. Keep `perf.jit.data` and the generated `jitted-*.so` files in their capture directory. Use ordinary Criterion baselines to measure whether a change helps.
@@ -205,15 +205,15 @@ For the repeatable wide-Huffman workload, run `cargo xtask tracy --capture /path
 For an arbitrary archive or encoder workload, run the client and capture manually:
 
 ```sh
-cargo build --locked --profile profiling -p zxc-cli --features tracy
+cargo build --locked --profile profiling -p zxcide-cli --features tracy
 # Terminal A: wait for attachment before running even a tiny job.
-TRACY_PORT=18086 target/profiling/zxc --wait-for-tracy test archive.zxc
+TRACY_PORT=18086 target/profiling/zxcide --wait-for-tracy test archive.zxc
 # Terminal B (within 30 seconds):
 tracy-capture -a 127.0.0.1 -p 18086 -o decode.tracy
 tracy-csvexport decode.tracy > zones.csv
 ```
 
-Use `encode --mode dense input -o new.zxc` in place of `test` for match finding, packing and entropy pricing. The frame zone includes I/O; use block and nested codec zones to separate it. Nested zone totals overlap. To sample native code without Tracy, build with `cargo build --profile profiling -p zxc-cli` and use `perf record -e cycles:u --call-graph dwarf -- target/profiling/zxc test archive.zxc`.
+Use `encode --mode dense input -o new.zxc` in place of `test` for match finding, packing and entropy pricing. The frame zone includes I/O; use block and nested codec zones to separate it. Nested zone totals overlap. To sample native code without Tracy, build with `cargo build --profile profiling -p zxcide-cli` and use `perf record -e cycles:u --call-graph dwarf -- target/profiling/zxcide test archive.zxc`.
 
 ## First trace: wide Huffman decode
 
@@ -223,7 +223,7 @@ To recreate the CLI comparison (release binaries, no attached profiler):
 
 ```sh
 # Use repeated.zxc from the capture directory printed by `cargo xtask tracy`.
-hyperfine --warmup 2 --runs 5 -N 'target/release/zxc test /path/to/repeated.zxc' '/path/to/c-zxc -qt -T1 /path/to/repeated.zxc'
+hyperfine --warmup 2 --runs 5 -N 'target/release/zxcide test /path/to/repeated.zxc' '/path/to/c-zxc -qt -T1 /path/to/repeated.zxc'
 ```
 
 After the merge change, the Rust CLI took **122 ± 2 ms**, versus **31 ± 1 ms** for the pinned upstream native C release build. Both read the same archive and discard output. This end-to-end gap includes frame setup and I/O; the trace points to entropy decoding as the next place to look on this workload.

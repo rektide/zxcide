@@ -6,7 +6,7 @@ use std::{
     process::ExitCode,
 };
 use tempfile::NamedTempFile;
-use zxc_codec::{DecodeOptions, Dictionary, EncodeOptions, Mode};
+use zxcide::{DecodeOptions, Dictionary, EncodeOptions, Mode};
 
 #[derive(Parser)]
 #[command(version, about = "Stream ZXC v9 archives and extract indexed byte ranges.")]
@@ -58,9 +58,9 @@ struct Execution {
     backend: Transport,
 }
 impl Execution {
-    fn config(&self) -> zxc_parallel::Config {
-        use zxc_parallel::Backend;
-        zxc_parallel::Config {
+    fn config(&self) -> zxcide_parallel::Config {
+        use zxcide_parallel::Backend;
+        zxcide_parallel::Config {
             workers: self.threads.get(),
             slots: self
                 .slots
@@ -159,14 +159,14 @@ fn dict(path: &Path) -> io::Result<Dictionary> {
 fn dictionaries(paths: &[PathBuf]) -> io::Result<Vec<Dictionary>> {
     paths.iter().map(|p| dict(p)).collect()
 }
-fn indexed(path: &Path) -> io::Result<zxc_seek::Archive<zxc_seek::FileSource>> {
+fn indexed(path: &Path) -> io::Result<zxcide_seek::Archive<zxcide_seek::FileSource>> {
     if path == Path::new("-") {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
             "indexed reads require a file path",
         ));
     }
-    zxc_seek::Archive::open(zxc_seek::FileSource::open(path)?)
+    zxcide_seek::Archive::open(zxcide_seek::FileSource::open(path)?)
 }
 fn info(path: &Path, mut w: impl Write) -> io::Result<()> {
     let archive = indexed(path)?;
@@ -216,7 +216,7 @@ fn output(path: &Path, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) ->
 }
 fn decode(path: &Path, w: &mut dyn Write, opt: DecodeArgs) -> io::Result<()> {
     let dicts = dictionaries(&opt.dictionary)?;
-    zxc_parallel::decode(
+    zxcide_parallel::decode(
         input(path)?,
         w,
         DecodeOptions {
@@ -265,7 +265,7 @@ fn run(cli: Cli) -> io::Result<()> {
                 dictionary: dictionary.as_ref(),
             };
             output(&files.output, |w| {
-                zxc_parallel::encode(input(&files.input)?, w, opts, execution.config())
+                zxcide_parallel::encode(input(&files.input)?, w, opts, execution.config())
             })
         }
         Command::Decode { files, options } => output(&files.output, |w| decode(&files.input, w, options)),

@@ -33,7 +33,7 @@ Use separate `CRITERION_HOME` directories, `taskset -c 2-7`, 30 samples, 0.45 s 
 ^component/(upstream-l7|ledger/(mixed/b(12|19)|noise/b12))/decode$
 ```
 
-The kernel benchmark is `cargo bench --locked -p zxc-codec --features merge-simd --bench pivco_merge`. It uses fixed bounded slices and four repeating balanced or skewed masks across a size sweep; its crossover is not universal across bitmap distributions. Whole-call timings decide adoption. Gate: a repeatable ≥5% serial reduction on both entropy-heavy native cases, with no repeatable control or WIT slowdown of ≥3% with separated intervals. Prefer a scalar candidate that clears the bar unless SIMD adds a material whole-call benefit.
+The kernel benchmark is `cargo bench --locked -p zxcide --features merge-simd --bench pivco_merge`. It uses fixed bounded slices and four repeating balanced or skewed masks across a size sweep; its crossover is not universal across bitmap distributions. Whole-call timings decide adoption. Gate: a repeatable ≥5% serial reduction on both entropy-heavy native cases, with no repeatable control or WIT slowdown of ≥3% with separated intervals. Prefer a scalar candidate that clears the bar unless SIMD adds a material whole-call benefit.
 
 ## Whole-call results
 

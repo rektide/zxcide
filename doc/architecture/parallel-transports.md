@@ -14,7 +14,7 @@ sources:
 
 # Parallel block execution
 
-`zxc-parallel` depends on `zxc-codec`; the component, seek reader and serial codec need no thread runtime. A parallel operation takes the existing stream options and a separate `Config { workers, slots, backend }`. Expose `encode(reader, writer, options, config)` and `decode(...)`; the caller retains flushing and output-file policy. One worker takes the direct serial path. Crossbeam is the initial default; optional Cargo features add flume, kanal, crossfire, and Rayon. Reject zero or excessive settings before starting workers. Keep pools scoped to the call or frame, not the process-global Rayon pool.
+`zxcide-parallel` depends on `zxcide`; the component, seek reader and serial codec need no thread runtime. A parallel operation takes the existing stream options and a separate `Config { workers, slots, backend }`. Expose `encode(reader, writer, options, config)` and `decode(...)`; the caller retains flushing and output-file policy. One worker takes the direct serial path. Crossbeam is the initial default; optional Cargo features add flume, kanal, crossfire, and Rayon. Reject zero or excessive settings before starting workers. Keep pools scoped to the call or frame, not the process-global Rayon pool.
 
 ## Data path
 

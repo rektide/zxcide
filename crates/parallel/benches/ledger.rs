@@ -1,9 +1,9 @@
 //! Identical calls in two builds: diagnostic counts OR Criterion, never both.
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::io::Write;
-use zxc_codec::{DecodeOptions, Dictionary, EncodeOptions, Mode};
-use zxc_parallel::Config;
-use zxc_seek::{Archive, FileSource, ReadAt};
+use zxcide::{DecodeOptions, Dictionary, EncodeOptions, Mode};
+use zxcide_parallel::Config;
+use zxcide_seek::{Archive, FileSource, ReadAt};
 
 #[path = "../../../tests/ledger_inputs.rs"]
 mod ledger_inputs;
@@ -13,14 +13,14 @@ const EXPECTED: &[u8] = include_bytes!("../../../tests/conformance/v9/valid/spl_
 fn measure(c: &mut Criterion, id: &str, n: usize, expected: &[u8], mut run: impl FnMut(&mut Vec<u8>)) {
     let mut dst = Vec::with_capacity(expected.len());
     #[cfg(feature = "ledger")]
-    zxc_codec::ledger::take();
+    zxcide::ledger::take();
     run(&mut dst);
     assert_eq!(dst, expected);
     #[cfg(feature = "ledger")]
     {
         let _ = c;
-        zxc_codec::ledger::add("output:destination", dst.len());
-        let mut sites: Vec<_> = zxc_codec::ledger::take().into_iter().collect();
+        zxcide::ledger::add("output:destination", dst.len());
+        let mut sites: Vec<_> = zxcide::ledger::take().into_iter().collect();
         sites.sort_by_key(|&(_, b)| std::cmp::Reverse(b));
         for (site, b) in sites {
             println!("site\t{id}\t{n}\t{site}\t{b}\t{:.5}", b as f64 / n as f64);
@@ -75,7 +75,7 @@ fn bench(c: &mut Criterion) {
                 max_output: Some(plain.len() as u64),
             };
             let mut archive = Vec::new();
-            zxc_codec::encode(&plain[..], &mut archive, opt).unwrap();
+            zxcide::encode(&plain[..], &mut archive, opt).unwrap();
             for workers in [1, 4] {
                 let config = Config {
                     workers,
@@ -84,15 +84,15 @@ fn bench(c: &mut Criterion) {
                 };
                 let id = format!("{family}/b{log}/w{workers}");
                 measure(c, &format!("{id}/encode"), plain.len(), &archive, |w| {
-                    zxc_parallel::encode(&plain[..], w, opt, config).unwrap()
+                    zxcide_parallel::encode(&plain[..], w, opt, config).unwrap()
                 });
                 measure(c, &format!("{id}/decode"), plain.len(), plain, |w| {
-                    zxc_parallel::decode(&archive[..], w, dec, config).unwrap()
+                    zxcide_parallel::decode(&archive[..], w, dec, config).unwrap()
                 });
             }
         }
         let mut indexed = Vec::new();
-        zxc_codec::encode(
+        zxcide::encode(
             &noise[..],
             &mut indexed,
             EncodeOptions {
@@ -131,7 +131,7 @@ fn bench(c: &mut Criterion) {
                 b.iter_batched_ref(
                     || (Dictionary::from_bytes(&zxd).unwrap(), Vec::with_capacity(plain.len())),
                     |(dict, dst)| {
-                        zxc_parallel::encode(
+                        zxcide_parallel::encode(
                             plain,
                             &mut *dst,
                             EncodeOptions {
@@ -155,7 +155,7 @@ fn bench(c: &mut Criterion) {
             ..Default::default()
         };
         measure(c, &format!("wide/w{workers}/decode"), EXPECTED.len(), EXPECTED, |w| {
-            zxc_parallel::decode(
+            zxcide_parallel::decode(
                 WIDE,
                 w,
                 DecodeOptions {

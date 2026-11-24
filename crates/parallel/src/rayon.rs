@@ -13,7 +13,7 @@ impl Driver<'_> {
     pub(crate) fn with<T>(config: Config, operation: impl FnOnce(Driver<'_>) -> io::Result<T>) -> io::Result<T> {
         ThreadPoolBuilder::new()
             .num_threads(config.workers)
-            .thread_name(|i| format!("zxc rayon {i}"))
+            .thread_name(|i| format!("zxcide rayon {i}"))
             .build_scoped(|thread| thread.run(), |pool| operation(Driver { config, pool }))
             .map_err(io::Error::other)?
     }

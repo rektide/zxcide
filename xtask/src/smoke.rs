@@ -67,7 +67,7 @@ impl Process {
 pub fn tracy(sh: &Shell, target: &Path, capture: &Path, repeats: NonZeroU32, port: u16) -> Result<()> {
     cmd!(
         sh,
-        "cargo build --locked --profile profiling -p zxc-cli --features tracy"
+        "cargo build --locked --profile profiling -p zxcide-cli --features tracy"
     )
     .run()?;
     let dir = tempfile::Builder::new().prefix("tracy-").tempdir_in(target)?.keep();
@@ -84,7 +84,7 @@ pub fn tracy(sh: &Shell, target: &Path, capture: &Path, repeats: NonZeroU32, por
     let port = port.to_string();
     let binary = target
         .join("profiling")
-        .join(format!("zxc{}", std::env::consts::EXE_SUFFIX));
+        .join(format!("zxcide{}", std::env::consts::EXE_SUFFIX));
     let mut client = Process(
         Command::new(binary)
             .env("TRACY_PORT", &port)
@@ -100,7 +100,7 @@ pub fn tracy(sh: &Shell, target: &Path, capture: &Path, repeats: NonZeroU32, por
             .context("start Tracy 0.14.1 capture tool (use --capture PATH)")?,
     );
     server.finish("tracy-capture (use Tracy 0.14.1)")?;
-    client.finish("zxc test")?;
+    client.finish("zxcide test")?;
     ensure!(fs::metadata(&trace)?.len() > 0, "empty capture");
     println!("Trace: {}", trace.display());
     Ok(())

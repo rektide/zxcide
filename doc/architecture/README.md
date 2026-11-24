@@ -13,11 +13,20 @@ sources:
   - { resource: 'opencode://ses_e0b4c34d4ffeK4VV8rf1hpdri9', title: Sol profiling research and protocol smoke test }
   - { resource: 'opencode://ses_e0b4b0f91fferebvZxGETYGu0X', title: Astra review of sequential framing and output commitment }
   - { resource: 'opencode://ses_e0b4b0f8effeYzY9LUmt2THGq7', title: G review of codec scope, measurement and evidence }
+  - { resource: 'opencode://ses_df0cead5cffe4OzCqZ1UFJVHJJ', title: 'Rename to zxcide and the names earlier records keep' }
 ---
 
 # Native Rust ZXC codec
 
 Target the **v9 wire format** of hellobertrand/zxc at `2992c28e6e1df07feec0cb39678a6d4a9665c6bb`. The existing upstream Rust binding calls C; this codec implements the algorithms in safe Rust. Interoperability means decoding the same plaintext, not duplicating the reference compressor's match choices or assigning its level numbers to different algorithms.
+
+## Names
+
+The project and its core crate are `zxcide`. The satellite crates are `zxcide-seek`, `zxcide-parallel`, `zxcide-cli` and `zxcide-component`, the CLI binary is `zxcide`, the WIT package is `zxcide:codec`, and the bench variables are `ZXCIDE_BENCH_*`, `ZXCIDE_COMPONENT` and `ZXCIDE_JITDUMP`.
+
+`ZXC` as a format, `.zxc` and `.zxd` files, `libzxc`, the upstream `zxc` CLI and its `ZXC_*` switches belong to hellobertrand/zxc and keep their names.
+
+Records written before the rename on 2026-11-24 keep the names of their revisions: project `zxc-rs`, crates `zxc-codec`, `zxc-seek`, `zxc-parallel`, `zxc-cli` and `zxc-component`, binary `zxc`, WIT package `zxc:codec`, and the `ZXC_BENCH_*`, `ZXC_COMPONENT` and `ZXC_JITDUMP` variables. That covers the model-suffixed documents under `design/` and `doc/profiling/`, the captured evidence in `doc/profiling/*-data/` and `doc/profiling/scorecard/`, measurement methods pinned to earlier revisions, and the parts of `xtask/probes/` that are copied into or build those revisions (`decode.rs`, and the `--stock-rust-only` build in `decode-tracy/build.py`).
 
 ## Boundaries
 

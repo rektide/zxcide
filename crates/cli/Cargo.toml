@@ -1,27 +1,27 @@
 [package]
-name = "zxc-cli"
+name = "zxcide-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 [[bin]]
-name = "zxc"
+name = "zxcide"
 path = "src/main.rs"
 
 [features]
 default = ["merge-simd"]
-merge-simd = ["zxc-codec/merge-simd"]
-tracy = ["zxc-codec/tracy", "zxc-seek/tracy", "zxc-parallel/tracy", "dep:tracy-client"]
-flume = ["zxc-parallel/flume"]
-kanal = ["zxc-parallel/kanal"]
-crossfire = ["zxc-parallel/crossfire"]
-rayon = ["zxc-parallel/rayon"]
+merge-simd = ["zxcide/merge-simd"]
+tracy = ["zxcide/tracy", "zxcide-seek/tracy", "zxcide-parallel/tracy", "dep:tracy-client"]
+flume = ["zxcide-parallel/flume"]
+kanal = ["zxcide-parallel/kanal"]
+crossfire = ["zxcide-parallel/crossfire"]
+rayon = ["zxcide-parallel/rayon"]
 transports = ["flume", "kanal", "crossfire", "rayon"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 tempfile = "3"
 tracy-client = { workspace = true, optional = true }
-zxc-codec = { path = "../codec" }
-zxc-seek = { path = "../seek" }
-zxc-parallel = { path = "../parallel" }
+zxcide = { path = "../codec" }
+zxcide-seek = { path = "../seek" }
+zxcide-parallel = { path = "../parallel" }

@@ -6,7 +6,7 @@ use std::{
 #[test]
 fn failed_decode_never_publishes_or_clobbers_output() {
     let dir = tempfile::tempdir().unwrap();
-    let exe = env!("CARGO_BIN_EXE_zxc");
+    let exe = env!("CARGO_BIN_EXE_zxcide");
     let src = dir.path().join("input");
     let dst = dir.path().join("output");
     fs::write(&src, b"hello").unwrap();

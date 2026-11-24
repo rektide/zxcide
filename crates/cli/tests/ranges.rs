@@ -15,7 +15,7 @@ fn indexed_cli_uses_plaintext_offsets_and_frame_local_dictionaries() {
     .unwrap();
     let first = read("seekable_2groups.expected");
     let second = read("dict_seekable_l7.expected");
-    let cli = || Command::new(env!("CARGO_BIN_EXE_zxc"));
+    let cli = || Command::new(env!("CARGO_BIN_EXE_zxcide"));
     let info = cli().arg("info").arg(&archive).output().unwrap();
     assert!(info.status.success(), "{}", String::from_utf8_lossy(&info.stderr));
     assert!(String::from_utf8(info.stdout).unwrap().contains(&format!(
@@ -46,7 +46,7 @@ fn indexed_cli_uses_plaintext_offsets_and_frame_local_dictionaries() {
 
 #[test]
 fn rejects_offset_wrap_without_emitting_bytes() {
-    let result = Command::new(env!("CARGO_BIN_EXE_zxc"))
+    let result = Command::new(env!("CARGO_BIN_EXE_zxcide"))
         .arg("range")
         .arg(Path::new(VALID).join("seekable_4blocks.zxc"))
         .arg(u64::MAX.to_string())

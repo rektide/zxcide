@@ -18,7 +18,7 @@ sources:
 ```sh
 cargo xtask scorecard -- --help
 cargo xtask scorecard -- \
-  --c-cli /absolute/path/to/c-zxc --rust-cli /absolute/path/to/rust-zxc \
+  --c-cli /absolute/path/to/c-zxc --rust-cli /absolute/path/to/zxcide \
   --c-build 'C revision, compiler and flags' \
   --rust-build 'Rust revision, compiler, features and flags' \
   --output target/scorecard/subset.json

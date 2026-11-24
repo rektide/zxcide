@@ -1,5 +1,5 @@
 use std::io::{self, Read, Write};
-use zxc_codec::{DecodeOptions, Dictionary, EncodeOptions, Mode, decode, encode};
+use zxcide::{DecodeOptions, Dictionary, EncodeOptions, Mode, decode, encode};
 
 struct Drip<'a>(&'a [u8], bool);
 impl Read for Drip<'_> {

@@ -10,13 +10,13 @@ mod inputs;
 #[path = "../../../tests/ledger_inputs.rs"]
 mod ledger_inputs;
 wasmtime::component::bindgen!({ world: "codec" });
-use exports::zxc::codec::buffers::{EncodeOptions, Mode};
+use exports::zxcide::codec::buffers::{EncodeOptions, Mode};
 
 fn bench(c: &mut Criterion) {
-    let path =
-        std::env::var_os("ZXC_COMPONENT").expect("use cargo xtask bench component to build and select the component");
+    let path = std::env::var_os("ZXCIDE_COMPONENT")
+        .expect("use cargo xtask bench component to build and select the component");
     let mut config = wasmtime::Config::new();
-    if let Some(mode) = std::env::var_os("ZXC_JITDUMP") {
+    if let Some(mode) = std::env::var_os("ZXCIDE_JITDUMP") {
         config.profiler(wasmtime::ProfilingStrategy::JitDump);
         config.debug_info(mode == "dwarf");
     }
@@ -24,16 +24,16 @@ fn bench(c: &mut Criterion) {
     let component = Component::from_file(&engine, path).unwrap();
     let mut store = Store::new(&engine, ());
     let guest = Codec::instantiate(&mut store, &component, &Linker::new(&engine)).unwrap();
-    let codec = guest.zxc_codec_buffers();
+    let codec = guest.zxcide_codec_buffers();
     let (block_log, modes) = inputs::settings();
     for (name, plain) in inputs::corpora() {
         let bytes = plain.len() as u64;
         for &mode in modes {
             let options = EncodeOptions {
                 mode: match mode {
-                    zxc_codec::Mode::Split => Mode::Split,
-                    zxc_codec::Mode::Packed => Mode::Packed,
-                    zxc_codec::Mode::Dense => Mode::Dense,
+                    zxcide::Mode::Split => Mode::Split,
+                    zxcide::Mode::Packed => Mode::Packed,
+                    zxcide::Mode::Dense => Mode::Dense,
                 },
                 block_log,
                 checksum: true,
@@ -84,15 +84,15 @@ fn bench(c: &mut Criterion) {
 
     let (noise, mixed) = ledger_inputs::inputs();
     for (name, plain, mode, block_log) in [
-        ("mixed", &mixed, zxc_codec::Mode::Dense, 12),
-        ("mixed", &mixed, zxc_codec::Mode::Dense, 19),
-        ("noise", &noise, zxc_codec::Mode::Split, 12),
+        ("mixed", &mixed, zxcide::Mode::Dense, 12),
+        ("mixed", &mixed, zxcide::Mode::Dense, 19),
+        ("noise", &noise, zxcide::Mode::Split, 12),
     ] {
         let mut archive = Vec::new();
-        zxc_codec::encode(
+        zxcide::encode(
             &plain[..],
             &mut archive,
-            zxc_codec::EncodeOptions {
+            zxcide::EncodeOptions {
                 mode,
                 block_log,
                 ..Default::default()
