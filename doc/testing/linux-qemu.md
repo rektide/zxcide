@@ -7,6 +7,7 @@ status: active
 generated: { by: 'model:openai/gpt-6.2-sol#high', at: 2026-11-23 }
 sources:
   - { resource: 'opencode://ses_df81fbff2ffekImRUlwIuD1pCH', title: Linux QEMU harness and target validation }
+  - { resource: 'opencode://ses_df0cead5cffe4OzCqZ1UFJVHJJ', title: 'Why the QEMU job pins Ubuntu 24.04' }
   - { resource: /crates/codec/tests/conformance.rs, title: Frozen archive plaintext and rejection tests }
   - { resource: /crates/codec/tests/streaming.rs, title: Streaming plaintext and checksum tests }
 ---
@@ -14,6 +15,8 @@ sources:
 # Linux codec correctness under QEMU
 
 The [Codec checks workflow](../../.github/workflows/check.yml) cross-builds the codec tests and runs the Linux ELF binaries under QEMU user-mode. AArch64 uses a `cortex-a57` with NEON; RISC-V uses the `riscv64gc` target with `v=false` on the emulated CPU, so the SIMD-enabled build exercises the portable dispatch. Don't override the target CPU or enable RVV in `RUSTFLAGS` for this check.
+
+The workflow pins this job to `ubuntu-24.04`. On Ubuntu 26.04 the riscv64 runtime from `libc6-riscv64-cross` 2.43 ships a dynamic loader that executes RVV instructions on its startup path (a `vsetivli` at offset `0x17b50` of `ld-linux-riscv64-lp64d.so.1`), so under `v=false` the process dies with SIGILL before the first test runs, whatever the Rust build contains. The 24.04 loader (glibc 2.39) has no vector code. Keep the CPU without V rather than enabling it to work around a newer loader: the portable dispatch on a CPU without V is what this check exists to exercise.
 
 On Ubuntu or Debian, install the cross compiler and libc sysroot for each target you want to test. From the repository root, using a current Rust toolchain:
 

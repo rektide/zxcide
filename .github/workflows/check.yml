@@ -55,7 +55,10 @@ jobs:
           path: target/generated-interop-*/
           if-no-files-found: ignore
   codec-linux-qemu:
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04's riscv64 glibc 2.43 dynamic loader executes RVV instructions on
+    # its startup path, so under qemu-riscv64 -cpu rv64,v=false it dies with SIGILL
+    # before any test runs. The 24.04 loader (glibc 2.39) has no vector code.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
