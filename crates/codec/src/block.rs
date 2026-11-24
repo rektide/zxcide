@@ -33,7 +33,8 @@ impl Sections {
             (&mut self.merge, limit),
         ] {
             if buffer.capacity() > bound {
-                *buffer = Vec::new();
+                // Release the oversized allocation; `clear()` would retain it.
+                drop(std::mem::take(buffer));
             }
         }
     }
